@@ -35,15 +35,15 @@ export class CheckoutClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async createSession(params: CreateSessionRequest): Promise<CreateSessionResult> {
-    return this._rawRequest("POST", "/v2/checkouts", params as unknown as Record<string, unknown>);
+    return this._postRequest("/v2/checkouts", params as unknown as Record<string, unknown>);
   }
 
   public async cancelSession(checkoutId: string): Promise<CancelSessionResult> {
-    return this._rawRequest("POST", `/v2/checkouts/${encodeURIComponent(checkoutId)}/cancel`);
+    return this._postRequest(`/v2/checkouts/${encodeURIComponent(checkoutId)}/cancel`);
   }
 
   public async getSession(checkoutId: string): Promise<SessionDetails> {
-    return this._rawRequest("GET", `/v2/checkouts/${encodeURIComponent(checkoutId)}`);
+    return this._getRequest(`/v2/checkouts/${encodeURIComponent(checkoutId)}`);
   }
 
   public async listSessions(params: ListSessionsParams): Promise<PaginatedResult<SessionDetails>> {
@@ -55,7 +55,7 @@ export class CheckoutClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async getPayment(paymentId: string): Promise<PaymentDetails> {
-    return this._rawRequest("GET", `/v2/payments/${encodeURIComponent(paymentId)}`);
+    return this._getRequest(`/v2/payments/${encodeURIComponent(paymentId)}`);
   }
 
   public async listPayments(params: ListPaymentsParams): Promise<PaginatedResult<PaymentDetails>> {
@@ -67,15 +67,14 @@ export class CheckoutClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async refund(payId: string, params: RefundRequest): Promise<RefundResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/v2/payments/${encodeURIComponent(payId)}/refund`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async getRefund(refundId: string): Promise<RefundDetails> {
-    return this._rawRequest("GET", `/v2/payments/refunds/${encodeURIComponent(refundId)}`);
+    return this._getRequest(`/v2/payments/refunds/${encodeURIComponent(refundId)}`);
   }
 
   // -----------------------------------------------------------------------

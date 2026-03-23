@@ -38,16 +38,15 @@ export class RtpClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async create(params: CreateRtpRequest): Promise<CreateRtpResult> {
-    return this._rawRequest("POST", "/v2/rtp", params as unknown as Record<string, unknown>);
+    return this._postRequest("/v2/rtp", params as unknown as Record<string, unknown>);
   }
 
   public async getStatus(rtpId: string): Promise<RtpStatusResult> {
-    return this._rawRequest("GET", `/v2/rtp/${encodeURIComponent(rtpId)}`);
+    return this._getRequest(`/v2/rtp/${encodeURIComponent(rtpId)}`);
   }
 
   public async cancel(rtpId: string, params: CancelRtpRequest): Promise<CancelRtpResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/v2/rtp/${encodeURIComponent(rtpId)}/cancel`,
       params as unknown as Record<string, unknown>,
     );
@@ -58,8 +57,7 @@ export class RtpClient extends BaseClient {
   }
 
   public async refund(payId: string, params: RefundRtpRequest): Promise<RefundRtpResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/v2/rtp/${encodeURIComponent(payId)}/refund`,
       params as unknown as Record<string, unknown>,
     );
@@ -70,15 +68,14 @@ export class RtpClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async testAccept(rtpId: string, params: TestAcceptRequest): Promise<TestAcceptResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/v2/rtp/${encodeURIComponent(rtpId)}/test-accept`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async testReject(rtpId: string): Promise<TestRejectResult> {
-    return this._rawRequest("POST", `/v2/rtp/${encodeURIComponent(rtpId)}/test-reject`);
+    return this._postRequest(`/v2/rtp/${encodeURIComponent(rtpId)}/test-reject`);
   }
 
   // -----------------------------------------------------------------------

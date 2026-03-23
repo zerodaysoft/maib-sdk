@@ -46,12 +46,11 @@ export class MiaClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async createQr(params: CreateQrRequest): Promise<CreateQrResult> {
-    return this._rawRequest("POST", "/v2/mia/qr", params as unknown as Record<string, unknown>);
+    return this._postRequest("/v2/mia/qr", params as unknown as Record<string, unknown>);
   }
 
   public async createHybridQr(params: CreateHybridQrRequest): Promise<CreateHybridQrResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       "/v2/mia/qr/hybrid",
       params as unknown as Record<string, unknown>,
     );
@@ -61,15 +60,14 @@ export class MiaClient extends BaseClient {
     qrId: string,
     params: CreateExtensionRequest,
   ): Promise<CreateExtensionResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/v2/mia/qr/${encodeURIComponent(qrId)}/extension`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async getQr(qrId: string): Promise<QrDetails> {
-    return this._rawRequest("GET", `/v2/mia/qr/${encodeURIComponent(qrId)}`);
+    return this._getRequest(`/v2/mia/qr/${encodeURIComponent(qrId)}`);
   }
 
   public async listQrs(params: ListQrParams): Promise<PaginatedResult<QrDetails>> {
@@ -81,8 +79,7 @@ export class MiaClient extends BaseClient {
   }
 
   public async cancelQr(qrId: string, params: CancelQrRequest): Promise<CancelQrResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/v2/mia/qr/${encodeURIComponent(qrId)}/cancel`,
       params as unknown as Record<string, unknown>,
     );
@@ -92,8 +89,7 @@ export class MiaClient extends BaseClient {
     qrId: string,
     params?: CancelExtensionRequest,
   ): Promise<CancelExtensionResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/v2/mia/qr/${encodeURIComponent(qrId)}/extension/cancel`,
       params as unknown as Record<string, unknown>,
     );
@@ -104,7 +100,7 @@ export class MiaClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async getPayment(payId: string): Promise<MiaPaymentDetails> {
-    return this._rawRequest("GET", `/v2/mia/payments/${encodeURIComponent(payId)}`);
+    return this._getRequest(`/v2/mia/payments/${encodeURIComponent(payId)}`);
   }
 
   public async listPayments(
@@ -114,8 +110,7 @@ export class MiaClient extends BaseClient {
   }
 
   public async refund(payId: string, params: RefundPaymentRequest): Promise<MiaRefundResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/v2/mia/payments/${encodeURIComponent(payId)}/refund`,
       params as unknown as Record<string, unknown>,
     );
@@ -126,8 +121,7 @@ export class MiaClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async testPay(params: TestPayRequest): Promise<TestPayResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       "/v2/mia/test-pay",
       params as unknown as Record<string, unknown>,
     );

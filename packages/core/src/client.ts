@@ -117,7 +117,7 @@ export abstract class BaseClient {
   // HTTP layer
   // -----------------------------------------------------------------------
 
-  protected async _rawRequest<T>(
+  private async _rawRequest<T>(
     method: "GET" | "POST" | "DELETE",
     path: string,
     body?: Record<string, unknown>,
@@ -176,13 +176,21 @@ export abstract class BaseClient {
   }
 
   /**
-   * Make a GET request with query parameters.
+   * Make a GET request with optional query parameters.
    * Undefined/null values are omitted from the query string.
    */
   protected async _getRequest<T>(path: string, params?: Record<string, unknown>): Promise<T> {
     const queryString = params ? this._buildQueryString(params) : "";
     const fullPath = queryString ? `${path}?${queryString}` : path;
     return this._rawRequest<T>("GET", fullPath);
+  }
+
+  protected async _postRequest<T>(path: string, body?: Record<string, unknown>): Promise<T> {
+    return this._rawRequest<T>("POST", path, body);
+  }
+
+  protected async _deleteRequest<T>(path: string): Promise<T> {
+    return this._rawRequest<T>("DELETE", path);
   }
 
   protected _buildQueryString(params: Record<string, unknown>): string {

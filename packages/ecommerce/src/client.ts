@@ -53,39 +53,35 @@ export class EcommerceClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async pay(params: PayRequest): Promise<PaymentInitResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/${this._apiVersion}/pay`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async hold(params: HoldRequest): Promise<PaymentInitResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/${this._apiVersion}/hold`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async complete(params: CompleteRequest): Promise<CompleteResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/${this._apiVersion}/complete`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async refund(params: RefundRequest): Promise<RefundResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/${this._apiVersion}/refund`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async getPayInfo(payId: string): Promise<PayInfoResult> {
-    return this._rawRequest("GET", `/${this._apiVersion}/pay-info/${encodeURIComponent(payId)}`);
+    return this._getRequest(`/${this._apiVersion}/pay-info/${encodeURIComponent(payId)}`);
   }
 
   // -----------------------------------------------------------------------
@@ -93,16 +89,14 @@ export class EcommerceClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async savecardRecurring(params: SavecardRecurringRequest): Promise<PaymentInitResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/${this._apiVersion}/savecard-recurring`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async executeRecurring(params: ExecuteRecurringRequest): Promise<ExecuteRecurringResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/${this._apiVersion}/execute-recurring`,
       params as unknown as Record<string, unknown>,
     );
@@ -113,16 +107,14 @@ export class EcommerceClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async savecardOneclick(params: SavecardOneclickRequest): Promise<PaymentInitResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/${this._apiVersion}/savecard-oneclick`,
       params as unknown as Record<string, unknown>,
     );
   }
 
   public async executeOneclick(params: ExecuteOneclickRequest): Promise<PaymentInitResult> {
-    return this._rawRequest(
-      "POST",
+    return this._postRequest(
       `/${this._apiVersion}/execute-oneclick`,
       params as unknown as Record<string, unknown>,
     );
@@ -133,8 +125,7 @@ export class EcommerceClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async deleteCard(billerId: string): Promise<void> {
-    await this._rawRequest(
-      "DELETE",
+    await this._deleteRequest(
       `/${this._apiVersion}/delete-card/${encodeURIComponent(billerId)}`,
     );
   }
