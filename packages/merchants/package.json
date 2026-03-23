@@ -1,6 +1,6 @@
 {
   "name": "@maib/merchants",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "author": {
     "name": "Zero-day",
@@ -16,7 +16,17 @@
   "bugs": {
     "url": "https://github.com/zerodaysoft/maib-sdk/issues"
   },
-  "keywords": ["maib", "moldova", "payments", "checkout", "ecommerce", "rtp", "mia", "qr", "sdk"],
+  "keywords": [
+    "maib",
+    "moldova",
+    "payments",
+    "checkout",
+    "ecommerce",
+    "rtp",
+    "mia",
+    "qr",
+    "sdk"
+  ],
   "description": "Umbrella SDK for all maib merchant APIs — checkout, e-commerce, RTP, and MIA QR payments",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -49,10 +59,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@maib/core": "workspace:*",
     "@maib/checkout": "workspace:*",
+    "@maib/core": "workspace:*",
     "@maib/ecommerce": "workspace:*",
-    "@maib/rtp": "workspace:*",
-    "@maib/mia": "workspace:*"
+    "@maib/mia": "workspace:*",
+    "@maib/rtp": "workspace:*"
   }
 }

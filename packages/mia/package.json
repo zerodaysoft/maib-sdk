@@ -1,6 +1,6 @@
 {
   "name": "@maib/mia",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "author": {
     "name": "Zero-day",
@@ -16,7 +16,14 @@
   "bugs": {
     "url": "https://github.com/zerodaysoft/maib-sdk/issues"
   },
-  "keywords": ["maib", "moldova", "payments", "mia", "qr", "sdk"],
+  "keywords": [
+    "maib",
+    "moldova",
+    "payments",
+    "mia",
+    "qr",
+    "sdk"
+  ],
   "description": "TypeScript SDK for the maib MIA QR payment API — static, dynamic, and hybrid QR code payments",
   "type": "module",
   "main": "./dist/index.cjs",

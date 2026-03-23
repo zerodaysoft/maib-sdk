@@ -1,6 +1,6 @@
 {
   "name": "@maib/rtp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "author": {
     "name": "Zero-day",
@@ -16,7 +16,14 @@
   "bugs": {
     "url": "https://github.com/zerodaysoft/maib-sdk/issues"
   },
-  "keywords": ["maib", "moldova", "payments", "rtp", "request-to-pay", "sdk"],
+  "keywords": [
+    "maib",
+    "moldova",
+    "payments",
+    "rtp",
+    "request-to-pay",
+    "sdk"
+  ],
   "description": "TypeScript SDK for the maib Request to Pay (RTP) API — bank-initiated payment requests",
   "type": "module",
   "main": "./dist/index.cjs",
