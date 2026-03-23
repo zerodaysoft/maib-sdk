@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "maibmerchants-docs": {
+      "type": "http",
+      "url": "https://docs.maibmerchants.md/ro/~gitbook/mcp"
+    }
+  }
+}

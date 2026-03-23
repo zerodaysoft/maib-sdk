@@ -1,0 +1,55 @@
+{
+  "name": "@maib/mia",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Zero-day",
+    "url": "https://www.zero-day.md",
+    "email": "contact@zero-day.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zerodaysoft/maib-sdk.git",
+    "directory": "packages/mia"
+  },
+  "homepage": "https://github.com/zerodaysoft/maib-sdk",
+  "bugs": {
+    "url": "https://github.com/zerodaysoft/maib-sdk/issues"
+  },
+  "keywords": ["maib", "moldova", "payments", "mia", "qr", "sdk"],
+  "description": "TypeScript SDK for the maib MIA QR payment API — static, dynamic, and hybrid QR code payments",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "lint": "biome check src tests",
+    "lint:fix": "biome check --write src tests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@maib/core": "workspace:*"
+  }
+}

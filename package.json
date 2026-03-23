@@ -1,0 +1,40 @@
+{
+  "name": "maib-sdk",
+  "version": "0.0.0",
+  "private": true,
+  "author": {
+    "name": "Zero-day",
+    "url": "https://www.zero-day.md",
+    "email": "contact@zero-day.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zerodaysoft/maib-sdk.git"
+  },
+  "homepage": "https://github.com/zerodaysoft/maib-sdk",
+  "bugs": {
+    "url": "https://github.com/zerodaysoft/maib-sdk/issues"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "biome format --write packages/",
+    "typecheck": "turbo run typecheck"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.8",
+    "@types/node": "^24.12.0",
+    "@vitest/coverage-v8": "^4.1.1",
+    "tsup": "^8.5.1",
+    "turbo": "^2.8.20",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.1"
+  }
+}

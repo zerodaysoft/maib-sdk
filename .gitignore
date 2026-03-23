@@ -1,0 +1,30 @@
+# dependencies
+node_modules
+
+# build output
+dist
+
+# testing
+coverage
+
+# misc
+.DS_Store
+*.pem
+*.tgz
+
+# debug
+*.log
+
+# env files
+.env
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# turbo
+.turbo
+
+# agents
+/.agents/
+/.claude/
