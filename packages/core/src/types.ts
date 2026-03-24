@@ -38,7 +38,13 @@ export interface MaibClientConfig {
   /** Signature key for validating callback notifications. */
   signatureKey?: string;
   /**
-   * API host (without version prefix).
+   * Target environment. When set, determines the API host automatically.
+   * Ignored if `baseUrl` is provided.
+   * @default "production"
+   */
+  environment?: import("./constants.js").Environment;
+  /**
+   * API host (without version prefix). Overrides `environment` when set.
    * @default "https://api.maibmerchants.md"
    */
   baseUrl?: string;

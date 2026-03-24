@@ -1,5 +1,13 @@
 export { BaseClient } from "./client.js";
-export { Currency, DEFAULT_API_HOST, Language, TOKEN_REFRESH_BUFFER_S } from "./constants.js";
+export {
+  Currency,
+  DEFAULT_API_HOST,
+  Environment,
+  Language,
+  PRODUCTION_API_HOST,
+  SANDBOX_API_HOST,
+  TOKEN_REFRESH_BUFFER_S,
+} from "./constants.js";
 export { MaibError, MaibNetworkError } from "./errors.js";
 export {
   computeHmacSignature,

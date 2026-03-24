@@ -1,4 +1,9 @@
-import { DEFAULT_API_HOST, TOKEN_REFRESH_BUFFER_S } from "./constants.js";
+import {
+  Environment,
+  PRODUCTION_API_HOST,
+  SANDBOX_API_HOST,
+  TOKEN_REFRESH_BUFFER_S,
+} from "./constants.js";
 import { MaibError, MaibNetworkError } from "./errors.js";
 import type { MaibClientConfig, MaibResponse, TokenResult } from "./types.js";
 import { SDK_VERSION } from "./version.js";
@@ -55,7 +60,10 @@ export abstract class BaseClient {
 
   constructor(config: MaibClientConfig) {
     this._config = config;
-    this._baseUrl = (config.baseUrl ?? DEFAULT_API_HOST).replace(/\/$/, "");
+    const host =
+      config.baseUrl ??
+      (config.environment === Environment.SANDBOX ? SANDBOX_API_HOST : PRODUCTION_API_HOST);
+    this._baseUrl = host.replace(/\/$/, "");
     this._fetch = config.fetch ?? globalThis.fetch;
   }
 
