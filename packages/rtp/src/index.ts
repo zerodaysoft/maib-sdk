@@ -1,3 +1,4 @@
+export { Currency } from "@maib/core";
 export { RtpClient } from "./client.js";
 export { RtpStatus } from "./constants.js";
 export type {

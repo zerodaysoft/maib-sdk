@@ -1,3 +1,4 @@
+export { Currency, Language } from "@maib/core";
 export { CheckoutClient } from "./client.js";
 export { CheckoutStatus, PaymentStatus, RefundStatus } from "./constants.js";
 export type {

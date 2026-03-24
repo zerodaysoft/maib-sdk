@@ -17,7 +17,7 @@ npm install @maib/merchants
 ## Usage
 
 ```typescript
-import { CheckoutClient } from "@maib/checkout";
+import { CheckoutClient, Currency } from "@maib/checkout";
 
 const client = new CheckoutClient({
   clientId: process.env.MAIB_CLIENT_ID!,
@@ -31,7 +31,7 @@ const client = new CheckoutClient({
 ```typescript
 const session = await client.createSession({
   amount: 100,
-  currency: "MDL",
+  currency: Currency.MDL,
   callbackUrl: "https://example.com/callback",
   successUrl: "https://example.com/success",
   failUrl: "https://example.com/fail",
@@ -80,7 +80,7 @@ const payment = await client.getPayment(paymentId);
 const { items } = await client.listPayments({
   count: 20,
   offset: 0,
-  currency: "MDL",
+  currency: Currency.MDL,
 });
 ```
 

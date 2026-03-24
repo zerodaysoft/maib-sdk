@@ -17,7 +17,7 @@ npm install @maib/merchants
 ## Usage
 
 ```typescript
-import { RtpClient } from "@maib/rtp";
+import { RtpClient, Currency } from "@maib/rtp";
 
 const client = new RtpClient({
   clientId: process.env.MAIB_CLIENT_ID!,
@@ -32,7 +32,7 @@ const client = new RtpClient({
 const rtp = await client.create({
   alias: "+37360123456",
   amount: 100,
-  currency: "MDL",
+  currency: Currency.MDL,
   description: "Invoice #456",
   expiresAt: "2026-12-31T23:59:59Z",
   callbackUrl: "https://example.com/callback",
@@ -76,7 +76,7 @@ const refund = await client.refund(payId, { reason: "Customer request" });
 // Simulate customer accepting the payment
 const accepted = await client.testAccept(rtp.rtpId, {
   amount: 100,
-  currency: "MDL",
+  currency: Currency.MDL,
 });
 
 // Simulate customer rejecting the payment

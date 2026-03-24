@@ -17,7 +17,7 @@ npm install @maib/merchants
 ## Usage
 
 ```typescript
-import { MiaClient, QrType, AmountType } from "@maib/mia";
+import { MiaClient, Currency, QrType, AmountType } from "@maib/mia";
 
 const client = new MiaClient({
   clientId: process.env.MAIB_CLIENT_ID!,
@@ -34,7 +34,7 @@ const qr = await client.createQr({
   type: QrType.DYNAMIC,
   amountType: AmountType.FIXED,
   amount: 100,
-  currency: "MDL",
+  currency: Currency.MDL,
   description: "Order #789",
   callbackUrl: "https://example.com/callback",
   redirectUrl: "https://example.com/redirect",
@@ -44,14 +44,14 @@ const qr = await client.createQr({
 const staticQr = await client.createQr({
   type: QrType.STATIC,
   amountType: AmountType.FREE,
-  currency: "MDL",
+  currency: Currency.MDL,
   description: "Donations",
 });
 
 // Hybrid QR
 const hybrid = await client.createHybridQr({
   amountType: AmountType.FIXED,
-  currency: "MDL",
+  currency: Currency.MDL,
   extension: {
     amount: 100,
     description: "First payment",
@@ -130,7 +130,7 @@ const refund = await client.refund(payId, {
 const result = await client.testPay({
   qrId: qrId,
   amount: 100,
-  currency: "MDL",
+  currency: Currency.MDL,
   iban: "MD00AG000000000000000000",
   payerName: "Test Payer",
 });

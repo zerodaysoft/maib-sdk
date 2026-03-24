@@ -1,4 +1,4 @@
-export { Currency } from "@maib/core";
+export { Currency, Language } from "@maib/core";
 export { EcommerceClient } from "./client.js";
 export { ThreeDsStatus, TransactionStatus } from "./constants.js";
 export type {

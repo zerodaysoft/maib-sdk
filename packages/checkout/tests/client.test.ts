@@ -68,7 +68,7 @@ const GET_SESSION_RESPONSE: MockHttpResponse = {
       callbackUrl: "https://example.com/callback",
       successUrl: "https://example.com/ok",
       failUrl: "https://example.com/fail",
-      language: "ro",
+      language: Language.RO,
       url: "https://checkout.maib.md/37193a81",
       expiresAt: "2026-02-05T17:12:44.057+00:00",
     },
@@ -193,7 +193,7 @@ describe("CheckoutClient", () => {
       const result = await client.createSession({
         amount: 50.61,
         currency: Currency.MDL,
-        language: "ro",
+        language: Language.RO,
       });
 
       expect(result.checkoutId).toBe("f6d0812a-50ee-47ec-bb3f-d3b3a4dda40d");

@@ -1,3 +1,4 @@
+export { Currency } from "@maib/core";
 export { MiaClient } from "./client.js";
 export { AmountType, MiaPaymentStatus, QrStatus, QrType } from "./constants.js";
 export type {

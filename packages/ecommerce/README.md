@@ -17,7 +17,7 @@ npm install @maib/merchants
 ## Usage
 
 ```typescript
-import { EcommerceClient, Currency } from "@maib/ecommerce";
+import { EcommerceClient, Currency, Language } from "@maib/ecommerce";
 
 const client = new EcommerceClient({
   projectId: process.env.MAIB_PROJECT_ID!,
@@ -35,7 +35,7 @@ const result = await client.pay({
   amount: 100,
   currency: Currency.MDL,
   clientIp: "127.0.0.1",
-  language: "ro",
+  language: Language.RO,
   description: "Order #123",
   callbackUrl: "https://example.com/callback",
   okUrl: "https://example.com/success",
@@ -53,7 +53,7 @@ const hold = await client.hold({
   amount: 200,
   currency: Currency.MDL,
   clientIp: "127.0.0.1",
-  language: "ro",
+  language: Language.RO,
 });
 
 // Step 2: Complete (capture) — optionally with a lower amount
@@ -87,7 +87,7 @@ const savecard = await client.savecardRecurring({
   email: "customer@example.com",
   currency: Currency.MDL,
   clientIp: "127.0.0.1",
-  language: "ro",
+  language: Language.RO,
 });
 // Redirect user to savecard.payUrl to enter card details
 
@@ -107,7 +107,7 @@ const savecard = await client.savecardOneclick({
   billerExpiry: "2027-12-31",
   currency: Currency.MDL,
   clientIp: "127.0.0.1",
-  language: "ro",
+  language: Language.RO,
 });
 
 // Step 2: Execute one-click payment (user confirms)
@@ -116,7 +116,7 @@ const oneclick = await client.executeOneclick({
   amount: 75,
   currency: Currency.MDL,
   clientIp: "127.0.0.1",
-  language: "ro",
+  language: Language.RO,
 });
 
 // Delete saved card
