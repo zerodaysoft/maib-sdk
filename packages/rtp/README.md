@@ -20,8 +20,8 @@ npm install @maib/merchants
 import { RtpClient, Currency } from "@maib/rtp";
 
 const client = new RtpClient({
-  clientId: process.env.MAIB_CLIENT_ID!,
-  clientSecret: process.env.MAIB_CLIENT_SECRET!,
+  clientId: process.env.MAIB_CLIENT_ID,
+  clientSecret: process.env.MAIB_CLIENT_SECRET,
   signatureKey: process.env.MAIB_SIGNATURE_KEY!, // for callback verification
 });
 ```
@@ -73,6 +73,14 @@ const refund = await client.refund(payId, { reason: "Customer request" });
 ### Sandbox testing
 
 ```typescript
+import { RtpClient, Environment } from "@maib/rtp";
+
+const client = new RtpClient({
+  clientId: process.env.MAIB_CLIENT_ID,
+  clientSecret: process.env.MAIB_CLIENT_SECRET,
+  environment: Environment.SANDBOX,
+});
+
 // Simulate customer accepting the payment
 const accepted = await client.testAccept(rtp.rtpId, {
   amount: 100,

@@ -31,8 +31,8 @@ npm install @maib/checkout
 import { CheckoutClient, Currency } from "@maib/merchants";
 
 const checkout = new CheckoutClient({
-  clientId: process.env.MAIB_CLIENT_ID!,
-  clientSecret: process.env.MAIB_CLIENT_SECRET!,
+  clientId: process.env.MAIB_CLIENT_ID,
+  clientSecret: process.env.MAIB_CLIENT_SECRET,
   signatureKey: process.env.MAIB_SIGNATURE_KEY!,
 });
 
@@ -46,6 +46,22 @@ const session = await checkout.createSession({
 
 // redirect user to session.checkoutUrl
 ```
+
+## Sandbox
+
+Use `Environment.SANDBOX` to test against the sandbox environment without moving real funds:
+
+```typescript
+import { CheckoutClient, Environment } from "@maib/merchants";
+
+const checkout = new CheckoutClient({
+  clientId: process.env.MAIB_CLIENT_ID,
+  clientSecret: process.env.MAIB_CLIENT_SECRET,
+  environment: Environment.SANDBOX,
+});
+```
+
+> **Note:** The sandbox environment is available for the Checkout, RTP, and MIA QR APIs. The legacy E-Commerce (v1) API does not support sandbox.
 
 ## Requirements
 

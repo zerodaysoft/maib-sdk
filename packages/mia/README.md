@@ -20,8 +20,8 @@ npm install @maib/merchants
 import { MiaClient, Currency, QrType, AmountType } from "@maib/mia";
 
 const client = new MiaClient({
-  clientId: process.env.MAIB_CLIENT_ID!,
-  clientSecret: process.env.MAIB_CLIENT_SECRET!,
+  clientId: process.env.MAIB_CLIENT_ID,
+  clientSecret: process.env.MAIB_CLIENT_SECRET,
   signatureKey: process.env.MAIB_SIGNATURE_KEY!, // for callback verification
 });
 ```
@@ -127,6 +127,14 @@ const refund = await client.refund(payId, {
 ### Sandbox testing
 
 ```typescript
+import { MiaClient, Environment } from "@maib/mia";
+
+const client = new MiaClient({
+  clientId: process.env.MAIB_CLIENT_ID,
+  clientSecret: process.env.MAIB_CLIENT_SECRET,
+  environment: Environment.SANDBOX,
+});
+
 const result = await client.testPay({
   qrId: qrId,
   amount: 100,

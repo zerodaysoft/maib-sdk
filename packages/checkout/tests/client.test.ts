@@ -1,4 +1,4 @@
-import { Currency, Language, SDK_VERSION } from "@maib/core";
+import { Currency, Environment, Language, SDK_VERSION } from "@maib/core";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import { CheckoutClient } from "../src/client.js";
 import { CheckoutStatus, PaymentStatus, RefundStatus } from "../src/constants.js";
@@ -172,6 +172,54 @@ describe("CheckoutClient", () => {
       await client.createSession({ amount: 50, currency: Currency.MDL });
       const call = mockFetch.mock.calls[1];
       expect(call[1].headers["User-Agent"]).toBe(`@maib/checkout/${SDK_VERSION}`);
+    });
+  });
+
+  describe("environment", () => {
+    it("defaults to production API host", async () => {
+      mockFetch = createMockFetch([TOKEN_RESPONSE, CREATE_SESSION_RESPONSE]);
+      client = new CheckoutClient(createTestConfig(mockFetch, { baseUrl: undefined }));
+
+      await client.createSession({ amount: 1, currency: Currency.MDL });
+
+      expect(mockFetch.mock.calls[0][0]).toBe("https://api.maibmerchants.md/v2/auth/token");
+    });
+
+    it("uses sandbox host when environment is 'sandbox'", async () => {
+      mockFetch = createMockFetch([TOKEN_RESPONSE, CREATE_SESSION_RESPONSE]);
+      client = new CheckoutClient(
+        createTestConfig(mockFetch, { baseUrl: undefined, environment: Environment.SANDBOX }),
+      );
+
+      await client.createSession({ amount: 1, currency: Currency.MDL });
+
+      expect(mockFetch.mock.calls[0][0]).toBe("https://sandbox.maibmerchants.md/v2/auth/token");
+      expect(mockFetch.mock.calls[1][0]).toBe("https://sandbox.maibmerchants.md/v2/checkouts");
+    });
+
+    it("uses production host when environment is 'production'", async () => {
+      mockFetch = createMockFetch([TOKEN_RESPONSE, CREATE_SESSION_RESPONSE]);
+      client = new CheckoutClient(
+        createTestConfig(mockFetch, { baseUrl: undefined, environment: Environment.PRODUCTION }),
+      );
+
+      await client.createSession({ amount: 1, currency: Currency.MDL });
+
+      expect(mockFetch.mock.calls[0][0]).toBe("https://api.maibmerchants.md/v2/auth/token");
+    });
+
+    it("baseUrl takes precedence over environment", async () => {
+      mockFetch = createMockFetch([TOKEN_RESPONSE, CREATE_SESSION_RESPONSE]);
+      client = new CheckoutClient(
+        createTestConfig(mockFetch, {
+          baseUrl: "https://custom.host",
+          environment: Environment.SANDBOX,
+        }),
+      );
+
+      await client.createSession({ amount: 1, currency: Currency.MDL });
+
+      expect(mockFetch.mock.calls[0][0]).toBe("https://custom.host/v2/auth/token");
     });
   });
 
