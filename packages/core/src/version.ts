@@ -1,2 +1,3 @@
-/** SDK version, kept in sync with package.json via the build step. */
-export const SDK_VERSION = "0.1.0";
+/** SDK version, injected from package.json at build time via tsup `define`. */
+declare const PKG_VERSION: string;
+export const SDK_VERSION: string = PKG_VERSION;

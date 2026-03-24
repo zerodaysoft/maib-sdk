@@ -27,14 +27,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm build
-
       - name: Set version from tag
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "Publishing version $VERSION"
           pnpm -r --filter '!maib-sdk' exec -- npm pkg set "version=$VERSION"
+
+      - run: pnpm build
 
       - name: Publish packages
         run: pnpm -r publish --no-git-checks
