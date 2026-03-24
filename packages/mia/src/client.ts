@@ -50,10 +50,7 @@ export class MiaClient extends BaseClient {
   }
 
   public async createHybridQr(params: CreateHybridQrRequest): Promise<CreateHybridQrResult> {
-    return this._postRequest(
-      "/v2/mia/qr/hybrid",
-      params as unknown as Record<string, unknown>,
-    );
+    return this._postRequest("/v2/mia/qr/hybrid", params as unknown as Record<string, unknown>);
   }
 
   public async createExtension(
@@ -121,10 +118,7 @@ export class MiaClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async testPay(params: TestPayRequest): Promise<TestPayResult> {
-    return this._postRequest(
-      "/v2/mia/test-pay",
-      params as unknown as Record<string, unknown>,
-    );
+    return this._postRequest("/v2/mia/test-pay", params as unknown as Record<string, unknown>);
   }
 
   // -----------------------------------------------------------------------

@@ -125,9 +125,7 @@ export class EcommerceClient extends BaseClient {
   // -----------------------------------------------------------------------
 
   public async deleteCard(billerId: string): Promise<void> {
-    await this._deleteRequest(
-      `/${this._apiVersion}/delete-card/${encodeURIComponent(billerId)}`,
-    );
+    await this._deleteRequest(`/${this._apiVersion}/delete-card/${encodeURIComponent(billerId)}`);
   }
 
   // -----------------------------------------------------------------------
