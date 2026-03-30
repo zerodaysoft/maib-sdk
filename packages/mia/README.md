@@ -8,7 +8,7 @@ TypeScript SDK for the [maib MIA QR payment API](https://docs.maibmerchants.md/m
 npm install @maib/mia
 ```
 
-Or use the umbrella package:
+Or use the umbrella package [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants):
 
 ```bash
 npm install @maib/merchants

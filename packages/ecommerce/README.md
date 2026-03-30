@@ -8,7 +8,7 @@ TypeScript SDK for the [maib e-Commerce payment gateway](https://docs.maibmercha
 npm install @maib/ecommerce
 ```
 
-Or use the umbrella package:
+Or use the umbrella package [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants):
 
 ```bash
 npm install @maib/merchants

@@ -8,7 +8,7 @@ TypeScript SDK for the [maib Request to Pay (RTP) API](https://docs.maibmerchant
 npm install @maib/rtp
 ```
 
-Or use the umbrella package:
+Or use the umbrella package [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants):
 
 ```bash
 npm install @maib/merchants

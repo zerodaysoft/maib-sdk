@@ -25,11 +25,11 @@ Everything from the individual packages is available:
 
 | Package | What you get |
 | --- | --- |
-| [`@maib/checkout`](../checkout) | `CheckoutClient`, `CheckoutStatus`, `PaymentStatus`, `RefundStatus` |
-| [`@maib/ecommerce`](../ecommerce) | `EcommerceClient`, `Currency`, `TransactionStatus`, `ThreeDsStatus` |
-| [`@maib/rtp`](../rtp) | `RtpClient`, `RtpStatus` |
-| [`@maib/mia`](../mia) | `MiaClient`, `QrType`, `AmountType`, `QrStatus`, `MiaPaymentStatus` |
-| [`@maib/core`](../core) | `BaseClient`, `MaibError`, `MaibNetworkError`, `Language`, signature helpers |
+| [`@maib/checkout`](https://www.npmjs.com/package/@maib/checkout) | `CheckoutClient`, `CheckoutStatus`, `PaymentStatus`, `RefundStatus` |
+| [`@maib/ecommerce`](https://www.npmjs.com/package/@maib/ecommerce) | `EcommerceClient`, `Currency`, `TransactionStatus`, `ThreeDsStatus` |
+| [`@maib/rtp`](https://www.npmjs.com/package/@maib/rtp) | `RtpClient`, `RtpStatus` |
+| [`@maib/mia`](https://www.npmjs.com/package/@maib/mia) | `MiaClient`, `QrType`, `AmountType`, `QrStatus`, `MiaPaymentStatus` |
+| [`@maib/core`](https://www.npmjs.com/package/@maib/core) | `BaseClient`, `MaibError`, `MaibNetworkError`, `Language`, signature helpers |
 
 Where type names collide between packages, they are aliased with a prefix:
 
@@ -43,6 +43,8 @@ import type {
 ```
 
 If you only need one API, install the individual package instead for a smaller dependency footprint.
+
+> Looking for Open Banking? See [`@maib/ob`](https://www.npmjs.com/package/@maib/ob).
 
 ## License
 

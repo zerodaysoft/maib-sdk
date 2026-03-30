@@ -8,7 +8,7 @@ TypeScript SDK for the [maib Checkout API](https://docs.maibmerchants.md/checkou
 npm install @maib/checkout
 ```
 
-Or use the umbrella package:
+Or use the umbrella package [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants):
 
 ```bash
 npm install @maib/merchants
