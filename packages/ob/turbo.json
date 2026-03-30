@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["@maib/http#build"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["@maib/http#build"]
+    },
+    "test": {
+      "dependsOn": ["@maib/http#build"]
+    },
+    "lint": {
+      "dependsOn": ["@maib/http#build"]
+    },
+    "lint:fix": {
+      "dependsOn": ["@maib/http#build"]
+    }
+  }
+}

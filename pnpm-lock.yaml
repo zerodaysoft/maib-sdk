@@ -36,13 +36,19 @@ importers:
         specifier: workspace:*
         version: link:../core
 
-  packages/core: {}
+  packages/core:
+    dependencies:
+      '@maib/http':
+        specifier: workspace:*
+        version: link:../http
 
   packages/ecommerce:
     dependencies:
       '@maib/core':
         specifier: workspace:*
         version: link:../core
+
+  packages/http: {}
 
   packages/maib-sdk: {}
 
@@ -69,6 +75,12 @@ importers:
       '@maib/core':
         specifier: workspace:*
         version: link:../core
+
+  packages/ob:
+    dependencies:
+      '@maib/http':
+        specifier: workspace:*
+        version: link:../http
 
   packages/rtp:
     dependencies:

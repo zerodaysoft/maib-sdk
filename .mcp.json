@@ -3,6 +3,12 @@
     "maibmerchants-docs": {
       "type": "http",
       "url": "https://docs.maibmerchants.md/ro/~gitbook/mcp"
+    },
+    "obp-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://127.0.0.1:9100/mcp"],
+      "env": {}
     }
   }
 }
