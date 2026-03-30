@@ -1,5 +1,7 @@
 import type { MaibApiError } from "./types.js";
 
+export { NetworkError as MaibNetworkError } from "@maib/http";
+
 /**
  * Error thrown when the maib API returns a response with `ok: false`.
  */
@@ -13,19 +15,5 @@ export class MaibError extends Error {
     this.name = "MaibError";
     this.statusCode = statusCode;
     this.errors = errors;
-  }
-}
-
-/**
- * Error thrown when the HTTP request itself fails (network error, timeout, etc.)
- * before receiving an API response.
- */
-export class MaibNetworkError extends Error {
-  readonly cause: unknown;
-
-  constructor(message: string, cause?: unknown) {
-    super(message);
-    this.name = "MaibNetworkError";
-    this.cause = cause;
   }
 }

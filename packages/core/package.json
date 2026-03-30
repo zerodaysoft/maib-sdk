@@ -46,6 +46,9 @@
     "access": "public"
   },
   "sideEffects": false,
+  "dependencies": {
+    "@maib/http": "workspace:*"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

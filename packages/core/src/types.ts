@@ -1,3 +1,5 @@
+export type { BaseClientConfig } from "@maib/http";
+
 /** Structured API error returned when `ok` is `false`. */
 export interface MaibApiError {
   errorCode: string;
@@ -29,7 +31,7 @@ export interface TokenResult {
   refreshExpiresIn?: number;
 }
 
-/** Base configuration for all maib API clients. */
+/** Base configuration for all maib merchant API clients. */
 export interface MaibClientConfig {
   /** Client ID / Project ID from the maibmerchants portal. */
   clientId: string;

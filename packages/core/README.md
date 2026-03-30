@@ -2,7 +2,7 @@
 
 Shared infrastructure for [maib](https://www.maib.md) merchant API SDKs — HTTP client, authentication, error handling, and signature verification.
 
-> You probably want [`@maib/merchants`](https://github.com/zerodaysoft/maib-sdk) or one of the API-specific packages instead. This package is used internally by all `@maib/*` SDKs.
+> You probably want [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants) or one of the API-specific packages instead. This package is used internally by the merchant SDKs.
 
 ## Install
 
@@ -46,18 +46,20 @@ try {
 
 ## Exports
 
-| Export | Description |
-| --- | --- |
-| `BaseClient` | Abstract HTTP client with token management |
-| `MaibError` | Error class for API error responses |
-| `MaibNetworkError` | Error class for network failures |
-| `computeSignature` | Compute SHA-256 callback signature |
-| `verifySignature` | Verify SHA-256 callback signature |
-| `computeHmacSignature` | Compute HMAC-SHA256 callback signature |
-| `verifyHmacSignature` | Verify HMAC-SHA256 callback signature |
-| `Language` | Enum: `RO`, `EN`, `RU` |
-| `DEFAULT_API_HOST` | `https://api.maibmerchants.md` |
-| `SDK_VERSION` | Current SDK version |
+| Export                 | Description                              |
+| ---------------------- | ---------------------------------------- |
+| `BaseClient`           | Abstract HTTP client with token management |
+| `MaibError`            | Error class for API error responses      |
+| `MaibNetworkError`     | Error class for network failures         |
+| `computeSignature`     | Compute SHA-256 callback signature       |
+| `verifySignature`      | Verify SHA-256 callback signature        |
+| `computeHmacSignature` | Compute HMAC-SHA256 callback signature   |
+| `verifyHmacSignature`  | Verify HMAC-SHA256 callback signature    |
+| `Currency`             | Enum: `MDL`, `EUR`, `USD`               |
+| `Language`             | Enum: `RO`, `EN`, `RU`                  |
+| `BaseClientConfig`     | Base config type (`baseUrl?`, `fetch?`)  |
+| `DEFAULT_API_HOST`     | `https://api.maibmerchants.md`           |
+| `SDK_VERSION`          | Current SDK version                      |
 
 ## License
 

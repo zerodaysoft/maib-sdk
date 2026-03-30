@@ -1,3 +1,4 @@
+export { SDK_VERSION } from "@maib/http";
 export { BaseClient } from "./client.js";
 export {
   Currency,
@@ -16,6 +17,7 @@ export {
   verifySignature,
 } from "./signature.js";
 export type {
+  BaseClientConfig,
   MaibApiError,
   MaibClientConfig,
   MaibErrorResponse,
@@ -25,4 +27,3 @@ export type {
   PaginationParams,
   TokenResult,
 } from "./types.js";
-export { SDK_VERSION } from "./version.js";

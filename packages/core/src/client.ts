@@ -1,22 +1,21 @@
 import {
+  buildQueryString,
+  NetworkError,
+  SDK_VERSION,
+  TokenManager,
+  type TokenState,
+} from "@maib/http";
+import {
   Environment,
   PRODUCTION_API_HOST,
   SANDBOX_API_HOST,
   TOKEN_REFRESH_BUFFER_S,
 } from "./constants.js";
-import { MaibError, MaibNetworkError } from "./errors.js";
+import { MaibError } from "./errors.js";
 import type { MaibClientConfig, MaibResponse, TokenResult } from "./types.js";
-import { SDK_VERSION } from "./version.js";
-
-interface TokenState {
-  accessToken: string;
-  refreshToken?: string;
-  accessExpiresAt: number;
-  refreshExpiresAt?: number;
-}
 
 /**
- * Abstract base client for all maib API SDKs.
+ * Abstract base client for all maib merchant API SDKs.
  *
  * Handles authentication (with automatic token refresh), HTTP layer,
  * and provides hooks for subclasses to customize auth and endpoint behavior.
@@ -29,8 +28,7 @@ export abstract class BaseClient {
   protected readonly _baseUrl: string;
   protected readonly _fetch: typeof globalThis.fetch;
 
-  private _tokenState: TokenState | null = null;
-  private _tokenPromise: Promise<void> | null = null;
+  private readonly _tokenManager: TokenManager;
 
   /** API version prefix (e.g. "v1", "v2"). Subclasses must define this. */
   protected abstract readonly _apiVersion: string;
@@ -65,6 +63,7 @@ export abstract class BaseClient {
       (config.environment === Environment.SANDBOX ? SANDBOX_API_HOST : PRODUCTION_API_HOST);
     this._baseUrl = host.replace(/\/$/, "");
     this._fetch = config.fetch ?? globalThis.fetch;
+    this._tokenManager = new TokenManager(() => this._acquireToken(), TOKEN_REFRESH_BUFFER_S);
   }
 
   /** The API version this client targets. */
@@ -76,49 +75,24 @@ export abstract class BaseClient {
   // Token management
   // -----------------------------------------------------------------------
 
-  private async _ensureToken(): Promise<string> {
+  private async _acquireToken(): Promise<TokenState> {
     const now = Date.now();
-
-    if (
-      this._tokenState &&
-      now < this._tokenState.accessExpiresAt - TOKEN_REFRESH_BUFFER_S * 1000
-    ) {
-      return this._tokenState.accessToken;
-    }
-
-    if (this._tokenPromise) {
-      await this._tokenPromise;
-      // biome-ignore lint/style/noNonNullAssertion: tokenPromise ensures tokenState is set
-      return this._tokenState!.accessToken;
-    }
-
-    this._tokenPromise = this._refreshOrGenerateToken();
-    try {
-      await this._tokenPromise;
-      // biome-ignore lint/style/noNonNullAssertion: tokenPromise ensures tokenState is set
-      return this._tokenState!.accessToken;
-    } finally {
-      this._tokenPromise = null;
-    }
-  }
-
-  private async _refreshOrGenerateToken(): Promise<void> {
-    const now = Date.now();
-    let body: Record<string, string>;
+    const currentState = this._tokenManager.state;
 
     // Try refresh token if available and not expired (v1 ecomm flow)
     if (
-      this._tokenState?.refreshToken &&
-      this._tokenState.refreshExpiresAt &&
-      now < this._tokenState.refreshExpiresAt - TOKEN_REFRESH_BUFFER_S * 1000
+      currentState?.refreshToken &&
+      currentState.refreshExpiresAt &&
+      now < currentState.refreshExpiresAt - TOKEN_REFRESH_BUFFER_S * 1000
     ) {
-      body = { refreshToken: this._tokenState.refreshToken };
-    } else {
-      body = this._getTokenBody();
+      const body = { refreshToken: currentState.refreshToken };
+      const result = await this._rawRequest<TokenResult>("POST", this._tokenEndpoint, body, false);
+      return this._processTokenResult(result);
     }
 
+    const body = this._getTokenBody();
     const result = await this._rawRequest<TokenResult>("POST", this._tokenEndpoint, body, false);
-    this._tokenState = this._processTokenResult(result);
+    return this._processTokenResult(result);
   }
 
   // -----------------------------------------------------------------------
@@ -138,7 +112,7 @@ export abstract class BaseClient {
     };
 
     if (authenticated) {
-      const token = await this._ensureToken();
+      const token = await this._tokenManager.getToken();
       headers.Authorization = `Bearer ${token}`;
     }
 
@@ -150,7 +124,7 @@ export abstract class BaseClient {
         body: body ? JSON.stringify(body) : undefined,
       });
     } catch (error) {
-      throw new MaibNetworkError(`Network request to ${method} ${path} failed`, error);
+      throw new NetworkError(`Network request to ${method} ${path} failed`, error);
     }
 
     // DELETE with 200/204 and no body is a success
@@ -161,7 +135,7 @@ export abstract class BaseClient {
       try {
         json = JSON.parse(text);
       } catch {
-        throw new MaibNetworkError(
+        throw new NetworkError(
           `Invalid JSON in ${method} ${path} response (HTTP ${response.status})`,
         );
       }
@@ -173,7 +147,7 @@ export abstract class BaseClient {
     try {
       json = await response.json();
     } catch {
-      throw new MaibNetworkError(
+      throw new NetworkError(
         `Invalid JSON in ${method} ${path} response (HTTP ${response.status})`,
       );
     }
@@ -188,8 +162,8 @@ export abstract class BaseClient {
    * Undefined/null values are omitted from the query string.
    */
   protected async _getRequest<T>(path: string, params?: Record<string, unknown>): Promise<T> {
-    const queryString = params ? this._buildQueryString(params) : "";
-    const fullPath = queryString ? `${path}?${queryString}` : path;
+    const qs = params ? buildQueryString(params) : "";
+    const fullPath = qs ? `${path}?${qs}` : path;
     return this._rawRequest<T>("GET", fullPath);
   }
 
@@ -199,15 +173,5 @@ export abstract class BaseClient {
 
   protected async _deleteRequest<T>(path: string): Promise<T> {
     return this._rawRequest<T>("DELETE", path);
-  }
-
-  protected _buildQueryString(params: Record<string, unknown>): string {
-    const parts: string[] = [];
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== null) {
-        parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
-      }
-    }
-    return parts.join("&");
   }
 }
