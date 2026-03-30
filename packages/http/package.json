@@ -1,0 +1,57 @@
+{
+  "name": "@maib/http",
+  "version": "0.1.1",
+  "license": "MIT",
+  "author": {
+    "name": "Zero-day",
+    "url": "https://www.zero-day.md",
+    "email": "contact@zero-day.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zerodaysoft/maib-sdk.git",
+    "directory": "packages/http"
+  },
+  "homepage": "https://github.com/zerodaysoft/maib-sdk",
+  "bugs": {
+    "url": "https://github.com/zerodaysoft/maib-sdk/issues"
+  },
+  "keywords": [
+    "maib",
+    "http",
+    "sdk",
+    "client"
+  ],
+  "description": "Shared HTTP primitives for maib SDK packages — network errors, query builder, token management",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "lint": "biome check src tests",
+    "lint:fix": "biome check --write src tests",
+    "typecheck": "tsc --noEmit"
+  }
+}
