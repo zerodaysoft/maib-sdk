@@ -18,6 +18,7 @@ export {
   computeSignature,
   DEFAULT_API_HOST,
   Environment,
+  isMaibResponse,
   Language,
   MaibError,
   MaibNetworkError,

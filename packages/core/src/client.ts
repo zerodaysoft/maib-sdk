@@ -12,7 +12,8 @@ import {
   TOKEN_REFRESH_BUFFER_S,
 } from "./constants.js";
 import { MaibError } from "./errors.js";
-import type { MaibClientConfig, MaibResponse, TokenResult } from "./types.js";
+import type { MaibClientConfig, TokenResult } from "./types.js";
+import { isMaibResponse } from "./utils.js";
 
 /**
  * Abstract base client for all maib merchant API SDKs.
@@ -130,8 +131,8 @@ export abstract class BaseClient {
     // DELETE with 200/204 and no body is a success
     if (method === "DELETE" && (response.status === 200 || response.status === 204)) {
       const text = await response.text();
-      if (!text) return { ok: true } as T;
-      let json: MaibResponse<T>;
+      if (!text) return undefined as T;
+      let json: unknown;
       try {
         json = JSON.parse(text);
       } catch {
@@ -139,11 +140,10 @@ export abstract class BaseClient {
           `Invalid JSON in ${method} ${path} response (HTTP ${response.status})`,
         );
       }
-      if (!json.ok) throw new MaibError(response.status, json.errors);
-      return json.result;
+      return this._unwrapResponse<T>(json, response.status);
     }
 
-    let json: MaibResponse<T>;
+    let json: unknown;
     try {
       json = await response.json();
     } catch {
@@ -151,10 +151,22 @@ export abstract class BaseClient {
         `Invalid JSON in ${method} ${path} response (HTTP ${response.status})`,
       );
     }
-    if (!json.ok) {
-      throw new MaibError(response.status, json.errors);
+    return this._unwrapResponse<T>(json, response.status);
+  }
+
+  /**
+   * Unwrap a maib API response envelope.
+   *
+   * Standard responses arrive as `{ result: T, ok: true }` (success) or
+   * `{ errors: [...], ok: false }` (failure).  If the payload is not wrapped
+   * in the envelope it is returned as-is so the SDK stays resilient.
+   */
+  private _unwrapResponse<T>(json: unknown, statusCode: number): T {
+    if (isMaibResponse<T>(json)) {
+      if (!json.ok) throw new MaibError(statusCode, json.errors);
+      return json.result;
     }
-    return json.result;
+    return json as T;
   }
 
   /**

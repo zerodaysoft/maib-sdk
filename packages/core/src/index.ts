@@ -27,3 +27,4 @@ export type {
   PaginationParams,
   TokenResult,
 } from "./types.js";
+export { isMaibResponse } from "./utils.js";
