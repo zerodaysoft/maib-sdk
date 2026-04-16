@@ -1,6 +1,6 @@
 ---
 package: "@maib/core"
-version: 0.2.2
+version: 0.2.3
 description: Shared infrastructure for maib merchant API SDKs — HTTP client, authentication, errors, signature verification.
 ---
 
