@@ -4,6 +4,22 @@
       "type": "http",
       "url": "https://docs.maibmerchants.md/ro/~gitbook/mcp"
     },
+    "e-commerce": {
+      "type": "http",
+      "url": "https://docs.maibmerchants.md/e-commerce/~gitbook/mcp"
+    },
+    "mia-qr-api": {
+      "type": "http",
+      "url": "https://docs.maibmerchants.md/mia-qr-api/~gitbook/mcp"
+    },
+    "request-to-pay": {
+      "type": "http",
+      "url": "https://docs.maibmerchants.md/request-to-pay/~gitbook/mcp"
+    },
+    "checkout": {
+      "type": "http",
+      "url": "https://docs.maibmerchants.md/checkout/~gitbook/mcp"
+    },
     "obp-mcp": {
       "type": "stdio",
       "command": "npx",

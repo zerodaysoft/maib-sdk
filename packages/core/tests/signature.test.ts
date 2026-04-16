@@ -86,6 +86,13 @@ const HMAC_SECRET = "4cde378d-43b6-405f-94aa-55c010d4d42a";
 const HMAC_TIMESTAMP = "1762181943494";
 const HMAC_EXPECTED_SIGNATURE = "yu2OvBe3Gyq1Nz/4R6KO8F3KpGCuW7VhH9yUPhYtNRU=";
 
+// Second test data set from official callback notifications documentation
+const HMAC_SECRET_2 = "67be8e54-ac28-485d-9369-27f6d3c55a27";
+const HMAC_TIMESTAMP_2 = "1761032516817";
+const HMAC_EXPECTED_SIGNATURE_2 = "mtFkCMxfwj9t2wvY/7JASHLw+K/du4mY8azf1lV0ttg=";
+const HMAC_RAW_BODY_2 =
+  '{"checkoutId": "5a4d27a4-79f5-426b-9403-cccdeee81747","terminalId": "T1234567","amount": 1234.56,"currency": "MDL","completedAt": "2024-11-23T19:35:00.6772285+02:00","payerName": "John","payerEmail": "Smith","payerPhone": "37368473653","payerIp": "192.175.12.22","orderId": "ORDER-2025-0001","orderDescription": "Online purchase of electronics","orderDeliveryAmount": 50.00,"orderDeliveryCurrency": "MDL","paymentId": "379b31a3-8283-43d4-8a7b-eef8c0736a32","paymentAmount": 1234.56,"paymentCurrency": "MDL","paymentStatus": "Executed","paymentExecutedAt": "2025-05-05T23:38:07.2760698+03:00","senderIban": "NL43RABO1438227787","senderName": "Steven","senderCardNumber": "444433******1111","retrievalReferenceNumber": "ABC324353245","processingStatus": "OK","processingStatusCode": "00","approvalCode": "123456","threeDsResult": "Y","threeDsReason": null,"paymentMethod": "Card"}';
+
 describe("computeHmacSignature", () => {
   it("computes the correct HMAC signature from documentation test data", () => {
     // We need the actual raw JSON body that produces this signature.
@@ -146,7 +153,22 @@ describe("verifyHmacSignature", () => {
   it("handles both headers duplicated from reverse proxy", () => {
     const duplicatedSignature = `${xSignature}, ${xSignature}`;
     const duplicatedTimestamp = `${HMAC_TIMESTAMP}, ${HMAC_TIMESTAMP}`;
-    expect(verifyHmacSignature(rawBody, duplicatedSignature, duplicatedTimestamp, HMAC_SECRET)).toBe(
+    expect(
+      verifyHmacSignature(rawBody, duplicatedSignature, duplicatedTimestamp, HMAC_SECRET),
+    ).toBe(true);
+  });
+});
+
+describe("verifyHmacSignature (official callback example)", () => {
+  const xSignature = `sha256=${HMAC_EXPECTED_SIGNATURE_2}`;
+
+  it("computes correct HMAC from official callback notification example", () => {
+    const sig = computeHmacSignature(HMAC_RAW_BODY_2, HMAC_TIMESTAMP_2, HMAC_SECRET_2);
+    expect(sig).toBe(HMAC_EXPECTED_SIGNATURE_2);
+  });
+
+  it("verifies the official callback notification signature", () => {
+    expect(verifyHmacSignature(HMAC_RAW_BODY_2, xSignature, HMAC_TIMESTAMP_2, HMAC_SECRET_2)).toBe(
       true,
     );
   });
