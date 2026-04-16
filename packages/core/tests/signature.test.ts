@@ -130,4 +130,24 @@ describe("verifyHmacSignature", () => {
   it("returns false for tampered body", () => {
     expect(verifyHmacSignature("tampered", xSignature, HMAC_TIMESTAMP, HMAC_SECRET)).toBe(false);
   });
+
+  it("handles duplicated timestamp header from reverse proxy (comma-joined)", () => {
+    const duplicatedTimestamp = `${HMAC_TIMESTAMP}, ${HMAC_TIMESTAMP}`;
+    expect(verifyHmacSignature(rawBody, xSignature, duplicatedTimestamp, HMAC_SECRET)).toBe(true);
+  });
+
+  it("handles duplicated signature header from reverse proxy (comma-joined)", () => {
+    const duplicatedSignature = `${xSignature}, ${xSignature}`;
+    expect(verifyHmacSignature(rawBody, duplicatedSignature, HMAC_TIMESTAMP, HMAC_SECRET)).toBe(
+      true,
+    );
+  });
+
+  it("handles both headers duplicated from reverse proxy", () => {
+    const duplicatedSignature = `${xSignature}, ${xSignature}`;
+    const duplicatedTimestamp = `${HMAC_TIMESTAMP}, ${HMAC_TIMESTAMP}`;
+    expect(verifyHmacSignature(rawBody, duplicatedSignature, duplicatedTimestamp, HMAC_SECRET)).toBe(
+      true,
+    );
+  });
 });

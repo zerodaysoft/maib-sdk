@@ -87,12 +87,27 @@ export function verifyHmacSignature(
   xTimestamp: string,
   signatureKey: string,
 ): boolean {
-  const signature = xSignature.startsWith("sha256=") ? xSignature.slice(7) : xSignature;
-  const computed = computeHmacSignature(rawBody, xTimestamp, signatureKey);
+  // Reverse proxies (e.g. Cloudflare) may duplicate headers and join them
+  // with ", " per RFC 2616 §4.2. Use only the first value.
+  const cleanSignature = firstHeaderValue(xSignature);
+  const cleanTimestamp = firstHeaderValue(xTimestamp);
+
+  const signature = cleanSignature.startsWith("sha256=") ? cleanSignature.slice(7) : cleanSignature;
+  const computed = computeHmacSignature(rawBody, cleanTimestamp, signatureKey);
   if (computed.length !== signature.length) return false;
   const a = Buffer.from(computed);
   const b = Buffer.from(signature);
   return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/**
+ * Extract the first value from a potentially comma-joined HTTP header.
+ * Reverse proxies may duplicate single-value headers, producing e.g.
+ * "value, value" instead of "value".
+ */
+function firstHeaderValue(header: string): string {
+  const idx = header.indexOf(",");
+  return idx === -1 ? header : header.slice(0, idx).trim();
 }
 
 function timingSafeEqual(a: Buffer, b: Buffer): boolean {
