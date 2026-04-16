@@ -1,5 +1,5 @@
-import { Currency, Environment, Language, SDK_VERSION } from "@maib/core";
-import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import { Currency, Environment, Language, MaibError, SDK_VERSION } from "@maib/core";
+import { assert, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import { CheckoutClient } from "../src/client.js";
 import { CheckoutStatus, PaymentStatus, RefundStatus } from "../src/constants.js";
 
@@ -343,6 +343,67 @@ describe("CheckoutClient", () => {
 
       expect(result.id).toBe("eaed443e-988f-4b59-89da-e76501977fab");
       expect(result.refundType).toBe("Partial");
+    });
+  });
+
+  describe("401 token retry", () => {
+    it("resets token and retries once on 401", async () => {
+      const SUPPORT_ID_401: MockHttpResponse = {
+        status: 401,
+        body: { supportID: "2877257922269028369" },
+      };
+      mockFetch = createMockFetch([
+        TOKEN_RESPONSE,
+        SUPPORT_ID_401, // first attempt gets 401
+        TOKEN_RESPONSE, // re-acquire token
+        GET_SESSION_RESPONSE, // retry succeeds
+      ]);
+      client = new CheckoutClient(createTestConfig(mockFetch));
+
+      const result = await client.getSession("37193a81-a24f-4336-9f0e-5a2f544e0e8c");
+
+      expect(result.id).toBe("37193a81-a24f-4336-9f0e-5a2f544e0e8c");
+      expect(mockFetch).toHaveBeenCalledTimes(4);
+    });
+
+    it("throws on second 401 instead of retrying infinitely", async () => {
+      const SUPPORT_ID_401: MockHttpResponse = {
+        status: 401,
+        body: { supportID: "2877257922269028369" },
+      };
+      mockFetch = createMockFetch([
+        TOKEN_RESPONSE,
+        SUPPORT_ID_401, // first attempt
+        TOKEN_RESPONSE, // re-acquire token
+        SUPPORT_ID_401, // retry also fails
+      ]);
+      client = new CheckoutClient(createTestConfig(mockFetch));
+
+      const err = await client.getSession("some-id").catch((e: MaibError) => e);
+
+      expect(err).toBeInstanceOf(MaibError);
+      assert(err instanceof MaibError);
+      expect(err.statusCode).toBe(401);
+      expect(err.errors[0].errorCode).toBe("UNKNOWN_RESPONSE");
+    });
+  });
+
+  describe("unknown error response", () => {
+    it("throws MaibError for non-envelope response with error status", async () => {
+      const SUPPORT_ID_403: MockHttpResponse = {
+        status: 403,
+        body: { supportID: "2877257922269028369" },
+      };
+      mockFetch = createMockFetch([TOKEN_RESPONSE, SUPPORT_ID_403]);
+      client = new CheckoutClient(createTestConfig(mockFetch));
+
+      const err = await client.getSession("some-id").catch((e: MaibError) => e);
+
+      expect(err).toBeInstanceOf(MaibError);
+      assert(err instanceof MaibError);
+      expect(err.statusCode).toBe(403);
+      expect(err.errors[0].errorCode).toBe("UNKNOWN_RESPONSE");
+      expect(err.errors[0].errorMessage).toContain("2877257922269028369");
     });
   });
 

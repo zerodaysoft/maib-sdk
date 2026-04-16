@@ -54,6 +54,7 @@ You do not instantiate `BaseClient` directly. Use one of the concrete client cla
 3. Before the token expires (with a 30-second buffer), the client proactively refreshes it.
 4. Concurrent requests share a single in-flight token acquisition (no thundering herd).
 5. If a `refreshToken` is available (e-commerce v1 flow), the client uses it for renewal instead of re-authenticating with credentials.
+6. If an authenticated request receives an HTTP 401 response, the cached token is discarded and the request is retried once with a fresh token. If the retry also fails, a `MaibError` is thrown.
 
 All HTTP requests include `Authorization: Bearer <token>` and `User-Agent` headers automatically.
 
@@ -71,7 +72,7 @@ or on error:
 { "errors": [{ "errorCode": "...", "errorMessage": "..." }], "ok": false }
 ```
 
-`BaseClient` automatically unwraps this envelope. Your code receives the inner `result` value directly. If the API returns a non-envelope response (e.g. during token exchange), the raw payload is returned as-is.
+`BaseClient` automatically unwraps this envelope. Your code receives the inner `result` value directly. If the API returns a non-envelope response (e.g. during token exchange) with a successful HTTP status, the raw payload is returned as-is. If the HTTP status is 400 or above and the response does not match the envelope format, a `MaibError` is thrown with error code `UNKNOWN_RESPONSE`.
 
 ### Abstract Members (subclasses must implement)
 
@@ -112,7 +113,7 @@ interface MaibClientConfig {
 
 ### `MaibError`
 
-Thrown when the maib API returns a response with `ok: false`.
+Thrown when the maib API returns a response with `ok: false`, or when the API returns an HTTP error (status >= 400) with a response body that does not match the expected envelope format.
 
 ```typescript
 class MaibError extends Error {
@@ -139,11 +140,11 @@ interface MaibApiError {
 }
 ```
 
-| Property       | Type                                  | Description                                                                    |
-| -------------- | ------------------------------------- | ------------------------------------------------------------------------------ |
-| `errorCode`    | `string`                              | Machine-readable error code (e.g. `"INVALID_REQUEST"`, `"SESSION_NOT_FOUND"`). |
-| `errorMessage` | `string`                              | Human-readable error description.                                              |
-| `errorArgs`    | `Record<string, string> \| undefined` | Additional context key-value pairs for the error.                              |
+| Property       | Type                                  | Description                                                                                          |
+| -------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `errorCode`    | `string`                              | Machine-readable error code (e.g. `"INVALID_REQUEST"`, `"SESSION_NOT_FOUND"`, `"UNKNOWN_RESPONSE"`). |
+| `errorMessage` | `string`                              | Human-readable error description.                                                                    |
+| `errorArgs`    | `Record<string, string> \| undefined` | Additional context key-value pairs for the error.                                                    |
 
 **Example: catching API errors**
 

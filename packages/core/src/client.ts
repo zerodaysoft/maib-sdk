@@ -105,6 +105,7 @@ export abstract class BaseClient {
     path: string,
     body?: Record<string, unknown>,
     authenticated = true,
+    isRetry = false,
   ): Promise<T> {
     const url = `${this._baseUrl}${path}`;
     const headers: Record<string, string> = {
@@ -126,6 +127,12 @@ export abstract class BaseClient {
       });
     } catch (error) {
       throw new NetworkError(`Network request to ${method} ${path} failed`, error);
+    }
+
+    // 401 on an authenticated request: reset token and retry once
+    if (authenticated && response.status === 401 && !isRetry) {
+      this._tokenManager.reset();
+      return this._rawRequest<T>(method, path, body, true, true);
     }
 
     // DELETE with 200/204 and no body is a success
@@ -165,6 +172,15 @@ export abstract class BaseClient {
     if (isMaibResponse<T>(json)) {
       if (!json.ok) throw new MaibError(statusCode, json.errors);
       return json.result;
+    }
+    // Reject unknown response shapes on error status codes
+    if (statusCode >= 400) {
+      throw new MaibError(statusCode, [
+        {
+          errorCode: "UNKNOWN_RESPONSE",
+          errorMessage: JSON.stringify(json),
+        },
+      ]);
     }
     return json as T;
   }
