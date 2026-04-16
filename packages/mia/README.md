@@ -157,22 +157,29 @@ const isValid = client.verifyCallback(callbackPayload);
 ```typescript
 import { QrType, AmountType, QrStatus, MiaPaymentStatus } from "@maib/mia";
 
-QrType.STATIC       // "Static"
-QrType.DYNAMIC      // "Dynamic"
-QrType.HYBRID       // "Hybrid"
+QrType.STATIC; // "Static"
+QrType.DYNAMIC; // "Dynamic"
+QrType.HYBRID; // "Hybrid"
 
-AmountType.FIXED       // "Fixed"
-AmountType.CONTROLLED  // "Controlled"
-AmountType.FREE        // "Free"
+AmountType.FIXED; // "Fixed"
+AmountType.CONTROLLED; // "Controlled"
+AmountType.FREE; // "Free"
 
-QrStatus.ACTIVE     // "Active"
-QrStatus.PAID       // "Paid"
-QrStatus.EXPIRED    // "Expired"
-QrStatus.CANCELLED  // "Cancelled"
+QrStatus.ACTIVE; // "Active"
+QrStatus.PAID; // "Paid"
+QrStatus.EXPIRED; // "Expired"
+QrStatus.CANCELLED; // "Cancelled"
 
-MiaPaymentStatus.EXECUTED  // "Executed"
-MiaPaymentStatus.REFUNDED  // "Refunded"
+MiaPaymentStatus.EXECUTED; // "Executed"
+MiaPaymentStatus.REFUNDED; // "Refunded"
 ```
+
+## Documentation
+
+This package ships documentation in `dist/docs/` for AI coding agents and tooling:
+
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
+- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from [docs.maibmerchants.md](https://docs.maibmerchants.md/mia-qr-api/en)
 
 ## License
 

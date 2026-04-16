@@ -104,13 +104,20 @@ const isValid = client.verifyCallback(callbackPayload);
 ```typescript
 import { RtpStatus } from "@maib/rtp";
 
-RtpStatus.CREATED    // "Created"
-RtpStatus.ACTIVE     // "Active"
-RtpStatus.ACCEPTED   // "Accepted"
-RtpStatus.REJECTED   // "Rejected"
-RtpStatus.CANCELLED  // "Cancelled"
-RtpStatus.EXPIRED    // "Expired"
+RtpStatus.CREATED; // "Created"
+RtpStatus.ACTIVE; // "Active"
+RtpStatus.ACCEPTED; // "Accepted"
+RtpStatus.REJECTED; // "Rejected"
+RtpStatus.CANCELLED; // "Cancelled"
+RtpStatus.EXPIRED; // "Expired"
 ```
+
+## Documentation
+
+This package ships documentation in `dist/docs/` for AI coding agents and tooling:
+
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
+- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from [docs.maibmerchants.md](https://docs.maibmerchants.md/request-to-pay)
 
 ## License
 

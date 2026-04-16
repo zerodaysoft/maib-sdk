@@ -112,7 +112,11 @@ const client = new CheckoutClient({
 
 ```typescript
 // In your webhook handler
-const isValid = client.verifyCallback(rawBody, xSignatureHeader, xTimestampHeader);
+const isValid = client.verifyCallback(
+  rawBody,
+  xSignatureHeader,
+  xTimestampHeader,
+);
 ```
 
 ## Enums
@@ -120,16 +124,23 @@ const isValid = client.verifyCallback(rawBody, xSignatureHeader, xTimestampHeade
 ```typescript
 import { CheckoutStatus, PaymentStatus, RefundStatus } from "@maib/checkout";
 
-CheckoutStatus.COMPLETED    // "Completed"
-CheckoutStatus.EXPIRED      // "Expired"
-CheckoutStatus.CANCELLED    // "Cancelled"
+CheckoutStatus.COMPLETED; // "Completed"
+CheckoutStatus.EXPIRED; // "Expired"
+CheckoutStatus.CANCELLED; // "Cancelled"
 
-PaymentStatus.EXECUTED       // "Executed"
-PaymentStatus.REFUNDED       // "Refunded"
+PaymentStatus.EXECUTED; // "Executed"
+PaymentStatus.REFUNDED; // "Refunded"
 
-RefundStatus.ACCEPTED        // "Accepted"
-RefundStatus.REJECTED        // "Rejected"
+RefundStatus.ACCEPTED; // "Accepted"
+RefundStatus.REJECTED; // "Rejected"
 ```
+
+## Documentation
+
+This package ships documentation in `dist/docs/` for AI coding agents and tooling:
+
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
+- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from [docs.maibmerchants.md](https://docs.maibmerchants.md/checkout)
 
 ## License
 

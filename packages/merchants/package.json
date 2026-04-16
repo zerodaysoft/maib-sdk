@@ -52,7 +52,7 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node ../../scripts/copy-docs.mjs",
     "dev": "tsup --watch",
     "lint": "biome check src",
     "lint:fix": "biome check --write src",

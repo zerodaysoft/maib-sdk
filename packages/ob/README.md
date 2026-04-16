@@ -37,19 +37,33 @@ const accounts = await client.listAccounts("maib.md");
 const account = await client.getAccount("maib.md", "account-id");
 
 const { funds_available } = await client.checkFunds(
-  "maib.md", "account-id", "owner", "100.00", "MDL",
+  "maib.md",
+  "account-id",
+  "owner",
+  "100.00",
+  "MDL",
 );
 ```
 
 ### Transactions
 
 ```typescript
-const transactions = await client.listTransactions("maib.md", "account-id", "owner", {
-  limit: 50,
-  sort_direction: "DESC",
-});
+const transactions = await client.listTransactions(
+  "maib.md",
+  "account-id",
+  "owner",
+  {
+    limit: 50,
+    sort_direction: "DESC",
+  },
+);
 
-const txn = await client.getTransaction("maib.md", "account-id", "owner", "txn-id");
+const txn = await client.getTransaction(
+  "maib.md",
+  "account-id",
+  "owner",
+  "txn-id",
+);
 ```
 
 ### Payments
@@ -59,11 +73,17 @@ const txn = await client.getTransaction("maib.md", "account-id", "owner", "txn-i
 const types = await client.getTransactionRequestTypes("maib.md");
 
 // Create a payment (SANDBOX_TAN example)
-const payment = await client.createPayment("maib.md", "account-id", "owner", "SANDBOX_TAN", {
-  to: { bank_id: "maib.md", account_id: "recipient-id" },
-  value: { currency: "MDL", amount: "100.00" },
-  description: "Test payment",
-});
+const payment = await client.createPayment(
+  "maib.md",
+  "account-id",
+  "owner",
+  "SANDBOX_TAN",
+  {
+    to: { bank_id: "maib.md", account_id: "recipient-id" },
+    value: { currency: "MDL", amount: "100.00" },
+    description: "Test payment",
+  },
+);
 ```
 
 ### Consents
@@ -104,8 +124,8 @@ try {
 } catch (error) {
   if (error instanceof ObError) {
     console.log(error.statusCode); // HTTP status code
-    console.log(error.obpCode);    // e.g. "OBP-20001"
-    console.log(error.message);    // "OBP-20001: User not logged in."
+    console.log(error.obpCode); // e.g. "OBP-20001"
+    console.log(error.message); // "OBP-20001: User not logged in."
   }
   if (error instanceof NetworkError) {
     console.log(error.cause);
@@ -118,24 +138,31 @@ try {
 ```typescript
 import { ConsentStatus, TransactionRequestStatus } from "@maib/ob";
 
-ConsentStatus.INITIATED   // "INITIATED"
-ConsentStatus.ACCEPTED    // "ACCEPTED"
-ConsentStatus.REVOKED     // "REVOKED"
-ConsentStatus.AUTHORISED  // "AUTHORISED"
+ConsentStatus.INITIATED; // "INITIATED"
+ConsentStatus.ACCEPTED; // "ACCEPTED"
+ConsentStatus.REVOKED; // "REVOKED"
+ConsentStatus.AUTHORISED; // "AUTHORISED"
 
-TransactionRequestStatus.COMPLETED // "COMPLETED"
-TransactionRequestStatus.PENDING   // "PENDING"
+TransactionRequestStatus.COMPLETED; // "COMPLETED"
+TransactionRequestStatus.PENDING; // "PENDING"
 ```
 
 ## Exports
 
-| Export                       | Description                                   |
-| ---------------------------- | --------------------------------------------- |
-| `ObClient`                   | Open Banking API client (DirectLogin auth)    |
-| `ObError`                    | Error class for OBP API error responses       |
-| `ConsentStatus`              | Consent lifecycle statuses                    |
-| `TransactionRequestStatus`   | Payment request statuses                      |
-| `OB_DEFAULT_HOST`            | `https://ob-sandbox.maib.md`                  |
+| Export                     | Description                                |
+| -------------------------- | ------------------------------------------ |
+| `ObClient`                 | Open Banking API client (DirectLogin auth) |
+| `ObError`                  | Error class for OBP API error responses    |
+| `ConsentStatus`            | Consent lifecycle statuses                 |
+| `TransactionRequestStatus` | Payment request statuses                   |
+| `OB_DEFAULT_HOST`          | `https://ob-sandbox.maib.md`               |
+
+## Documentation
+
+This package ships documentation in `dist/docs/` for AI coding agents and tooling:
+
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
+- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from [ob-sandbox.maib.md](https://ob-sandbox.maib.md)
 
 ## License
 

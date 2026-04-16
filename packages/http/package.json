@@ -47,7 +47,7 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node ../../scripts/copy-docs.mjs",
     "dev": "tsup --watch",
     "test": "vitest run",
     "lint": "biome check src tests",

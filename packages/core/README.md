@@ -21,7 +21,12 @@ import { verifySignature, verifyHmacSignature } from "@maib/core";
 const isValid = verifySignature(callbackResult, signature, signatureKey);
 
 // Checkout — HMAC-SHA256 signature
-const isValid = verifyHmacSignature(rawBody, xSignature, xTimestamp, signatureKey);
+const isValid = verifyHmacSignature(
+  rawBody,
+  xSignature,
+  xTimestamp,
+  signatureKey,
+);
 ```
 
 ## Error handling
@@ -35,7 +40,7 @@ try {
   if (error instanceof MaibError) {
     // API returned an error response
     console.log(error.statusCode); // HTTP status code
-    console.log(error.errors);     // Array of { errorCode, errorMessage }
+    console.log(error.errors); // Array of { errorCode, errorMessage }
   }
   if (error instanceof MaibNetworkError) {
     // Network/fetch failure
@@ -46,20 +51,26 @@ try {
 
 ## Exports
 
-| Export                 | Description                              |
-| ---------------------- | ---------------------------------------- |
+| Export                 | Description                                |
+| ---------------------- | ------------------------------------------ |
 | `BaseClient`           | Abstract HTTP client with token management |
-| `MaibError`            | Error class for API error responses      |
-| `MaibNetworkError`     | Error class for network failures         |
-| `computeSignature`     | Compute SHA-256 callback signature       |
-| `verifySignature`      | Verify SHA-256 callback signature        |
-| `computeHmacSignature` | Compute HMAC-SHA256 callback signature   |
-| `verifyHmacSignature`  | Verify HMAC-SHA256 callback signature    |
-| `Currency`             | Enum: `MDL`, `EUR`, `USD`               |
-| `Language`             | Enum: `RO`, `EN`, `RU`                  |
-| `BaseClientConfig`     | Base config type (`baseUrl?`, `fetch?`)  |
-| `DEFAULT_API_HOST`     | `https://api.maibmerchants.md`           |
-| `SDK_VERSION`          | Current SDK version                      |
+| `MaibError`            | Error class for API error responses        |
+| `MaibNetworkError`     | Error class for network failures           |
+| `computeSignature`     | Compute SHA-256 callback signature         |
+| `verifySignature`      | Verify SHA-256 callback signature          |
+| `computeHmacSignature` | Compute HMAC-SHA256 callback signature     |
+| `verifyHmacSignature`  | Verify HMAC-SHA256 callback signature      |
+| `Currency`             | Enum: `MDL`, `EUR`, `USD`                  |
+| `Language`             | Enum: `RO`, `EN`, `RU`                     |
+| `BaseClientConfig`     | Base config type (`baseUrl?`, `fetch?`)    |
+| `DEFAULT_API_HOST`     | `https://api.maibmerchants.md`             |
+| `SDK_VERSION`          | Current SDK version                        |
+
+## Documentation
+
+This package ships documentation in `dist/docs/` for AI coding agents and tooling:
+
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all classes, types, signature functions)
 
 ## License
 

@@ -34,6 +34,11 @@ jobs:
           echo "Publishing version $VERSION"
           pnpm -r --filter '!maib-sdk' exec -- npm pkg set "version=$VERSION"
 
+      - name: Update docs version metadata
+        run: |
+          find packages/*/docs -name 'sdk-reference.md' -exec \
+            sed -i "s/^version: .*/version: $VERSION/" {} +
+
       - run: pnpm build
 
       - name: Publish packages
@@ -45,6 +50,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "packages/*/package.json"
+          git add "packages/*/package.json" "packages/*/docs/sdk-reference.md"
           git commit -m "v${VERSION}"
           git push origin HEAD:main

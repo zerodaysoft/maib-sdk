@@ -1,0 +1,46 @@
+# maib SDK for Node.js
+
+> TypeScript SDK for maib merchant APIs — checkout, e-commerce payments, request to pay, MIA QR, and open banking.
+
+## Documentation
+
+- [AGENTS.md](AGENTS.md): Instructions for AI coding agents
+- [README.md](README.md): Project overview and quick start
+
+## Packages
+
+### @maib/merchants (umbrella)
+- [README](packages/merchants/README.md)
+- [SDK Reference](packages/merchants/docs/sdk-reference.md)
+
+### @maib/checkout
+- [README](packages/checkout/README.md)
+- [SDK Reference](packages/checkout/docs/sdk-reference.md)
+- [API Reference](packages/checkout/docs/api-reference.md)
+
+### @maib/ecommerce
+- [README](packages/ecommerce/README.md)
+- [SDK Reference](packages/ecommerce/docs/sdk-reference.md)
+
+### @maib/rtp
+- [README](packages/rtp/README.md)
+- [SDK Reference](packages/rtp/docs/sdk-reference.md)
+- [API Reference](packages/rtp/docs/api-reference.md)
+
+### @maib/mia
+- [README](packages/mia/README.md)
+- [SDK Reference](packages/mia/docs/sdk-reference.md)
+- [API Reference](packages/mia/docs/api-reference.md)
+
+### @maib/ob
+- [README](packages/ob/README.md)
+- [SDK Reference](packages/ob/docs/sdk-reference.md)
+- [API Reference](packages/ob/docs/api-reference.md)
+
+### @maib/core
+- [README](packages/core/README.md)
+- [SDK Reference](packages/core/docs/sdk-reference.md)
+
+### @maib/http
+- [README](packages/http/README.md)
+- [SDK Reference](packages/http/docs/sdk-reference.md)

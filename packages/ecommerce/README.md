@@ -136,17 +136,25 @@ const isValid = client.verifyCallback(callbackPayload);
 ```typescript
 import { Currency, TransactionStatus, ThreeDsStatus } from "@maib/ecommerce";
 
-Currency.MDL              // "MDL"
-Currency.EUR              // "EUR"
-Currency.USD              // "USD"
+Currency.MDL; // "MDL"
+Currency.EUR; // "EUR"
+Currency.USD; // "USD"
 
-TransactionStatus.OK      // "OK"
-TransactionStatus.FAILED  // "FAILED"
-TransactionStatus.PENDING // "PENDING"
+TransactionStatus.OK; // "OK"
+TransactionStatus.FAILED; // "FAILED"
+TransactionStatus.PENDING; // "PENDING"
 
-ThreeDsStatus.AUTHENTICATED     // "AUTHENTICATED"
-ThreeDsStatus.NOT_AUTHENTICATED // "NOT_AUTHENTICATED"
+ThreeDsStatus.AUTHENTICATED; // "AUTHENTICATED"
+ThreeDsStatus.NOT_AUTHENTICATED; // "NOT_AUTHENTICATED"
 ```
+
+## Documentation
+
+This package ships documentation in `dist/docs/` for AI coding agents and tooling:
+
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
+
+> **Note:** The legacy E-Commerce API docs are available at [docs.maibmerchants.md/e-commerce](https://docs.maibmerchants.md/e-commerce).
 
 ## License
 

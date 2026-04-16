@@ -66,6 +66,12 @@ try {
 | `BaseClientConfig` | Base config type (`baseUrl?`, `fetch?`)                  |
 | `TokenState`       | Token state type (`accessToken`, `accessExpiresAt`, ...) |
 
+## Documentation
+
+This package ships documentation in `dist/docs/` for AI coding agents and tooling:
+
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (TokenManager, NetworkError, utilities)
+
 ## License
 
 [MIT](../../LICENSE)
