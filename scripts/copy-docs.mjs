@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /**
  * Copies the `docs/` directory from a package into `dist/docs/`
  * so documentation ships with the published npm package.

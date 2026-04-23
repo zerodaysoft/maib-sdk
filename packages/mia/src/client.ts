@@ -45,14 +45,31 @@ export class MiaClient extends BaseClient {
   // QR code operations
   // -----------------------------------------------------------------------
 
+  /**
+   * Create a Static or Dynamic QR code.
+   *
+   * `POST /v2/mia/qr`
+   */
   public async createQr(params: CreateQrRequest): Promise<CreateQrResult> {
     return this._postRequest("/v2/mia/qr", params as unknown as Record<string, unknown>);
   }
 
+  /**
+   * Create a Hybrid QR code — reusable QR whose amount and expiry
+   * can later be changed via {@link createExtension}.
+   *
+   * `POST /v2/mia/qr/hybrid`
+   */
   public async createHybridQr(params: CreateHybridQrRequest): Promise<CreateHybridQrResult> {
     return this._postRequest("/v2/mia/qr/hybrid", params as unknown as Record<string, unknown>);
   }
 
+  /**
+   * Attach a new extension to an existing Hybrid QR code, updating
+   * its amount and/or validity.
+   *
+   * `POST /v2/mia/qr/{qrId}/extension`
+   */
   public async createExtension(
     qrId: string,
     params: CreateExtensionRequest,
@@ -63,18 +80,38 @@ export class MiaClient extends BaseClient {
     );
   }
 
+  /**
+   * Retrieve aggregated details of a specific QR code.
+   *
+   * `GET /v2/mia/qr/{qrId}`
+   */
   public async getQr(qrId: string): Promise<QrDetails> {
     return this._getRequest(`/v2/mia/qr/${encodeURIComponent(qrId)}`);
   }
 
+  /**
+   * List QR codes, with filtering, sorting, and pagination.
+   *
+   * `GET /v2/mia/qr`
+   */
   public async listQrs(params: ListQrParams): Promise<PaginatedResult<QrDetails>> {
     return this._getRequest("/v2/mia/qr", params as unknown as Record<string, unknown>);
   }
 
+  /**
+   * List QR code extensions, with filtering and pagination.
+   *
+   * `GET /v2/mia/qr/extension`
+   */
   public async listExtensions(params: ListExtensionsParams): Promise<PaginatedResult<QrDetails>> {
     return this._getRequest("/v2/mia/qr/extension", params as unknown as Record<string, unknown>);
   }
 
+  /**
+   * Cancel an active Static or Dynamic QR code.
+   *
+   * `POST /v2/mia/qr/{qrId}/cancel`
+   */
   public async cancelQr(qrId: string, params: CancelQrRequest): Promise<CancelQrResult> {
     return this._postRequest(
       `/v2/mia/qr/${encodeURIComponent(qrId)}/cancel`,
@@ -82,6 +119,12 @@ export class MiaClient extends BaseClient {
     );
   }
 
+  /**
+   * Cancel an active extension on a Hybrid QR code, without
+   * cancelling the underlying QR.
+   *
+   * `POST /v2/mia/qr/{qrId}/extension/cancel`
+   */
   public async cancelExtension(
     qrId: string,
     params?: CancelExtensionRequest,
@@ -96,19 +139,38 @@ export class MiaClient extends BaseClient {
   // Payment operations
   // -----------------------------------------------------------------------
 
+  /**
+   * Retrieve details for a specific payment.
+   *
+   * `GET /v2/mia/payments/{payId}`
+   */
   public async getPayment(payId: string): Promise<MiaPaymentDetails> {
     return this._getRequest(`/v2/mia/payments/${encodeURIComponent(payId)}`);
   }
 
+  /**
+   * List payments associated with the authenticated merchant,
+   * with filtering, sorting, and pagination.
+   *
+   * `GET /v2/mia/payments`
+   */
   public async listPayments(
     params: ListPaymentsParams,
   ): Promise<PaginatedResult<MiaPaymentDetails>> {
     return this._getRequest("/v2/mia/payments", params as unknown as Record<string, unknown>);
   }
 
+  /**
+   * Refund a completed payment, fully or partially.
+   *
+   * Note: the refund endpoint lives at `/v2/payments/{payId}/refund`
+   * (no `/mia/` prefix) — it is shared with other maib payment APIs.
+   *
+   * `POST /v2/payments/{payId}/refund`
+   */
   public async refund(payId: string, params: RefundPaymentRequest): Promise<MiaRefundResult> {
     return this._postRequest(
-      `/v2/mia/payments/${encodeURIComponent(payId)}/refund`,
+      `/v2/payments/${encodeURIComponent(payId)}/refund`,
       params as unknown as Record<string, unknown>,
     );
   }
@@ -117,6 +179,12 @@ export class MiaClient extends BaseClient {
   // Sandbox simulation
   // -----------------------------------------------------------------------
 
+  /**
+   * Simulate a payment in the sandbox environment.
+   * Not available in production.
+   *
+   * `POST /v2/mia/test-pay`
+   */
   public async testPay(params: TestPayRequest): Promise<TestPayResult> {
     return this._postRequest("/v2/mia/test-pay", params as unknown as Record<string, unknown>);
   }
@@ -125,6 +193,13 @@ export class MiaClient extends BaseClient {
   // Callback signature verification
   // -----------------------------------------------------------------------
 
+  /**
+   * Verify the signature of a callback notification. Throws if
+   * `signatureKey` was not provided in the client config.
+   *
+   * @param payload - The full callback body including the `signature` field.
+   * @returns `true` if the signature is valid.
+   */
   public verifyCallback(payload: MiaCallbackPayload): boolean {
     if (!this._config.signatureKey) {
       throw new Error(
@@ -138,6 +213,10 @@ export class MiaClient extends BaseClient {
     );
   }
 
+  /**
+   * Compute the expected signature for a callback result object.
+   * Throws if `signatureKey` was not provided in the client config.
+   */
   public computeCallbackSignature(result: Record<string, unknown>): string {
     if (!this._config.signatureKey) {
       throw new Error("Cannot compute signature: no signatureKey was provided in MiaClient config");

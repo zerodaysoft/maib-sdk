@@ -101,7 +101,7 @@ const TEST_ACCEPT_RESPONSE: MockHttpResponse = {
     ok: true,
     result: {
       rtpId: "123e4567-e89b-12d3-a456-426614174000",
-      status: RtpStatus.ACCEPTED,
+      rtpStatus: RtpStatus.ACCEPTED,
       payId: "c56a4180-65aa-42ec-a945-5fd21dec0538",
       amount: 100.0,
       commission: 1.0,
@@ -170,7 +170,7 @@ describe("RtpClient", () => {
         description: "Invoice #123",
       });
       const call = mockFetch.mock.calls[1];
-      expect(call[1].headers["User-Agent"]).toBe(`@maib/rtp/${SDK_VERSION}`);
+      expect(call[1].headers.get("User-Agent")).toBe(`@maib/rtp/${SDK_VERSION}`);
     });
   });
 
@@ -276,7 +276,7 @@ describe("RtpClient", () => {
         currency: Currency.MDL,
       });
 
-      expect(result.status).toBe("Accepted");
+      expect(result.rtpStatus).toBe("Accepted");
       expect(result.payId).toBe("c56a4180-65aa-42ec-a945-5fd21dec0538");
     });
   });

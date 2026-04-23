@@ -51,6 +51,7 @@ export abstract class BaseClient {
     const now = Date.now();
     return {
       accessToken: result.accessToken,
+      tokenType: result.tokenType,
       refreshToken: result.refreshToken,
       accessExpiresAt: now + result.expiresIn * 1000,
       refreshExpiresAt: result.refreshExpiresIn ? now + result.refreshExpiresIn * 1000 : undefined,
@@ -77,21 +78,12 @@ export abstract class BaseClient {
   // -----------------------------------------------------------------------
 
   private async _acquireToken(): Promise<TokenState> {
-    const now = Date.now();
     const currentState = this._tokenManager.state;
-
-    // Try refresh token if available and not expired (v1 ecomm flow)
-    if (
+    const canRefresh =
       currentState?.refreshToken &&
       currentState.refreshExpiresAt &&
-      now < currentState.refreshExpiresAt - TOKEN_REFRESH_BUFFER_S * 1000
-    ) {
-      const body = { refreshToken: currentState.refreshToken };
-      const result = await this._rawRequest<TokenResult>("POST", this._tokenEndpoint, body, false);
-      return this._processTokenResult(result);
-    }
-
-    const body = this._getTokenBody();
+      Date.now() < currentState.refreshExpiresAt - TOKEN_REFRESH_BUFFER_S * 1000;
+    const body = canRefresh ? { refreshToken: currentState.refreshToken } : this._getTokenBody();
     const result = await this._rawRequest<TokenResult>("POST", this._tokenEndpoint, body, false);
     return this._processTokenResult(result);
   }
@@ -108,14 +100,17 @@ export abstract class BaseClient {
     isRetry = false,
   ): Promise<T> {
     const url = `${this._baseUrl}${path}`;
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      "User-Agent": this._userAgent,
-    };
+    const headers = new Headers();
+    headers.set("User-Agent", this._userAgent);
+
+    if (body) {
+      headers.set("Content-Type", "application/json");
+    }
 
     if (authenticated) {
       const token = await this._tokenManager.getToken();
-      headers.Authorization = `Bearer ${token}`;
+      const tokenType = this._tokenManager.state?.tokenType ?? "Bearer";
+      headers.set("Authorization", `${tokenType} ${token}`);
     }
 
     let response: Response;

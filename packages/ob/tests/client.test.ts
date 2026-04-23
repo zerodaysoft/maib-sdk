@@ -73,7 +73,9 @@ describe("ObClient", () => {
       await client.listBanks();
 
       const apiCall = mockFetch.mock.calls[1];
-      expect(apiCall[1].headers.Authorization).toBe('DirectLogin token="test-direct-login-jwt"');
+      expect(apiCall[1].headers.get("Authorization")).toBe(
+        'DirectLogin token="test-direct-login-jwt"',
+      );
     });
 
     it("caches the token across multiple requests", async () => {

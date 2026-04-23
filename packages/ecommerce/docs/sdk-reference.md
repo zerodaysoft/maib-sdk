@@ -4,7 +4,7 @@ version: 0.2.3
 description: TypeScript SDK for the maib e-Commerce payment gateway — direct, two-step, recurring, one-click payments.
 api_version: v1
 upstream_docs: https://docs.maibmerchants.md/e-commerce
-upstream_updated: 2025-11-10
+upstream_updated: 2026-04-23
 ---
 
 # @maib/ecommerce SDK Reference

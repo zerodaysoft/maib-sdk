@@ -96,14 +96,16 @@ export class ObClient {
     authenticated = true,
   ): Promise<T> {
     const url = `${this._baseUrl}${path}`;
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      "User-Agent": this._userAgent,
-    };
+    const headers = new Headers();
+    headers.set("User-Agent", this._userAgent);
+
+    if (body) {
+      headers.set("Content-Type", "application/json");
+    }
 
     if (authenticated) {
       const token = await this._tokenManager.getToken();
-      headers.Authorization = `DirectLogin token="${token}"`;
+      headers.set("Authorization", `DirectLogin token="${token}"`);
     }
 
     let response: Response;

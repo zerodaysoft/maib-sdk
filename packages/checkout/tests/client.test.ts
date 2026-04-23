@@ -171,7 +171,7 @@ describe("CheckoutClient", () => {
     it("sends correct User-Agent", async () => {
       await client.createSession({ amount: 50, currency: Currency.MDL });
       const call = mockFetch.mock.calls[1];
-      expect(call[1].headers["User-Agent"]).toBe(`@maib/checkout/${SDK_VERSION}`);
+      expect(call[1].headers.get("User-Agent")).toBe(`@maib/checkout/${SDK_VERSION}`);
     });
   });
 

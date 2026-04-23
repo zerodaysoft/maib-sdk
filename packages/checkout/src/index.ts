@@ -1,6 +1,12 @@
 export { Currency, Environment, Language } from "@maib/core";
 export { CheckoutClient } from "./client.js";
-export { CheckoutStatus, PaymentStatus, RefundStatus } from "./constants.js";
+export {
+  CheckoutStatus,
+  PaymentEntryPoint,
+  PaymentStatus,
+  RefundStatus,
+  RefundType,
+} from "./constants.js";
 export type {
   CancelSessionResult,
   CheckoutCallbackPayload,

@@ -42,7 +42,7 @@ describe("EcommerceClient", () => {
       });
 
       const payCall = mockFetch.mock.calls[1];
-      expect(payCall[1].headers["User-Agent"]).toBe(`@maib/ecommerce/${SDK_VERSION}`);
+      expect(payCall[1].headers.get("User-Agent")).toBe(`@maib/ecommerce/${SDK_VERSION}`);
     });
 
     it("defaults to API version v1", () => {
@@ -98,7 +98,7 @@ describe("EcommerceClient", () => {
       });
 
       const payCall = mockFetch.mock.calls[1];
-      expect(payCall[1].headers.Authorization).toBe("Bearer test-access-token");
+      expect(payCall[1].headers.get("Authorization")).toBe("Bearer test-access-token");
     });
   });
 

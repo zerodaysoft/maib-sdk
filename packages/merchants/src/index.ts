@@ -1,8 +1,20 @@
+/**
+ * `@maib/merchants` — umbrella SDK re-exporting all maib merchant APIs:
+ * hosted Checkout, legacy E-Commerce, Request to Pay (RTP), and MIA QR.
+ *
+ * Prefer the dedicated sub-packages (`@maib/checkout`, `@maib/ecommerce`,
+ * `@maib/rtp`, `@maib/mia`) for smaller bundle footprints when only one
+ * API surface is needed.
+ *
+ * The Open Banking client (`@maib/ob`) is intentionally **not** re-exported.
+ */
+
 // ---------------------------------------------------------------------------
 // @maib/core — shared infrastructure
 // ---------------------------------------------------------------------------
 
 export type {
+  BaseClientConfig,
   MaibApiError,
   MaibClientConfig,
   MaibErrorResponse,
@@ -56,7 +68,14 @@ export type {
   SessionPayer,
   SessionPayment,
 } from "@maib/checkout";
-export { CheckoutClient, CheckoutStatus, PaymentStatus, RefundStatus } from "@maib/checkout";
+export {
+  CheckoutClient,
+  CheckoutStatus,
+  PaymentEntryPoint,
+  PaymentStatus,
+  RefundStatus,
+  RefundType,
+} from "@maib/checkout";
 
 // ---------------------------------------------------------------------------
 // @maib/ecommerce — e-commerce payment gateway

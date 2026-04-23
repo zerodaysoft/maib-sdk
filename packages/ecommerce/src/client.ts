@@ -52,6 +52,14 @@ export class EcommerceClient extends BaseClient {
   // Payment operations
   // -----------------------------------------------------------------------
 
+  /**
+   * Initiate a direct (single-step) payment.
+   *
+   * Returns an intermediate result with a `payUrl` to which the customer
+   * must be redirected to enter card details on the maib ecomm checkout page.
+   *
+   * `POST /v1/pay`
+   */
   public async pay(params: PayRequest): Promise<PaymentInitResult> {
     return this._postRequest(
       `/${this._apiVersion}/pay`,
@@ -59,6 +67,14 @@ export class EcommerceClient extends BaseClient {
     );
   }
 
+  /**
+   * Authorize (hold) funds on the customer's account without debiting.
+   *
+   * First step of a two-step payment — use {@link complete} to capture
+   * the held amount, or let it expire to release.
+   *
+   * `POST /v1/hold`
+   */
   public async hold(params: HoldRequest): Promise<PaymentInitResult> {
     return this._postRequest(
       `/${this._apiVersion}/hold`,
@@ -66,6 +82,13 @@ export class EcommerceClient extends BaseClient {
     );
   }
 
+  /**
+   * Capture a previously held amount (second step of a two-step payment).
+   *
+   * If `confirmAmount` is omitted, the entire held amount is debited.
+   *
+   * `POST /v1/complete`
+   */
   public async complete(params: CompleteRequest): Promise<CompleteResult> {
     return this._postRequest(
       `/${this._apiVersion}/complete`,
@@ -73,6 +96,13 @@ export class EcommerceClient extends BaseClient {
     );
   }
 
+  /**
+   * Refund a completed payment, fully or partially.
+   *
+   * If `refundAmount` is omitted, the full transaction amount is refunded.
+   *
+   * `POST /v1/refund`
+   */
   public async refund(params: RefundRequest): Promise<RefundResult> {
     return this._postRequest(
       `/${this._apiVersion}/refund`,
@@ -80,6 +110,12 @@ export class EcommerceClient extends BaseClient {
     );
   }
 
+  /**
+   * Retrieve details of a previously created payment, including
+   * status, 3-D Secure result, order and customer metadata.
+   *
+   * `GET /v1/pay-info/{payId}`
+   */
   public async getPayInfo(payId: string): Promise<PayInfoResult> {
     return this._getRequest(`/${this._apiVersion}/pay-info/${encodeURIComponent(payId)}`);
   }
@@ -88,6 +124,14 @@ export class EcommerceClient extends BaseClient {
   // Recurring payments
   // -----------------------------------------------------------------------
 
+  /**
+   * Register a card for recurring payments.
+   *
+   * If `amount` is provided, the amount is debited and the card is stored.
+   * If `amount` is omitted, only the card is stored (no debit).
+   *
+   * `POST /v1/savecard-recurring`
+   */
   public async savecardRecurring(params: SavecardRecurringRequest): Promise<PaymentInitResult> {
     return this._postRequest(
       `/${this._apiVersion}/savecard-recurring`,
@@ -95,6 +139,14 @@ export class EcommerceClient extends BaseClient {
     );
   }
 
+  /**
+   * Charge a previously stored card (recurring payment, server-to-server).
+   *
+   * No customer redirect — this runs without 3-D Secure since the card
+   * was authenticated at registration time.
+   *
+   * `POST /v1/execute-recurring`
+   */
   public async executeRecurring(params: ExecuteRecurringRequest): Promise<ExecuteRecurringResult> {
     return this._postRequest(
       `/${this._apiVersion}/execute-recurring`,
@@ -106,6 +158,14 @@ export class EcommerceClient extends BaseClient {
   // One-click payments
   // -----------------------------------------------------------------------
 
+  /**
+   * Register a card for one-click payments.
+   *
+   * If `amount` is provided, the amount is debited and the card is stored.
+   * If `amount` is omitted, only the card is stored (no debit).
+   *
+   * `POST /v1/savecard-oneclick`
+   */
   public async savecardOneclick(params: SavecardOneclickRequest): Promise<PaymentInitResult> {
     return this._postRequest(
       `/${this._apiVersion}/savecard-oneclick`,
@@ -113,6 +173,13 @@ export class EcommerceClient extends BaseClient {
     );
   }
 
+  /**
+   * Charge a previously stored card (one-click payment).
+   *
+   * Returns an intermediate `payUrl` for customer redirect (3-D Secure).
+   *
+   * `POST /v1/execute-oneclick`
+   */
   public async executeOneclick(params: ExecuteOneclickRequest): Promise<PaymentInitResult> {
     return this._postRequest(
       `/${this._apiVersion}/execute-oneclick`,
@@ -124,6 +191,13 @@ export class EcommerceClient extends BaseClient {
   // Saved card management
   // -----------------------------------------------------------------------
 
+  /**
+   * Delete a previously stored card from the maib ecomm system.
+   *
+   * Applies to both recurring and one-click stored cards.
+   *
+   * `DELETE /v1/delete-card/{billerId}`
+   */
   public async deleteCard(billerId: string): Promise<void> {
     await this._deleteRequest(`/${this._apiVersion}/delete-card/${encodeURIComponent(billerId)}`);
   }
@@ -132,6 +206,14 @@ export class EcommerceClient extends BaseClient {
   // Callback signature verification
   // -----------------------------------------------------------------------
 
+  /**
+   * Verify the signature of a callback notification received on the
+   * merchant's callback URL. Throws if `signatureKey` was not provided
+   * in the client config.
+   *
+   * @param payload - The full callback body including the `signature` field.
+   * @returns `true` if the signature is valid.
+   */
   public verifyCallback(payload: CallbackPayload): boolean {
     if (!this._config.signatureKey) {
       throw new Error(
@@ -145,6 +227,10 @@ export class EcommerceClient extends BaseClient {
     );
   }
 
+  /**
+   * Compute the expected signature for a callback result object.
+   * Throws if `signatureKey` was not provided in the client config.
+   */
   public computeCallbackSignature(result: Record<string, unknown>): string {
     if (!this._config.signatureKey) {
       throw new Error(

@@ -1,4 +1,4 @@
-export { Currency, Environment } from "@maib/core";
+export { Currency, Environment, RefundStatus } from "@maib/core";
 export { RtpClient } from "./client.js";
 export { RtpStatus } from "./constants.js";
 export type {

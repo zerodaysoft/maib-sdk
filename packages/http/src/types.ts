@@ -14,6 +14,8 @@ export interface BaseClientConfig {
 /** Internal state for a cached access/refresh token pair. */
 export interface TokenState {
   accessToken: string;
+  /** Authorization scheme (e.g. "Bearer"). Optional; callers fall back to "Bearer". */
+  tokenType?: string;
   refreshToken?: string;
   accessExpiresAt: number;
   refreshExpiresAt?: number;

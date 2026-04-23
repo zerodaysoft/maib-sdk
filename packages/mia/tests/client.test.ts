@@ -166,7 +166,7 @@ const TEST_PAY_RESPONSE: MockHttpResponse = {
       payerName: "John D.",
       payerIban: "MD88AG000000011621810140",
       executedAt: "2029-10-22T10:32:28+03:00",
-      signature: "abc123==",
+      signatureKey: "abc123==",
     },
   },
 };
@@ -209,7 +209,7 @@ describe("MiaClient", () => {
         expiresAt: "2029-10-22T10:32:28+03:00",
       });
       const call = mockFetch.mock.calls[1];
-      expect(call[1].headers["User-Agent"]).toBe(`@maib/mia/${SDK_VERSION}`);
+      expect(call[1].headers.get("User-Agent")).toBe(`@maib/mia/${SDK_VERSION}`);
     });
   });
 
@@ -380,7 +380,7 @@ describe("MiaClient", () => {
   });
 
   describe("refund", () => {
-    it("posts to /v2/mia/payments/{payId}/refund", async () => {
+    it("posts to /v2/payments/{payId}/refund", async () => {
       mockFetch = createMockFetch([TOKEN_RESPONSE, REFUND_RESPONSE]);
       client = new MiaClient(createTestConfig(mockFetch));
 
@@ -389,6 +389,7 @@ describe("MiaClient", () => {
         amount: 50.61,
       });
 
+      expect(mockFetch.mock.calls[1][0]).toContain("/v2/payments/pay-123/refund");
       expect(result.refundId).toBe("8ce09e40-2948-4225-a9c4-f277dbd587ea");
       expect(result.status).toBe("Created");
     });

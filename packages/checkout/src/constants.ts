@@ -1,3 +1,12 @@
+// Shared enums are centralised in @maib/core and re-exported here for convenience.
+export {
+  PaymentEntryPoint,
+  PaymentStatus,
+  RefundStatus,
+  RefundType,
+} from "@maib/core";
+
+/** Status of a hosted checkout session. */
 export const CheckoutStatus = {
   WAITING_FOR_INIT: "WaitingForInit",
   INITIALIZED: "Initialized",
@@ -10,22 +19,3 @@ export const CheckoutStatus = {
 } as const;
 
 export type CheckoutStatus = (typeof CheckoutStatus)[keyof typeof CheckoutStatus];
-
-export const PaymentStatus = {
-  EXECUTED: "Executed",
-  PARTIALLY_REFUNDED: "PartiallyRefunded",
-  REFUNDED: "Refunded",
-  FAILED: "Failed",
-} as const;
-
-export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
-
-export const RefundStatus = {
-  CREATED: "Created",
-  REQUESTED: "Requested",
-  ACCEPTED: "Accepted",
-  REJECTED: "Rejected",
-  MANUAL: "Manual",
-} as const;
-
-export type RefundStatus = (typeof RefundStatus)[keyof typeof RefundStatus];

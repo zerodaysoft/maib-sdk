@@ -34,18 +34,45 @@ export class CheckoutClient extends BaseClient {
   // Checkout sessions
   // -----------------------------------------------------------------------
 
+  /**
+   * Register a new hosted checkout session.
+   *
+   * Creates a session in `WaitingForInit` status and returns a `checkoutUrl`
+   * to which the customer must be redirected to complete the payment.
+   *
+   * `POST /v2/checkouts`
+   */
   public async createSession(params: CreateSessionRequest): Promise<CreateSessionResult> {
     return this._postRequest("/v2/checkouts", params as unknown as Record<string, unknown>);
   }
 
+  /**
+   * Cancel a checkout session that has not yet been completed.
+   *
+   * Only permitted while the session is not in a terminal state
+   * (`Completed`, `Expired`, `Abandoned`, `Failed`, `Cancelled`).
+   *
+   * `POST /v2/checkouts/{id}/cancel`
+   */
   public async cancelSession(checkoutId: string): Promise<CancelSessionResult> {
     return this._postRequest(`/v2/checkouts/${encodeURIComponent(checkoutId)}/cancel`);
   }
 
+  /**
+   * Retrieve aggregated details of a specific checkout session,
+   * including order, payer, and payment information.
+   *
+   * `GET /v2/checkouts/{id}`
+   */
   public async getSession(checkoutId: string): Promise<SessionDetails> {
     return this._getRequest(`/v2/checkouts/${encodeURIComponent(checkoutId)}`);
   }
 
+  /**
+   * List checkout sessions created by the merchant, with filtering and pagination.
+   *
+   * `GET /v2/checkouts`
+   */
   public async listSessions(params: ListSessionsParams): Promise<PaginatedResult<SessionDetails>> {
     return this._getRequest("/v2/checkouts", params as unknown as Record<string, unknown>);
   }
@@ -54,10 +81,21 @@ export class CheckoutClient extends BaseClient {
   // Payments
   // -----------------------------------------------------------------------
 
+  /**
+   * Retrieve details for a specific payment.
+   *
+   * `GET /v2/payments/{id}`
+   */
   public async getPayment(paymentId: string): Promise<PaymentDetails> {
     return this._getRequest(`/v2/payments/${encodeURIComponent(paymentId)}`);
   }
 
+  /**
+   * List payments associated with the authenticated merchant,
+   * with filtering, pagination, and sorting.
+   *
+   * `GET /v2/payments`
+   */
   public async listPayments(params: ListPaymentsParams): Promise<PaginatedResult<PaymentDetails>> {
     return this._getRequest("/v2/payments", params as unknown as Record<string, unknown>);
   }
@@ -66,6 +104,14 @@ export class CheckoutClient extends BaseClient {
   // Refunds
   // -----------------------------------------------------------------------
 
+  /**
+   * Initiate a refund for a completed payment.
+   *
+   * Returns a refund in `Created` status; use {@link getRefund} to poll
+   * the final processing result.
+   *
+   * `POST /v2/payments/{payId}/refund`
+   */
   public async refund(payId: string, params: RefundRequest): Promise<RefundResult> {
     return this._postRequest(
       `/v2/payments/${encodeURIComponent(payId)}/refund`,
@@ -73,6 +119,14 @@ export class CheckoutClient extends BaseClient {
     );
   }
 
+  /**
+   * Retrieve the details of a previously created refund by its id.
+   *
+   * Used to check the processing result of a refund, since the refund
+   * endpoint only creates the refund and returns its initial `Created` status.
+   *
+   * `GET /v2/payments/refunds/{id}`
+   */
   public async getRefund(refundId: string): Promise<RefundDetails> {
     return this._getRequest(`/v2/payments/refunds/${encodeURIComponent(refundId)}`);
   }

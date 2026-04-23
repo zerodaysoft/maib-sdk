@@ -4,7 +4,7 @@ version: 0.2.3
 description: TypeScript SDK for the maib hosted Checkout API — session management, payments, and refunds.
 api_version: v2
 upstream_docs: https://docs.maibmerchants.md/checkout
-upstream_updated: 2025-11-10
+upstream_updated: 2026-04-23
 ---
 
 # @maib/checkout SDK Reference

@@ -1,6 +1,12 @@
-export { Currency, Environment } from "@maib/core";
+export { Currency, Environment, RefundStatus } from "@maib/core";
 export { MiaClient } from "./client.js";
-export { AmountType, MiaPaymentStatus, QrStatus, QrType } from "./constants.js";
+export {
+  AmountType,
+  MiaPaymentStatus,
+  PaymentStatus,
+  QrStatus,
+  QrType,
+} from "./constants.js";
 export type {
   CancelExtensionRequest,
   CancelExtensionResult,
