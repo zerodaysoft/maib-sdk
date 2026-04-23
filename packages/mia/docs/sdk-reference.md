@@ -1,6 +1,6 @@
 ---
 package: "@maib/mia"
-version: 0.2.3
+version: 0.2.4
 description: TypeScript SDK for the maib MIA QR payment API — static, dynamic, and hybrid QR code payments.
 api_version: v2
 upstream_docs: https://docs.maibmerchants.md/mia-qr-api/en

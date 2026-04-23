@@ -1,6 +1,6 @@
 ---
 package: "@maib/http"
-version: 0.2.3
+version: 0.2.4
 description: Shared HTTP primitives for maib SDK packages — network errors, query builder, token management.
 ---
 

@@ -1,6 +1,6 @@
 ---
 package: "@maib/rtp"
-version: 0.2.3
+version: 0.2.4
 description: TypeScript SDK for the maib Request to Pay (RTP) API — bank-initiated payment requests.
 api_version: v2
 upstream_docs: https://docs.maibmerchants.md/request-to-pay
