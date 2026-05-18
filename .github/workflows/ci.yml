@@ -12,7 +12,9 @@ concurrency:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on:
+      group: mac-mini
+      labels: [self-hosted, macOS, ARM64, ci]
     steps:
       - uses: actions/checkout@v6
 
