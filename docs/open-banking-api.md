@@ -1,8 +1,7 @@
 # maib Open Banking API Reference
 
-> Source: https://ob-explorer-sandbox.maib.md / https://ob-sandbox.maib.md
-> Platform: Open Bank Project (OBP) v5.1.0
-> Fetched: 2026-03-30
+> Source: https://ob-explorer-sandbox.maib.md / https://ob-sandbox.maib.md Platform: Open Bank
+> Project (OBP) v5.1.0 Fetched: 2026-03-30
 
 ---
 
@@ -32,9 +31,13 @@
 
 ## Overview
 
-maib joined the Open Bank Project (OBP), an open-source API framework for banks. The platform provides 550+ RESTful APIs for account access (XS2A), payments (PIS), consents (AIS), customer management, KYC, and more. It supports PSD2 compliance, third-party payment initiation, and fine-grained account access delegation.
+maib joined the Open Bank Project (OBP), an open-source API framework for banks. The platform
+provides 550+ RESTful APIs for account access (XS2A), payments (PIS), consents (AIS), customer
+management, KYC, and more. It supports PSD2 compliance, third-party payment initiation, and
+fine-grained account access delegation.
 
-The API Explorer at `https://ob-explorer-sandbox.maib.md` provides interactive documentation. The sandbox at `https://ob-sandbox.maib.md` is the actual API server.
+The API Explorer at `https://ob-explorer-sandbox.maib.md` provides interactive documentation. The
+sandbox at `https://ob-sandbox.maib.md` is the actual API server.
 
 ---
 
@@ -65,7 +68,8 @@ The API Explorer at `https://ob-explorer-sandbox.maib.md` provides interactive d
 
 ### 1. DirectLogin
 
-Recommended for hackathons and development. A protocol where user credentials + consumer key are exchanged for a JWT token.
+Recommended for hackathons and development. A protocol where user credentials + consumer key are
+exchanged for a JWT token.
 
 #### Step 1: Obtain Token
 
@@ -93,7 +97,8 @@ curl -X GET https://ob-sandbox.maib.md/obp/v5.1.0/banks \
 
 ### 2. OAuth 1.0a
 
-Standard three-legged OAuth flow for production integrations. Requires consumer key/secret registration via `/consumer-registration`.
+Standard three-legged OAuth flow for production integrations. Requires consumer key/secret
+registration via `/consumer-registration`.
 
 ### 3. OAuth 2.0
 
@@ -245,7 +250,8 @@ Each transaction supports rich metadata via sub-endpoints under `.../{TRANSACTIO
 
 **TransactionJsonV300**:
 
-- `id`, `this_account`, `other_account`, `details` (type, description, posted, completed, new_balance, value)
+- `id`, `this_account`, `other_account`, `details` (type, description, posted, completed,
+  new_balance, value)
 - `metadata` (narrative, comments, tags, images, where)
 
 ---
@@ -314,8 +320,10 @@ POST /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/transaction-req
 
 ### Business Rules
 
-- **Challenge Threshold**: Amounts < 1000 EUR (sandbox default) process without challenge; larger amounts require SCA
-- **Multi-Currency**: Sender currency must match source account; sandbox provides static FX rates across 13 major currencies
+- **Challenge Threshold**: Amounts < 1000 EUR (sandbox default) process without challenge; larger
+  amounts require SCA
+- **Multi-Currency**: Sender currency must match source account; sandbox provides static FX rates
+  across 13 major currencies
 - **PSD2 Compliance**: Supports third-party payment initiation with charge transparency
 
 ### SEPA Credit Transfer Schema
@@ -538,7 +546,8 @@ Returns the list of supported transaction request types for a bank.
 
 **TransactionRequestWithChargeJSON210** (response):
 
-- `id` (UUID), `type`, `status`, `from`, `details`, `charge`, `challenge`, `start_date`, `end_date`, `transaction_ids[]`
+- `id` (UUID), `type`, `status`, `from`, `details`, `charge`, `challenge`, `start_date`, `end_date`,
+  `transaction_ids[]`
 
 **ChallengeJsonV140**:
 

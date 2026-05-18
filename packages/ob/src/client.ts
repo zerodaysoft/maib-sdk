@@ -1,7 +1,4 @@
 import type { TokenState } from "@maib/http";
-import { buildQueryString, NetworkError, SDK_VERSION, TokenManager } from "@maib/http";
-import { OB_DEFAULT_HOST, OB_DEFAULT_TOKEN_TTL_MS } from "./constants.js";
-import { ObError } from "./errors.js";
 import type {
   AnswerConsentChallengeBody,
   CreateConsentBody,
@@ -18,7 +15,12 @@ import type {
   ObTransactionRequest,
   ObTransactionRequestType,
   ObUser,
-} from "./types.js";
+} from "./types";
+
+import { buildQueryString, NetworkError, SDK_VERSION, TokenManager } from "@maib/http";
+
+import { OB_DEFAULT_HOST, OB_DEFAULT_TOKEN_TTL_MS } from "./constants";
+import { ObError } from "./errors";
 
 function e(value: string): string {
   return encodeURIComponent(value);

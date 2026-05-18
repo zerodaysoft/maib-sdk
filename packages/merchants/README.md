@@ -1,6 +1,7 @@
 # @maib/merchants
 
-Umbrella SDK for all [maib](https://www.maib.md) merchant APIs. Installs and re-exports everything from the individual packages in a single import.
+Umbrella SDK for all [maib](https://www.maib.md) merchant APIs. Installs and re-exports everything
+from the individual packages in a single import.
 
 ## Install
 
@@ -46,6 +47,45 @@ If you only need one API, install the individual package instead for a smaller d
 
 > Looking for Open Banking? See [`@maib/ob`](https://www.npmjs.com/package/@maib/ob).
 
+## Runtime schemas
+
+`@maib/merchants` ships an aggregate JSON Schema bundle covering every type from `@maib/checkout`,
+`@maib/ecommerce`, `@maib/rtp`, `@maib/mia`, and `@maib/core` in a single artifact:
+
+| Subpath                                       | Resolves to                                                                          |
+| --------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `@maib/merchants/schemas`                     | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`).                    |
+| `@maib/merchants/schemas/bundle.json`         | Combined JSON Schema bundle across all 5 packages.                                   |
+| `@maib/merchants/schemas/<ShortName>.json`    | Self-contained file per schema where the short name is unique across the bundle.    |
+| `@maib/merchants/schemas/<Pkg><Name>.json`    | Disambiguated PascalCase file for short names shared by multiple packages.          |
+
+The aggregate bundle contains a few names that collide across packages — e.g. both
+`maib.checkout.RefundRequest` and `maib.ecommerce.RefundRequest`. Those are emitted under
+PascalCase-prefixed filenames (`CheckoutRefundRequest.json`, `EcommerceRefundRequest.json`,
+`MiaListPaymentsParams.json`, …) that match the type aliases this package already exports. Pass
+`onCollision: "namespace-prefix"` to `buildSchemasBundle` for the same key shape at runtime:
+
+```typescript
+import { z } from "zod";
+import { buildSchema, buildSchemasBundle } from "@maib/merchants/schemas";
+import bundle from "@maib/merchants/schemas/bundle.json" with { type: "json" };
+import CheckoutRefundDef from "@maib/merchants/schemas/CheckoutRefundRequest.json" with { type: "json" };
+
+// Per-schema usage — works just like in a single-package SDK.
+const CheckoutRefund = buildSchema(z.fromJSONSchema, CheckoutRefundDef);
+CheckoutRefund.parse({ amount: 5.5, reason: "duplicate" });
+
+// Whole-bundle usage — PascalCase keys match the file names and type aliases.
+const Schemas = buildSchemasBundle(z.fromJSONSchema, bundle, { onCollision: "namespace-prefix" });
+Schemas.CheckoutRefundRequest.parse(checkoutRefund);
+Schemas.EcommerceRefundRequest.parse(ecommerceRefund);
+Schemas.MaibApiError.parse(errorBody); // unique short name kept
+```
+
+Pass `onCollision: "namespace"` instead if you want dotted keys like `"checkout.RefundRequest"`.
+
+See [`docs/schemas.md`](docs/schemas.md) for the full guide.
+
 ## AI coding agents
 
 This package ships documentation in `dist/docs/` so AI agents can reference accurate APIs:
@@ -73,7 +113,8 @@ Your training data may be outdated — the bundled docs are the source of truth.
 <!-- END:maib-sdk-agent-rules -->
 ```
 
-For [Claude Code](https://docs.anthropic.com/en/docs/claude-code), add `@AGENTS.md` to your `CLAUDE.md`.
+For [Claude Code](https://docs.anthropic.com/en/docs/claude-code), add `@AGENTS.md` to your
+`CLAUDE.md`.
 
 For detailed per-API documentation, see the individual package docs.
 

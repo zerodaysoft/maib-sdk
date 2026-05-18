@@ -1,12 +1,16 @@
 ---
 package: "@maib/http"
 version: 0.2.4
-description: Shared HTTP primitives for maib SDK packages — network errors, query builder, token management.
+description:
+  Shared HTTP primitives for maib SDK packages — network errors, query builder, token management.
 ---
 
 # @maib/http SDK Reference
 
-Low-level HTTP primitives shared across all maib SDK packages. Provides token lifecycle management, network error types, and query string utilities. This package is an internal dependency -- you typically do not install it directly, but you may import from it for error handling or advanced use cases.
+Low-level HTTP primitives shared across all maib SDK packages. Provides token lifecycle management,
+network error types, and query string utilities. This package is an internal dependency -- you
+typically do not install it directly, but you may import from it for error handling or advanced use
+cases.
 
 ## Installation
 
@@ -16,7 +20,9 @@ npm install @maib/http
 
 ## TokenManager
 
-Manages token lifecycle: caching, proactive refresh before expiry, and concurrent-request deduplication. The actual token acquisition logic is injected via a callback, making `TokenManager` usable across different auth flows (OAuth2 Client Credentials, DirectLogin, etc.).
+Manages token lifecycle: caching, proactive refresh before expiry, and concurrent-request
+deduplication. The actual token acquisition logic is injected via a callback, making `TokenManager`
+usable across different auth flows (OAuth2 Client Credentials, DirectLogin, etc.).
 
 ### Constructor
 
@@ -46,10 +52,14 @@ class TokenManager {
 
 ### Behavior
 
-- **Caching**: After the first successful `acquire()` call, the token is stored in memory and reused for subsequent `getToken()` calls.
-- **Proactive refresh**: The token is refreshed `refreshBufferS` seconds before `accessExpiresAt`. This prevents token expiry during in-flight requests.
-- **Deduplication**: If multiple callers invoke `getToken()` concurrently while the token is expired, only one `acquire()` call is made. All callers await the same promise.
-- **No automatic background refresh**: Refresh happens lazily on the next `getToken()` call, not on a timer.
+- **Caching**: After the first successful `acquire()` call, the token is stored in memory and reused
+  for subsequent `getToken()` calls.
+- **Proactive refresh**: The token is refreshed `refreshBufferS` seconds before `accessExpiresAt`.
+  This prevents token expiry during in-flight requests.
+- **Deduplication**: If multiple callers invoke `getToken()` concurrently while the token is
+  expired, only one `acquire()` call is made. All callers await the same promise.
+- **No automatic background refresh**: Refresh happens lazily on the next `getToken()` call, not on
+  a timer.
 
 ### Example
 
@@ -80,7 +90,8 @@ const [token1, token2, token3] = await Promise.all([
 
 ## NetworkError
 
-Thrown when the HTTP request itself fails before receiving an API response (DNS failure, timeout, connection refused, invalid JSON in response).
+Thrown when the HTTP request itself fails before receiving an API response (DNS failure, timeout,
+connection refused, invalid JSON in response).
 
 ```typescript
 class NetworkError extends Error {
@@ -124,7 +135,8 @@ function buildQueryString(params: Record<string, unknown>): string;
 | --------- | ------------------------- | -------------------------------------------------------------------------- |
 | `params`  | `Record<string, unknown>` | Key-value pairs to encode. Values are converted to strings via `String()`. |
 
-**Returns**: URL-encoded query string without the leading `?`. Returns an empty string `""` if all values are undefined or null.
+**Returns**: URL-encoded query string without the leading `?`. Returns an empty string `""` if all
+values are undefined or null.
 
 Keys and values are encoded with `encodeURIComponent`.
 
@@ -161,7 +173,8 @@ interface BaseClientConfig {
 | `baseUrl` | `string`                  | No       | --                 | API host (without version prefix or trailing slash).                   |
 | `fetch`   | `typeof globalThis.fetch` | No       | `globalThis.fetch` | Custom fetch implementation (e.g. for testing or Node < 18 polyfills). |
 
-This interface is extended by `MaibClientConfig` (in `@maib/core`) and `ObClientConfig` (in `@maib/ob`).
+This interface is extended by `MaibClientConfig` (in `@maib/core`) and `ObClientConfig` (in
+`@maib/ob`).
 
 ### `TokenState`
 

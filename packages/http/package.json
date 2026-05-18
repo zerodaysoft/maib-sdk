@@ -50,8 +50,8 @@
     "build": "tsup && node ../../scripts/copy-docs.mjs",
     "dev": "tsup --watch",
     "test": "vitest run",
-    "lint": "biome check src tests",
-    "lint:fix": "biome check --write src tests",
+    "lint": "biome check src __tests__",
+    "lint:fix": "biome check --write src __tests__",
     "typecheck": "tsc --noEmit"
   }
 }

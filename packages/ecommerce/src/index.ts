@@ -1,6 +1,3 @@
-export { Currency, Language } from "@maib/core";
-export { EcommerceClient } from "./client.js";
-export { ThreeDsStatus, TransactionStatus } from "./constants.js";
 export type {
   BasePaymentParams,
   CallbackPayload,
@@ -21,4 +18,9 @@ export type {
   RefundResult,
   SavecardOneclickRequest,
   SavecardRecurringRequest,
-} from "./types.js";
+} from "./types";
+
+export { Currency, Language } from "@maib/core";
+
+export { EcommerceClient } from "./client";
+export { ThreeDsStatus, TransactionStatus } from "./constants";

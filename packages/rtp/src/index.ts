@@ -1,6 +1,3 @@
-export { Currency, Environment, RefundStatus } from "@maib/core";
-export { RtpClient } from "./client.js";
-export { RtpStatus } from "./constants.js";
 export type {
   CancelRtpRequest,
   CancelRtpResult,
@@ -16,4 +13,9 @@ export type {
   TestAcceptRequest,
   TestAcceptResult,
   TestRejectResult,
-} from "./types.js";
+} from "./types";
+
+export { Currency, Environment, RefundStatus } from "@maib/core";
+
+export { RtpClient } from "./client";
+export { RtpStatus } from "./constants";

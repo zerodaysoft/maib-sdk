@@ -1,6 +1,7 @@
 # maib SDK: Instructions for AI Coding Agents
 
-Before writing any code that uses the maib SDK, **read the relevant docs bundled inside each package**. Your training data may be outdated — the bundled docs are the source of truth.
+Before writing any code that uses the maib SDK, **read the relevant docs bundled inside each
+package**. Your training data may be outdated — the bundled docs are the source of truth.
 
 ## Where to find docs
 
@@ -28,10 +29,14 @@ node_modules/@maib/<package>/dist/docs/
 
 ## Key differences between packages
 
-- **Auth**: Checkout/RTP/MIA use `clientId`/`clientSecret`. E-Commerce uses `projectId`/`projectSecret`. OB uses `username`/`password`/`consumerKey`.
-- **Callbacks**: Checkout uses HMAC-SHA256 (`verifyCallback(rawBody, xSignature, xTimestamp)`). E-Commerce/RTP/MIA use SHA-256 sorted-values (`verifyCallback(payload)`).
-- **Sandbox**: Checkout/RTP/MIA support `Environment.SANDBOX`. E-Commerce (v1) does not. OB is sandbox-only.
-- **Pagination**: Checkout/RTP/MIA use `PaginatedResult<T>` with `{ totalCount, items }`. OB returns raw arrays.
+- **Auth**: Checkout/RTP/MIA use `clientId`/`clientSecret`. E-Commerce uses
+  `projectId`/`projectSecret`. OB uses `username`/`password`/`consumerKey`.
+- **Callbacks**: Checkout uses HMAC-SHA256 (`verifyCallback(rawBody, xSignature, xTimestamp)`).
+  E-Commerce/RTP/MIA use SHA-256 sorted-values (`verifyCallback(payload)`).
+- **Sandbox**: Checkout/RTP/MIA support `Environment.SANDBOX`. E-Commerce (v1) does not. OB is
+  sandbox-only.
+- **Pagination**: Checkout/RTP/MIA use `PaginatedResult<T>` with `{ totalCount, items }`. OB returns
+  raw arrays.
 
 ## How to read the docs
 

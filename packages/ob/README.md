@@ -1,6 +1,7 @@
 # @maib/ob
 
-TypeScript SDK for the [maib Open Banking API](https://ob-sandbox.maib.md) (OBP) — accounts, transactions, payments, and consents.
+TypeScript SDK for the [maib Open Banking API](https://ob-sandbox.maib.md) (OBP) — accounts,
+transactions, payments, and consents.
 
 ## Install
 
@@ -20,7 +21,8 @@ const client = new ObClient({
 });
 ```
 
-Authentication uses [DirectLogin](https://github.com/OpenBankProject/OBP-API/wiki/Direct-Login) — credentials are exchanged for a token that is automatically cached and refreshed.
+Authentication uses [DirectLogin](https://github.com/OpenBankProject/OBP-API/wiki/Direct-Login) —
+credentials are exchanged for a token that is automatically cached and refreshed.
 
 ### Banks
 
@@ -48,22 +50,12 @@ const { funds_available } = await client.checkFunds(
 ### Transactions
 
 ```typescript
-const transactions = await client.listTransactions(
-  "maib.md",
-  "account-id",
-  "owner",
-  {
-    limit: 50,
-    sort_direction: "DESC",
-  },
-);
+const transactions = await client.listTransactions("maib.md", "account-id", "owner", {
+  limit: 50,
+  sort_direction: "DESC",
+});
 
-const txn = await client.getTransaction(
-  "maib.md",
-  "account-id",
-  "owner",
-  "txn-id",
-);
+const txn = await client.getTransaction("maib.md", "account-id", "owner", "txn-id");
 ```
 
 ### Payments
@@ -73,17 +65,11 @@ const txn = await client.getTransaction(
 const types = await client.getTransactionRequestTypes("maib.md");
 
 // Create a payment (SANDBOX_TAN example)
-const payment = await client.createPayment(
-  "maib.md",
-  "account-id",
-  "owner",
-  "SANDBOX_TAN",
-  {
-    to: { bank_id: "maib.md", account_id: "recipient-id" },
-    value: { currency: "MDL", amount: "100.00" },
-    description: "Test payment",
-  },
-);
+const payment = await client.createPayment("maib.md", "account-id", "owner", "SANDBOX_TAN", {
+  to: { bank_id: "maib.md", account_id: "recipient-id" },
+  value: { currency: "MDL", amount: "100.00" },
+  description: "Test payment",
+});
 ```
 
 ### Consents
@@ -161,8 +147,32 @@ TransactionRequestStatus.PENDING; // "PENDING"
 
 This package ships documentation in `dist/docs/` for AI coding agents and tooling:
 
-- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
-- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from [ob-sandbox.maib.md](https://ob-sandbox.maib.md)
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods,
+  types, params)
+- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from
+  [ob-sandbox.maib.md](https://ob-sandbox.maib.md)
+- [`schemas.md`](./docs/schemas.md) — How to consume the shipped JSON Schema files at runtime with
+  Zod, Valibot, ArkType, or any Standard-Schema-compatible validator
+
+## Runtime validation (optional)
+
+`@maib/ob` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic helper.
+Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once converted, the
+parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of the Standard
+Schema ecosystem. Zod is the runnable example:
+
+```ts
+import { z } from "zod";
+import type { ObAccount } from "@maib/ob";
+import { buildSchema } from "@maib/ob/schemas";
+import ObAccountDef from "@maib/ob/schemas/ObAccount.json" with { type: "json" };
+
+export const ObAccountSchema = buildSchema<ObAccount>(z.fromJSONSchema, ObAccountDef);
+
+ObAccountSchema.parse(await client.getAccount(bankId, accountId));
+```
+
+See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
 
 ## License
 

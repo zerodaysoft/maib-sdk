@@ -1,4 +1,3 @@
-import { BaseClient, computeSignature, verifySignature } from "@maib/core";
 import type {
   CallbackPayload,
   CompleteRequest,
@@ -15,7 +14,9 @@ import type {
   RefundResult,
   SavecardOneclickRequest,
   SavecardRecurringRequest,
-} from "./types.js";
+} from "./types";
+
+import { BaseClient, computeSignature, verifySignature } from "@maib/core";
 
 /**
  * Client for the maib e-Commerce payment gateway (v1 API).

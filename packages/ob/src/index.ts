@@ -1,6 +1,3 @@
-export { ObClient } from "./client.js";
-export { ConsentStatus, OB_DEFAULT_HOST, TransactionRequestStatus } from "./constants.js";
-export { ObError } from "./errors.js";
 export type {
   AnswerConsentChallengeBody,
   CreateConsentBody,
@@ -24,4 +21,8 @@ export type {
   ObTransactionRequest,
   ObTransactionRequestType,
   ObUser,
-} from "./types.js";
+} from "./types";
+
+export { ObClient } from "./client";
+export { ConsentStatus, OB_DEFAULT_HOST, TransactionRequestStatus } from "./constants";
+export { ObError } from "./errors";

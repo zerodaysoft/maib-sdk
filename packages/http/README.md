@@ -1,8 +1,11 @@
 # @maib/http
 
-Shared HTTP primitives for [maib](https://www.maib.md) SDK packages — network errors, query string builder, and token management.
+Shared HTTP primitives for [maib](https://www.maib.md) SDK packages — network errors, query string
+builder, and token management.
 
-> This is an internal foundation package. You probably want [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants), [`@maib/ob`](https://www.npmjs.com/package/@maib/ob), or one of the API-specific packages instead.
+> This is an internal foundation package. You probably want
+> [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants),
+> [`@maib/ob`](https://www.npmjs.com/package/@maib/ob), or one of the API-specific packages instead.
 
 ## Install
 
@@ -12,7 +15,8 @@ npm install @maib/http
 
 ## Token management
 
-`TokenManager` handles token caching, proactive refresh, and concurrent-request deduplication. Provide your own `acquire` callback for any auth flow (OAuth2, DirectLogin, etc.):
+`TokenManager` handles token caching, proactive refresh, and concurrent-request deduplication.
+Provide your own `acquire` callback for any auth flow (OAuth2, DirectLogin, etc.):
 
 ```typescript
 import { TokenManager } from "@maib/http";
@@ -70,7 +74,8 @@ try {
 
 This package ships documentation in `dist/docs/` for AI coding agents and tooling:
 
-- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (TokenManager, NetworkError, utilities)
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (TokenManager,
+  NetworkError, utilities)
 
 ## License
 

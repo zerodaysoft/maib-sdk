@@ -1,14 +1,19 @@
 ---
 package: "@maib/core"
 version: 0.2.4
-description: Shared infrastructure for maib merchant API SDKs — HTTP client, authentication, errors, signature verification.
+description:
+  Shared infrastructure for maib merchant API SDKs — HTTP client, authentication, errors, signature
+  verification.
 ---
 
 # @maib/core SDK Reference
 
-Shared infrastructure package for all maib merchant API SDKs. Provides the abstract `BaseClient` class, error types, signature verification utilities, and common type definitions used by `@maib/checkout`, `@maib/ecommerce`, `@maib/rtp`, and `@maib/mia`.
+Shared infrastructure package for all maib merchant API SDKs. Provides the abstract `BaseClient`
+class, error types, signature verification utilities, and common type definitions used by
+`@maib/checkout`, `@maib/ecommerce`, `@maib/rtp`, and `@maib/mia`.
 
-You typically do not install `@maib/core` directly. It is a dependency of each merchant SDK package. However, you may import from it for error handling, signature verification, or type definitions.
+You typically do not install `@maib/core` directly. It is a dependency of each merchant SDK package.
+However, you may import from it for error handling, signature verification, or type definitions.
 
 ## Installation
 
@@ -18,7 +23,8 @@ npm install @maib/core
 
 ## BaseClient
 
-Abstract base class extended by `CheckoutClient`, `EcommerceClient`, `RtpClient`, and `MiaClient`. Handles OAuth2 Client Credentials authentication with automatic token management.
+Abstract base class extended by `CheckoutClient`, `EcommerceClient`, `RtpClient`, and `MiaClient`.
+Handles OAuth2 Client Credentials authentication with automatic token management.
 
 ### Constructor
 
@@ -53,8 +59,10 @@ You do not instantiate `BaseClient` directly. Use one of the concrete client cla
 2. The token is cached by `TokenManager` from `@maib/http`.
 3. Before the token expires (with a 30-second buffer), the client proactively refreshes it.
 4. Concurrent requests share a single in-flight token acquisition (no thundering herd).
-5. If a `refreshToken` is available (e-commerce v1 flow), the client uses it for renewal instead of re-authenticating with credentials.
-6. If an authenticated request receives an HTTP 401 response, the cached token is discarded and the request is retried once with a fresh token. If the retry also fails, a `MaibError` is thrown.
+5. If a `refreshToken` is available (e-commerce v1 flow), the client uses it for renewal instead of
+   re-authenticating with credentials.
+6. If an authenticated request receives an HTTP 401 response, the cached token is discarded and the
+   request is retried once with a fresh token. If the retry also fails, a `MaibError` is thrown.
 
 All HTTP requests include `Authorization: Bearer <token>` and `User-Agent` headers automatically.
 
@@ -72,7 +80,10 @@ or on error:
 { "errors": [{ "errorCode": "...", "errorMessage": "..." }], "ok": false }
 ```
 
-`BaseClient` automatically unwraps this envelope. Your code receives the inner `result` value directly. If the API returns a non-envelope response (e.g. during token exchange) with a successful HTTP status, the raw payload is returned as-is. If the HTTP status is 400 or above and the response does not match the envelope format, a `MaibError` is thrown with error code `UNKNOWN_RESPONSE`.
+`BaseClient` automatically unwraps this envelope. Your code receives the inner `result` value
+directly. If the API returns a non-envelope response (e.g. during token exchange) with a successful
+HTTP status, the raw payload is returned as-is. If the HTTP status is 400 or above and the response
+does not match the envelope format, a `MaibError` is thrown with error code `UNKNOWN_RESPONSE`.
 
 ### Abstract Members (subclasses must implement)
 
@@ -83,7 +94,8 @@ or on error:
 | `_userAgent`      | `protected abstract readonly string` | User-Agent string for HTTP requests.                                        |
 | `_getTokenBody()` | `protected abstract method`          | Returns the request body for the token endpoint.                            |
 
-Subclasses may also override `_processTokenResult(result: TokenResult): TokenState` to customize token state handling (e.g. for refresh token flows).
+Subclasses may also override `_processTokenResult(result: TokenResult): TokenState` to customize
+token state handling (e.g. for refresh token flows).
 
 ## Configuration
 
@@ -113,7 +125,8 @@ interface MaibClientConfig {
 
 ### `MaibError`
 
-Thrown when the maib API returns a response with `ok: false`, or when the API returns an HTTP error (status >= 400) with a response body that does not match the expected envelope format.
+Thrown when the maib API returns a response with `ok: false`, or when the API returns an HTTP error
+(status >= 400) with a response body that does not match the expected envelope format.
 
 ```typescript
 class MaibError extends Error {
@@ -164,7 +177,8 @@ try {
 
 ### `MaibNetworkError`
 
-Alias for `NetworkError` from `@maib/http`. Thrown when the HTTP request itself fails before receiving an API response.
+Alias for `NetworkError` from `@maib/http`. Thrown when the HTTP request itself fails before
+receiving an API response.
 
 ```typescript
 // These are the same class:
@@ -190,15 +204,13 @@ Four functions for verifying callback/webhook signatures. Two algorithms are sup
 
 Used for `@maib/ecommerce`, `@maib/rtp`, and `@maib/mia` callback verification.
 
-**Algorithm**: Sort object keys alphabetically (recursively), collect all leaf values in order, append `signatureKey`, join with `":"`, SHA-256 hash, base64 encode.
+**Algorithm**: Sort object keys alphabetically (recursively), collect all leaf values in order,
+append `signatureKey`, join with `":"`, SHA-256 hash, base64 encode.
 
 #### `computeSignature`
 
 ```typescript
-function computeSignature(
-  result: Record<string, unknown>,
-  signatureKey: string,
-): string;
+function computeSignature(result: Record<string, unknown>, signatureKey: string): string;
 ```
 
 Computes the expected SHA-256 signature for a callback payload.
@@ -249,16 +261,13 @@ app.post("/webhook/ecommerce", (req, res) => {
 
 Used for `@maib/checkout` callback verification.
 
-**Algorithm**: Concatenate `rawBody + "." + timestamp`, compute HMAC-SHA256 with `signatureKey`, base64 encode.
+**Algorithm**: Concatenate `rawBody + "." + timestamp`, compute HMAC-SHA256 with `signatureKey`,
+base64 encode.
 
 #### `computeHmacSignature`
 
 ```typescript
-function computeHmacSignature(
-  rawBody: string,
-  timestamp: string,
-  signatureKey: string,
-): string;
+function computeHmacSignature(rawBody: string, timestamp: string, signatureKey: string): string;
 ```
 
 Computes the expected HMAC-SHA256 signature for a checkout callback.
@@ -282,7 +291,9 @@ function verifyHmacSignature(
 ): boolean;
 ```
 
-Verifies an HMAC-SHA256 checkout callback signature using timing-safe comparison. Handles the `sha256=` prefix in the `X-Signature` header automatically. Also handles duplicated headers from reverse proxies (e.g. Cloudflare joining headers with `", "`).
+Verifies an HMAC-SHA256 checkout callback signature using timing-safe comparison. Handles the
+`sha256=` prefix in the `X-Signature` header automatically. Also handles duplicated headers from
+reverse proxies (e.g. Cloudflare joining headers with `", "`).
 
 | Parameter      | Type     | Description                                                      |
 | -------------- | -------- | ---------------------------------------------------------------- |
@@ -303,12 +314,7 @@ app.post("/webhook/checkout", (req, res) => {
   const xSignature = req.headers["x-signature"];
   const xTimestamp = req.headers["x-signature-timestamp"];
 
-  const isValid = verifyHmacSignature(
-    rawBody,
-    xSignature,
-    xTimestamp,
-    process.env.SIGNATURE_KEY,
-  );
+  const isValid = verifyHmacSignature(rawBody, xSignature, xTimestamp, process.env.SIGNATURE_KEY);
   if (!isValid) {
     return res.status(400).send("Invalid signature");
   }
@@ -449,7 +455,8 @@ type Environment = (typeof Environment)[keyof typeof Environment];
 function isMaibResponse<T = unknown>(value: unknown): value is MaibResponse<T>;
 ```
 
-Type guard that checks whether a parsed JSON value is a maib API envelope (contains an `ok` boolean discriminator with either `result` or `errors`).
+Type guard that checks whether a parsed JSON value is a maib API envelope (contains an `ok` boolean
+discriminator with either `result` or `errors`).
 
 ```typescript
 import { isMaibResponse } from "@maib/core";
@@ -480,8 +487,12 @@ Everything below is exported from the `@maib/core` package entry point:
 
 **Classes**: `BaseClient`, `MaibError`, `MaibNetworkError`
 
-**Functions**: `computeSignature`, `verifySignature`, `computeHmacSignature`, `verifyHmacSignature`, `isMaibResponse`
+**Functions**: `computeSignature`, `verifySignature`, `computeHmacSignature`, `verifyHmacSignature`,
+`isMaibResponse`
 
-**Constants**: `PRODUCTION_API_HOST`, `SANDBOX_API_HOST`, `DEFAULT_API_HOST`, `TOKEN_REFRESH_BUFFER_S`, `SDK_VERSION`, `Currency`, `Language`, `Environment`
+**Constants**: `PRODUCTION_API_HOST`, `SANDBOX_API_HOST`, `DEFAULT_API_HOST`,
+`TOKEN_REFRESH_BUFFER_S`, `SDK_VERSION`, `Currency`, `Language`, `Environment`
 
-**Types** (type-only exports): `BaseClientConfig`, `MaibApiError`, `MaibClientConfig`, `MaibErrorResponse`, `MaibResponse`, `MaibSuccessResponse`, `PaginatedResult`, `PaginationParams`, `TokenResult`
+**Types** (type-only exports): `BaseClientConfig`, `MaibApiError`, `MaibClientConfig`,
+`MaibErrorResponse`, `MaibResponse`, `MaibSuccessResponse`, `PaginatedResult`, `PaginationParams`,
+`TokenResult`

@@ -1,14 +1,18 @@
 ---
 package: "@maib/merchants"
 version: 0.2.4
-description: Umbrella SDK for all maib merchant APIs — single import for checkout, e-commerce, RTP, and MIA QR.
+description:
+  Umbrella SDK for all maib merchant APIs — single import for checkout, e-commerce, RTP, and MIA QR.
 ---
 
 # @maib/merchants SDK Reference
 
-Umbrella package that re-exports everything from `@maib/checkout`, `@maib/ecommerce`, `@maib/rtp`, `@maib/mia`, and `@maib/core` through a single import. Install this one package to get access to all four maib merchant API clients and all shared infrastructure.
+Umbrella package that re-exports everything from `@maib/checkout`, `@maib/ecommerce`, `@maib/rtp`,
+`@maib/mia`, and `@maib/core` through a single import. Install this one package to get access to all
+four maib merchant API clients and all shared infrastructure.
 
-**Important**: This package does NOT include `@maib/ob` (Open Banking). The Open Banking SDK uses a different authentication model (DirectLogin) and must be installed separately as `@maib/ob`.
+**Important**: This package does NOT include `@maib/ob` (Open Banking). The Open Banking SDK uses a
+different authentication model (DirectLogin) and must be installed separately as `@maib/ob`.
 
 ## Installation
 
@@ -51,7 +55,9 @@ All four merchant API clients are available through this import:
 
 ## Import Map
 
-The sections below list every export from `@maib/merchants` and which source package it originates from. Where two source packages export a type with the same name, `@maib/merchants` re-exports one with a prefixed alias to avoid collisions.
+The sections below list every export from `@maib/merchants` and which source package it originates
+from. Where two source packages export a type with the same name, `@maib/merchants` re-exports one
+with a prefixed alias to avoid collisions.
 
 ### From @maib/core
 
@@ -66,7 +72,8 @@ The sections below list every export from `@maib/merchants` and which source pac
 - `computeSignature(result, signatureKey)` -- SHA-256 signature for ecomm/rtp/mia callbacks.
 - `verifySignature(result, signature, signatureKey)` -- Verify SHA-256 callback signature.
 - `computeHmacSignature(rawBody, timestamp, signatureKey)` -- HMAC-SHA256 for checkout callbacks.
-- `verifyHmacSignature(rawBody, xSignature, xTimestamp, signatureKey)` -- Verify HMAC-SHA256 callback signature.
+- `verifyHmacSignature(rawBody, xSignature, xTimestamp, signatureKey)` -- Verify HMAC-SHA256
+  callback signature.
 - `isMaibResponse(value)` -- Type guard for maib API response envelope.
 
 **Enums:**
@@ -146,7 +153,8 @@ The sections below list every export from `@maib/merchants` and which source pac
 | `TransactionStatus` | `OK`, `FAILED`, `CREATED`, `PENDING`, `DECLINED`, `TIMEOUT`, `REVERSED`                                    |
 | `ThreeDsStatus`     | `AUTHENTICATED`, `NOT_AUTHENTICATED`, `UNAVAILABLE`, `ATTEMPTED`, `REJECTED`, `SKIPPED`, `NOTPARTICIPATED` |
 
-Note: `Currency` is re-exported from `@maib/ecommerce` (which itself re-exports it from `@maib/core`). It is the same `Currency` enum regardless of source.
+Note: `Currency` is re-exported from `@maib/ecommerce` (which itself re-exports it from
+`@maib/core`). It is the same `Currency` enum regardless of source.
 
 **Types:**
 
@@ -237,7 +245,8 @@ Note: `Currency` is re-exported from `@maib/ecommerce` (which itself re-exports 
 
 ## Aliased Types Summary
 
-When importing from `@maib/merchants`, use these aliases for types that share a name across packages:
+When importing from `@maib/merchants`, use these aliases for types that share a name across
+packages:
 
 ```typescript
 import type {
@@ -257,14 +266,19 @@ import type {
 } from "@maib/merchants";
 ```
 
-If you install the individual packages instead (`@maib/checkout`, `@maib/ecommerce`, `@maib/mia`), you use the original unaliased names (`ListPaymentsParams`, `RefundRequest`, etc.) since there are no collisions within a single package.
+If you install the individual packages instead (`@maib/checkout`, `@maib/ecommerce`, `@maib/mia`),
+you use the original unaliased names (`ListPaymentsParams`, `RefundRequest`, etc.) since there are
+no collisions within a single package.
 
 ## What Is NOT Included
 
 `@maib/merchants` does **not** export anything from:
 
-- **`@maib/ob`** (Open Banking) -- Uses DirectLogin authentication instead of OAuth2 Client Credentials. Install separately: `npm install @maib/ob`.
-- **`@maib/http`** -- Low-level HTTP primitives. `NetworkError` is available as `MaibNetworkError` through `@maib/core` re-exports. For `TokenManager`, `buildQueryString`, `TokenState`, or `BaseClientConfig`, import from `@maib/http` directly.
+- **`@maib/ob`** (Open Banking) -- Uses DirectLogin authentication instead of OAuth2 Client
+  Credentials. Install separately: `npm install @maib/ob`.
+- **`@maib/http`** -- Low-level HTTP primitives. `NetworkError` is available as `MaibNetworkError`
+  through `@maib/core` re-exports. For `TokenManager`, `buildQueryString`, `TokenState`, or
+  `BaseClientConfig`, import from `@maib/http` directly.
 
 ## Usage Pattern
 

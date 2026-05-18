@@ -1,3 +1,5 @@
+import type { MaibClientConfig, TokenResult } from "./types";
+
 import {
   buildQueryString,
   NetworkError,
@@ -5,15 +7,15 @@ import {
   TokenManager,
   type TokenState,
 } from "@maib/http";
+
 import {
   Environment,
   PRODUCTION_API_HOST,
   SANDBOX_API_HOST,
   TOKEN_REFRESH_BUFFER_S,
-} from "./constants.js";
-import { MaibError } from "./errors.js";
-import type { MaibClientConfig, TokenResult } from "./types.js";
-import { isMaibResponse } from "./utils.js";
+} from "./constants";
+import { MaibError } from "./errors";
+import { isMaibResponse } from "./utils";
 
 /**
  * Abstract base client for all maib merchant API SDKs.

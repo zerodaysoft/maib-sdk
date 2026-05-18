@@ -31,9 +31,12 @@
 
 ## Overview
 
-The QR MIA API allows for the generation, management, and monitoring of electronic payments via QR codes. It supports both static and dynamic QR codes, suitable for a wide range of merchant use cases.
+The QR MIA API allows for the generation, management, and monitoring of electronic payments via QR
+codes. It supports both static and dynamic QR codes, suitable for a wide range of merchant use
+cases.
 
-Access credentials for testing (`clientId` and `clientSecret`) can be requested at: **ecom@maib.md**, providing IDNO, company name, website, or application for integration.
+Access credentials for testing (`clientId` and `clientSecret`) can be requested at:
+**ecom@maib.md**, providing IDNO, company name, website, or application for integration.
 
 ---
 
@@ -51,7 +54,8 @@ Access credentials for testing (`clientId` and `clientSecret`) can be requested 
 | **DateTime Format**     | ISO 8601 (e.g., `2029-10-22T10:32:28`)                |
 | **Currency**            | `MDL` (Moldovan Leu, ISO 4217)                        |
 
-> Recommendation: Perform initial testing in the sandbox environment before requesting access to the production environment.
+> Recommendation: Perform initial testing in the sandbox environment before requesting access to the
+> production environment.
 
 ---
 
@@ -66,22 +70,26 @@ Access credentials for testing (`clientId` and `clientSecret`) can be requested 
 - **Amount types**: `Fixed`, `Controlled`, `Free`
 - **Configurable validity period**: No
 - **Supports callback and redirect URLs**: Yes
-- **Use cases**: Recurring payments where the amount is manually entered by the customer (e.g., donations, flexible contributions). Universal QR codes with open payment.
+- **Use cases**: Recurring payments where the amount is manually entered by the customer (e.g.,
+  donations, flexible contributions). Universal QR codes with open payment.
 
 ### Dynamic QR
 
-- **Definition**: A one-time generated code that includes specific transaction details such as amount, merchant ID, and optionally customer information.
+- **Definition**: A one-time generated code that includes specific transaction details such as
+  amount, merchant ID, and optionally customer information.
 - **Reusable**: No
 - **Modifiable after creation**: No
 - **Can be placed on static media**: No (one-time use)
 - **Amount types**: `Fixed`, `Controlled`
 - **Configurable validity period**: Yes
 - **Supports callback and redirect URLs**: Yes
-- **Use cases**: Cases where accurate and secure payment tracking is required. One-time orders or fixed payments.
+- **Use cases**: Cases where accurate and secure payment tracking is required. One-time orders or
+  fixed payments.
 
 ### Hybrid QR
 
-- **Definition**: Combines features of both static and dynamic codes. Used for both one-time and recurring payments, where some data remains constant and other data is transaction-specific.
+- **Definition**: Combines features of both static and dynamic codes. Used for both one-time and
+  recurring payments, where some data remains constant and other data is transaction-specific.
 - **Reusable**: Yes
 - **Modifiable after creation**: Yes (via the extension endpoint)
 - **Can be placed on static media**: Yes
@@ -112,7 +120,8 @@ Access credentials for testing (`clientId` and `clientSecret`) can be requested 
 
 ## Authentication
 
-Authentication uses a standard **OAuth 2.0 Client Credentials Flow** with `clientId` and `clientSecret` provided by maib.
+Authentication uses a standard **OAuth 2.0 Client Credentials Flow** with `clientId` and
+`clientSecret` provided by maib.
 
 ### Obtain Authentication Token
 
@@ -169,7 +178,8 @@ All subsequent API requests must include the header:
 Authorization: Bearer {access_token}
 ```
 
-After the `accessToken` expires, the client must request a new token by repeating the authentication call.
+After the `accessToken` expires, the client must request a new token by repeating the authentication
+call.
 
 ---
 
@@ -451,7 +461,9 @@ curl -G "https://api.maibmerchants.md/v2/mia/qr" \
 | **URL**    | `/v2/mia/qr/extension` |
 | **Auth**   | Bearer token           |
 
-> This endpoint retrieves a paginated list of QR extensions. Query parameters follow the same pattern as the QR code list endpoint (count, offset, sortBy, order, and filtering options relevant to extensions).
+> This endpoint retrieves a paginated list of QR extensions. Query parameters follow the same
+> pattern as the QR code list endpoint (count, offset, sortBy, order, and filtering options relevant
+> to extensions).
 
 ---
 
@@ -463,7 +475,8 @@ curl -G "https://api.maibmerchants.md/v2/mia/qr" \
 | **URL**    | `/v2/mia/qr/{qrId}/cancel` |
 | **Auth**   | Bearer token               |
 
-Cancels a standard QR code (Static or Dynamic) that is active but has not yet been used for payment. Once cancelled, the code becomes inactive and unusable.
+Cancels a standard QR code (Static or Dynamic) that is active but has not yet been used for payment.
+Once cancelled, the code becomes inactive and unusable.
 
 > **Important**: Cancelling a QR code does not affect payments already processed.
 
@@ -520,7 +533,8 @@ Cancels a standard QR code (Static or Dynamic) that is active but has not yet be
 | **URL**    | `/v2/mia/qr/{qrId}/extension/cancel` |
 | **Auth**   | Bearer token                         |
 
-Cancels an active extension linked to a Hybrid QR code. Revokes the extension without fully cancelling the original QR code.
+Cancels an active extension linked to a Hybrid QR code. Revokes the extension without fully
+cancelling the original QR code.
 
 > **Important**: Cancelling a QR code does not affect payments already processed.
 
@@ -706,7 +720,8 @@ Initiates a full or partial refund for a completed payment. Refunds are irrevers
 >
 > - Auto-refund is only allowed for dynamic QRs.
 > - Only direct operations can be refunded.
-> - Refunds are irreversible. Once processed, the amount is automatically returned to the customer's account.
+> - Refunds are irreversible. Once processed, the amount is automatically returned to the customer's
+>   account.
 
 #### Path Parameters
 
@@ -832,9 +847,11 @@ Available exclusively in the sandbox environment for testing the payment process
 
 ## Callback Notifications
 
-When a payment is completed, the system sends a POST request to the merchant's `callbackUrl` with the transaction details.
+When a payment is completed, the system sends a POST request to the merchant's `callbackUrl` with
+the transaction details.
 
-A notification is considered successfully received if the merchant's server responds with **HTTP status code 200 OK**. Non-200 status codes trigger notification resends.
+A notification is considered successfully received if the merchant's server responds with **HTTP
+status code 200 OK**. Non-200 status codes trigger notification resends.
 
 ### Callback Body Fields
 
@@ -867,15 +884,19 @@ A notification is considered successfully received if the merchant's server resp
 
 ## Signature Validation
 
-The callback signature must be validated to ensure data integrity. The algorithm uses SHA-256 hashing with Base64 encoding.
+The callback signature must be validated to ensure data integrity. The algorithm uses SHA-256
+hashing with Base64 encoding.
 
 ### Step-by-step Algorithm
 
-1. **Sort** all fields in the `result` object alphabetically (case-insensitive), **excluding** the `signature` field
+1. **Sort** all fields in the `result` object alphabetically (case-insensitive), **excluding** the
+   `signature` field
 2. **Exclude** fields with `null` values or empty strings
-3. **Format** decimal fields (`amount`, `commission`) to exactly **2 decimal places** (e.g., `100.50`)
+3. **Format** decimal fields (`amount`, `commission`) to exactly **2 decimal places** (e.g.,
+   `100.50`)
 4. **Concatenate** the remaining values using **colon** (`:`) as separator, in sorted order
-5. **Append** the **Signature Key** (from project settings / obtained during test-pay) to the concatenated string
+5. **Append** the **Signature Key** (from project settings / obtained during test-pay) to the
+   concatenated string
 6. **Generate** a **SHA-256 hash** in binary format
 7. **Encode** the binary output using **Base64**
 8. **Compare** the calculated signature against the received `signature` value
@@ -912,10 +933,7 @@ function validateSignature(callbackData, signatureKey) {
   // Append signature key and generate hash
   values.push(signatureKey);
   const signString = values.join(":");
-  const calculatedSignature = crypto
-    .createHash("sha256")
-    .update(signString)
-    .digest("base64");
+  const calculatedSignature = crypto.createHash("sha256").update(signString).digest("base64");
 
   return calculatedSignature === signature;
 }
@@ -1021,22 +1039,34 @@ All API responses follow this envelope structure:
 ## Source Documentation URLs
 
 - Overview: <https://docs.maibmerchants.md/mia-qr-api/en>
-- General Specs: <https://docs.maibmerchants.md/mia-qr-api/en/overview/general-technical-specifications>
+- General Specs:
+  <https://docs.maibmerchants.md/mia-qr-api/en/overview/general-technical-specifications>
 - QR Types: <https://docs.maibmerchants.md/mia-qr-api/en/overview/mia-qr-types>
 - Endpoints: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints>
 - Authentication: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/authentication>
-- Create QR: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-qr-code-static-dynamic>
-- Create Hybrid QR: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-hybrid-qr-code>
-- Create Extension: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-hybrid-qr-code/create-extension-for-qr-code-by-id>
-- Cancel QR: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-cancellation/cancel-active-qr-static-dynamic>
-- Cancel Extension: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-cancellation/cancel-active-qr-extension-hybrid>
-- Refund: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-refund/refund-completed-payment>
-- QR Details: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-qr-details-by-id>
-- QR List: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/display-list-of-qr-codes-with-filtering-options>
-- Payment Details: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-payment-details-by-id>
-- Payment List: <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-list-of-payments-with-filtering-options>
+- Create QR:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-qr-code-static-dynamic>
+- Create Hybrid QR:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-hybrid-qr-code>
+- Create Extension:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-hybrid-qr-code/create-extension-for-qr-code-by-id>
+- Cancel QR:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-cancellation/cancel-active-qr-static-dynamic>
+- Cancel Extension:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-cancellation/cancel-active-qr-extension-hybrid>
+- Refund:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-refund/refund-completed-payment>
+- QR Details:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-qr-details-by-id>
+- QR List:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/display-list-of-qr-codes-with-filtering-options>
+- Payment Details:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-payment-details-by-id>
+- Payment List:
+  <https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-list-of-payments-with-filtering-options>
 - Sandbox Simulation: <https://docs.maibmerchants.md/mia-qr-api/en/payment-simulation-sandbox>
 - Callbacks: <https://docs.maibmerchants.md/mia-qr-api/en/notifications-on-callback-url>
-- Signature Verification: <https://docs.maibmerchants.md/mia-qr-api/en/examples/signature-key-verification>
+- Signature Verification:
+  <https://docs.maibmerchants.md/mia-qr-api/en/examples/signature-key-verification>
 - API Errors: <https://docs.maibmerchants.md/mia-qr-api/en/errors/api-errors>
 - HTTP Status Codes: <https://docs.maibmerchants.md/mia-qr-api/en/errors/http-status-codes>

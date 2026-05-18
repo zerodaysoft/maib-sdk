@@ -1,6 +1,7 @@
 # @maib/ecommerce
 
-TypeScript SDK for the [maib e-Commerce payment gateway](https://docs.maibmerchants.md/e-commerce) — direct payments, two-step (hold/complete), recurring, and one-click card payments.
+TypeScript SDK for the [maib e-Commerce payment gateway](https://docs.maibmerchants.md/e-commerce) —
+direct payments, two-step (hold/complete), recurring, and one-click card payments.
 
 ## Install
 
@@ -26,7 +27,8 @@ const client = new EcommerceClient({
 });
 ```
 
-> **Note:** The e-commerce API uses `projectId`/`projectSecret` instead of `clientId`/`clientSecret`.
+> **Note:** The e-commerce API uses `projectId`/`projectSecret` instead of
+> `clientId`/`clientSecret`.
 
 ### Direct payment
 
@@ -152,9 +154,33 @@ ThreeDsStatus.NOT_AUTHENTICATED; // "NOT_AUTHENTICATED"
 
 This package ships documentation in `dist/docs/` for AI coding agents and tooling:
 
-- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods,
+  types, params)
+- [`schemas.md`](./docs/schemas.md) — How to consume the shipped JSON Schema files at runtime with
+  Zod, Valibot, ArkType, or any Standard-Schema-compatible validator
 
-> **Note:** The legacy E-Commerce API docs are available at [docs.maibmerchants.md/e-commerce](https://docs.maibmerchants.md/e-commerce).
+> **Note:** The legacy E-Commerce API docs are available at
+> [docs.maibmerchants.md/e-commerce](https://docs.maibmerchants.md/e-commerce).
+
+## Runtime validation (optional)
+
+`@maib/ecommerce` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic
+helper. Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once
+converted, the parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of
+the Standard Schema ecosystem. Zod is the runnable example:
+
+```ts
+import { z } from "zod";
+import type { RefundRequest } from "@maib/ecommerce";
+import { buildSchema } from "@maib/ecommerce/schemas";
+import RefundRequestDef from "@maib/ecommerce/schemas/RefundRequest.json" with { type: "json" };
+
+export const RefundRequestSchema = buildSchema<RefundRequest>(z.fromJSONSchema, RefundRequestDef);
+
+RefundRequestSchema.parse({ payId: "tx-1", refundAmount: 5.5 });
+```
+
+See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
 
 ## License
 
