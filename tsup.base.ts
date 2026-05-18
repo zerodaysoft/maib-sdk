@@ -8,4 +8,5 @@ export const baseConfig: Options = {
   clean: true,
   minify: true,
   treeshake: true,
+  external: ["zod"],
 };

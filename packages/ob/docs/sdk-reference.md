@@ -1,7 +1,8 @@
 ---
 package: "@maib/ob"
 version: 0.2.4
-description: TypeScript SDK for the maib Open Banking API (OBP) — accounts, transactions, payments, consents.
+description:
+  TypeScript SDK for the maib Open Banking API (OBP) — accounts, transactions, payments, consents.
 platform: Open Bank Project (OBP) v5.1.0
 upstream_docs: https://ob-sandbox.maib.md
 upstream_updated: 2025-11-10
@@ -9,16 +10,21 @@ upstream_updated: 2025-11-10
 
 # @maib/ob SDK Reference
 
-TypeScript SDK for the maib Open Banking API built on the Open Bank Project (OBP) v5.1.0 platform. Provides typed methods for bank accounts, transactions, payments, and consent management.
+TypeScript SDK for the maib Open Banking API built on the Open Bank Project (OBP) v5.1.0 platform.
+Provides typed methods for bank accounts, transactions, payments, and consent management.
 
 ## Architecture
 
-`ObClient` is a standalone client. It does **not** extend `BaseClient` from `@maib/core` -- it has its own HTTP and authentication implementation.
+`ObClient` is a standalone client. It does **not** extend `BaseClient` from `@maib/core` -- it has
+its own HTTP and authentication implementation.
 
-- **Authentication**: DirectLogin flow (username + password + consumerKey exchanged for a JWT token via `POST /my/logins/direct`).
-- **Token caching**: Tokens are cached internally by `TokenManager` from `@maib/http`. The default TTL is 1 hour (3,600,000 ms). The token refreshes automatically before expiry.
+- **Authentication**: DirectLogin flow (username + password + consumerKey exchanged for a JWT token
+  via `POST /my/logins/direct`).
+- **Token caching**: Tokens are cached internally by `TokenManager` from `@maib/http`. The default
+  TTL is 1 hour (3,600,000 ms). The token refreshes automatically before expiry.
 - **Environment**: Only the sandbox environment is available (`https://ob-sandbox.maib.md`).
-- **No response envelope**: Unlike the merchant APIs, OBP returns raw JSON -- there is no `{ ok, result }` wrapper.
+- **No response envelope**: Unlike the merchant APIs, OBP returns raw JSON -- there is no
+  `{ ok, result }` wrapper.
 
 ## Installation
 
@@ -375,11 +381,9 @@ const consent = await client.createConsent("maib.md.sandbox", "SMS", {
 // consent.status === "INITIATED"
 
 // Step 2: Answer the SCA challenge
-const authorized = await client.answerConsentChallenge(
-  "maib.md.sandbox",
-  consent.consent_id,
-  { answer: "123456" },
-);
+const authorized = await client.answerConsentChallenge("maib.md.sandbox", consent.consent_id, {
+  answer: "123456",
+});
 // authorized.status === "AUTHORISED"
 ```
 
@@ -496,7 +500,8 @@ class ObError extends Error {
 | `obpCode`    | `string \| undefined` | OBP error code parsed from the message prefix (e.g. `"OBP-20001"`). Present only when the message starts with an OBP code pattern. |
 | `message`    | `string`              | Full error message from the API.                                                                                                   |
 
-The `obpCode` is extracted automatically when the error message begins with a pattern like `OBP-20001:`. This allows you to match specific OBP error codes programmatically:
+The `obpCode` is extracted automatically when the error message begins with a pattern like
+`OBP-20001:`. This allows you to match specific OBP error codes programmatically:
 
 ```typescript
 try {
@@ -512,7 +517,8 @@ try {
 
 ### `NetworkError`
 
-Re-exported from `@maib/http`. Thrown when the HTTP request itself fails before receiving an API response (DNS failure, timeout, connection refused).
+Re-exported from `@maib/http`. Thrown when the HTTP request itself fails before receiving an API
+response (DNS failure, timeout, connection refused).
 
 ```typescript
 class NetworkError extends Error {
@@ -547,7 +553,11 @@ Everything below is exported from the `@maib/ob` package entry point:
 
 **Constants**: `OB_DEFAULT_HOST`, `ConsentStatus`, `TransactionRequestStatus`
 
-**Types** (type-only exports): `AnswerConsentChallengeBody`, `CreateConsentBody`, `CreatePaymentBody`, `ListTransactionsParams`, `ObAccount`, `ObAccountDetails`, `ObAccountOwner`, `ObAccountView`, `ObAmountOfMoney`, `ObApiInfo`, `ObApiVersion`, `ObBank`, `ObBankRouting`, `ObChallenge`, `ObClientConfig`, `ObConsent`, `ObTransaction`, `ObTransactionAccount`, `ObTransactionDetails`, `ObTransactionRequest`, `ObTransactionRequestType`, `ObUser`
+**Types** (type-only exports): `AnswerConsentChallengeBody`, `CreateConsentBody`,
+`CreatePaymentBody`, `ListTransactionsParams`, `ObAccount`, `ObAccountDetails`, `ObAccountOwner`,
+`ObAccountView`, `ObAmountOfMoney`, `ObApiInfo`, `ObApiVersion`, `ObBank`, `ObBankRouting`,
+`ObChallenge`, `ObClientConfig`, `ObConsent`, `ObTransaction`, `ObTransactionAccount`,
+`ObTransactionDetails`, `ObTransactionRequest`, `ObTransactionRequestType`, `ObUser`
 
 `NetworkError` is not re-exported from `@maib/ob`. Import it from `@maib/http` directly:
 

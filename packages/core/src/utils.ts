@@ -1,4 +1,4 @@
-import type { MaibResponse } from "./types.js";
+import type { MaibResponse } from "./types";
 
 /**
  * Type guard that checks whether a parsed JSON value is a maib API envelope

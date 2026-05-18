@@ -1,7 +1,9 @@
 ---
 package: "@maib/ecommerce"
 version: 0.2.4
-description: TypeScript SDK for the maib e-Commerce payment gateway — direct, two-step, recurring, one-click payments.
+description:
+  TypeScript SDK for the maib e-Commerce payment gateway — direct, two-step, recurring, one-click
+  payments.
 api_version: v1
 upstream_docs: https://docs.maibmerchants.md/e-commerce
 upstream_updated: 2026-04-23
@@ -9,7 +11,8 @@ upstream_updated: 2026-04-23
 
 # @maib/ecommerce SDK Reference
 
-TypeScript SDK for the maib e-Commerce payment gateway (v1 API). Process direct payments, two-step (hold/complete) payments, recurring charges, one-click payments, refunds, and callback verification.
+TypeScript SDK for the maib e-Commerce payment gateway (v1 API). Process direct payments, two-step
+(hold/complete) payments, recurring charges, one-click payments, refunds, and callback verification.
 
 ## Installation
 
@@ -22,8 +25,11 @@ yarn add @maib/ecommerce
 ## Architecture
 
 - `EcommerceClient` extends `BaseClient` from `@maib/core`.
-- Authentication uses OAuth2 Client Credentials flow with `projectId`/`projectSecret` (not `clientId`/`clientSecret`). Tokens are acquired and refreshed automatically, including refresh-token rotation for the v1 API.
-- Callback signature verification uses **SHA-256 sorted-values** (different from `@maib/checkout` which uses HMAC-SHA256).
+- Authentication uses OAuth2 Client Credentials flow with `projectId`/`projectSecret` (not
+  `clientId`/`clientSecret`). Tokens are acquired and refreshed automatically, including
+  refresh-token rotation for the v1 API.
+- Callback signature verification uses **SHA-256 sorted-values** (different from `@maib/checkout`
+  which uses HMAC-SHA256).
 - No sandbox environment support. The v1 e-Commerce API is production-only.
 - All API responses are automatically unwrapped from the `{ result: T, ok: true }` envelope.
 
@@ -45,7 +51,8 @@ const client = new EcommerceClient({
 
 ### EcommerceClientConfig
 
-Extends `MaibClientConfig` but replaces `clientId`/`clientSecret` with `projectId`/`projectSecret` and omits the `environment` option (production-only).
+Extends `MaibClientConfig` but replaces `clientId`/`clientSecret` with `projectId`/`projectSecret`
+and omits the `environment` option (production-only).
 
 | Property        | Type           | Required | Default                          | Description                                                                                                                    |
 | --------------- | -------------- | -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -55,7 +62,8 @@ Extends `MaibClientConfig` but replaces `clientId`/`clientSecret` with `projectI
 | `baseUrl`       | `string`       | No       | `"https://api.maibmerchants.md"` | Override the API host.                                                                                                         |
 | `fetch`         | `typeof fetch` | No       | `globalThis.fetch`               | Custom fetch implementation for testing or Node.js polyfills.                                                                  |
 
-> **Note**: `EcommerceClientConfig` does not accept an `environment` property. The v1 e-Commerce API has no sandbox. To test, use the `baseUrl` override.
+> **Note**: `EcommerceClientConfig` does not accept an `environment` property. The v1 e-Commerce API
+> has no sandbox. To test, use the `baseUrl` override.
 
 ---
 
@@ -414,7 +422,8 @@ savecardOneclick(params: SavecardOneclickRequest): Promise<PaymentInitResult>
 
 #### executeOneclick
 
-Execute a one-click payment using a previously saved card. The payer is redirected to a simplified checkout page (no card entry required).
+Execute a one-click payment using a previously saved card. The payer is redirected to a simplified
+checkout page (no card entry required).
 
 ```typescript
 executeOneclick(params: ExecuteOneclickRequest): Promise<PaymentInitResult>
@@ -478,9 +487,11 @@ await client.deleteCard("biller_xyz");
 
 ### Callback Signature Verification
 
-E-commerce callbacks use SHA-256 signature verification based on sorted payload values. The callback POST body contains a `result` object and a `signature` string.
+E-commerce callbacks use SHA-256 signature verification based on sorted payload values. The callback
+POST body contains a `result` object and a `signature` string.
 
-**Important difference from `@maib/checkout`**: This method takes a parsed `CallbackPayload` object, not a raw body string.
+**Important difference from `@maib/checkout`**: This method takes a parsed `CallbackPayload` object,
+not a raw body string.
 
 #### verifyCallback
 
@@ -519,7 +530,8 @@ Returns `true` if the signature is valid.
 
 Throws `Error` if `signatureKey` was not provided in the constructor config.
 
-**Signature algorithm**: Sort all `result` keys alphabetically (recursively), collect all leaf values in order, join with `:`, append the `signatureKey`, compute SHA-256, and base64-encode.
+**Signature algorithm**: Sort all `result` keys alphabetically (recursively), collect all leaf
+values in order, join with `:`, append the `signatureKey`, compute SHA-256, and base64-encode.
 
 **Example (Express.js)**
 
@@ -579,7 +591,8 @@ const signature = client.computeCallbackSignature({
 
 ## Enums
 
-All enums are plain objects with `as const` (not TypeScript `enum`). You can use either the constant or the string literal value.
+All enums are plain objects with `as const` (not TypeScript `enum`). You can use either the constant
+or the string literal value.
 
 ### TransactionStatus
 
@@ -635,7 +648,8 @@ These types are re-exported from `@maib/ecommerce` for convenience.
 | `Language.EN` | `"en"` |
 | `Language.RU` | `"ru"` |
 
-> **Note**: `Environment` is not re-exported from `@maib/ecommerce` because the v1 API does not support sandbox environments.
+> **Note**: `Environment` is not re-exported from `@maib/ecommerce` because the v1 API does not
+> support sandbox environments.
 
 ---
 

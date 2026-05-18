@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
+
+import { baseConfig } from "../../tsup.base";
 import { defineConfig } from "tsup";
-import { baseConfig } from "../../tsup.base.js";
 
 const { version } = JSON.parse(readFileSync("./package.json", "utf-8"));
 

@@ -9,7 +9,9 @@ upstream_updated: 2026-04-23
 
 # @maib/rtp SDK Reference
 
-TypeScript SDK for the maib Request to Pay (RTP) API. You use this SDK to create bank-initiated payment requests, track their status, handle cancellations and refunds, and verify callback signatures.
+TypeScript SDK for the maib Request to Pay (RTP) API. You use this SDK to create bank-initiated
+payment requests, track their status, handle cancellations and refunds, and verify callback
+signatures.
 
 ## Installation
 
@@ -50,7 +52,8 @@ console.log(rtp.expiresAt); // "2026-04-17T12:00:00Z"
 
 `RtpClient` extends `BaseClient` from `@maib/core`. The base client handles:
 
-- **OAuth2 Client Credentials authentication** with automatic token acquisition and refresh. You never manage tokens manually.
+- **OAuth2 Client Credentials authentication** with automatic token acquisition and refresh. You
+  never manage tokens manually.
 - **API response unwrapping** from the `{ result: T, ok: true }` envelope.
 - **Error mapping** to `MaibError` (API errors) and `MaibNetworkError` (network failures).
 
@@ -241,7 +244,8 @@ const result = await client.cancel("rtp_abc123", {
 
 ### `refund(payId, params)`
 
-Refund a completed payment. You pass the `payId` (not the `rtpId`) from the callback or test-accept result.
+Refund a completed payment. You pass the `payId` (not the `rtpId`) from the callback or test-accept
+result.
 
 **Signature**: `refund(payId: string, params: RefundRtpRequest): Promise<RefundRtpResult>`
 
@@ -341,7 +345,8 @@ const rejected = await client.testReject("rtp_abc123");
 
 ### `verifyCallback(payload)`
 
-Verify the SHA-256 signature of an incoming callback notification. Returns `true` if the signature is valid, `false` otherwise.
+Verify the SHA-256 signature of an incoming callback notification. Returns `true` if the signature
+is valid, `false` otherwise.
 
 Throws an `Error` if `signatureKey` was not provided in the client config.
 
@@ -369,13 +374,15 @@ app.post("/webhooks/rtp", (req, res) => {
 
 ### `computeCallbackSignature(result)`
 
-Compute a SHA-256 signature for a callback result object. Useful for testing or manually verifying signatures.
+Compute a SHA-256 signature for a callback result object. Useful for testing or manually verifying
+signatures.
 
 Throws an `Error` if `signatureKey` was not provided in the client config.
 
 **Signature**: `computeCallbackSignature(result: Record<string, unknown>): string`
 
-**Signature algorithm**: Sort object keys alphabetically (recursively), collect all leaf values in order, join with `:`, append the `signatureKey`, SHA-256 hash, and Base64-encode the digest.
+**Signature algorithm**: Sort object keys alphabetically (recursively), collect all leaf values in
+order, join with `:`, append the `signatureKey`, SHA-256 hash, and Base64-encode the digest.
 
 ```typescript
 const signature = client.computeCallbackSignature({
@@ -463,7 +470,8 @@ The SDK throws two error types:
 
 ### MaibError
 
-Thrown when the maib API returns a response with `ok: false`. Indicates a business logic or validation error.
+Thrown when the maib API returns a response with `ok: false`. Indicates a business logic or
+validation error.
 
 | Property     | Type             | Description                                          |
 | ------------ | ---------------- | ---------------------------------------------------- |
@@ -495,7 +503,8 @@ try {
 
 ### MaibNetworkError
 
-Thrown when a network request fails (DNS resolution, timeout, connection refused, invalid JSON in response). Wraps the underlying cause.
+Thrown when a network request fails (DNS resolution, timeout, connection refused, invalid JSON in
+response). Wraps the underlying cause.
 
 | Property  | Type      | Description                                 |
 | --------- | --------- | ------------------------------------------- |

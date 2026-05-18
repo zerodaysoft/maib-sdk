@@ -1,5 +1,4 @@
 import type { PaginatedResult } from "@maib/core";
-import { BaseClient, computeHmacSignature, verifyHmacSignature } from "@maib/core";
 import type {
   CancelSessionResult,
   CreateSessionRequest,
@@ -11,7 +10,9 @@ import type {
   RefundRequest,
   RefundResult,
   SessionDetails,
-} from "./types.js";
+} from "./types";
+
+import { BaseClient, computeHmacSignature, verifyHmacSignature } from "@maib/core";
 
 /**
  * Client for the maib hosted Checkout API (v2).

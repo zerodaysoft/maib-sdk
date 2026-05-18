@@ -1,7 +1,8 @@
 ---
 package: "@maib/checkout"
 version: 0.2.4
-description: TypeScript SDK for the maib hosted Checkout API — session management, payments, and refunds.
+description:
+  TypeScript SDK for the maib hosted Checkout API — session management, payments, and refunds.
 api_version: v2
 upstream_docs: https://docs.maibmerchants.md/checkout
 upstream_updated: 2026-04-23
@@ -9,7 +10,8 @@ upstream_updated: 2026-04-23
 
 # @maib/checkout SDK Reference
 
-TypeScript SDK for the maib hosted Checkout API (v2). Create checkout sessions, process payments, issue refunds, and verify callback signatures.
+TypeScript SDK for the maib hosted Checkout API (v2). Create checkout sessions, process payments,
+issue refunds, and verify callback signatures.
 
 ## Installation
 
@@ -22,10 +24,13 @@ yarn add @maib/checkout
 ## Architecture
 
 - `CheckoutClient` extends `BaseClient` from `@maib/core`.
-- Authentication uses OAuth2 Client Credentials flow. Tokens are acquired and refreshed automatically; you never manage tokens directly.
-- Callback signature verification uses **HMAC-SHA256** (different from `@maib/ecommerce` which uses SHA-256 sorted-values).
+- Authentication uses OAuth2 Client Credentials flow. Tokens are acquired and refreshed
+  automatically; you never manage tokens directly.
+- Callback signature verification uses **HMAC-SHA256** (different from `@maib/ecommerce` which uses
+  SHA-256 sorted-values).
 - All API responses are automatically unwrapped from the `{ result: T, ok: true }` envelope.
-- HTTP requests include automatic retry-safe error handling. Network failures throw `MaibNetworkError`; API errors throw `MaibError`.
+- HTTP requests include automatic retry-safe error handling. Network failures throw
+  `MaibNetworkError`; API errors throw `MaibError`.
 
 ## Configuration
 
@@ -420,11 +425,13 @@ getRefund(refundId: string): Promise<RefundDetails>
 
 ### Callback Signature Verification
 
-Checkout callbacks are sent as POST requests to your `callbackUrl`. The request includes `X-Signature` and `X-Signature-Timestamp` headers for HMAC-SHA256 verification.
+Checkout callbacks are sent as POST requests to your `callbackUrl`. The request includes
+`X-Signature` and `X-Signature-Timestamp` headers for HMAC-SHA256 verification.
 
 #### verifyCallback
 
-Verify the HMAC-SHA256 signature of an incoming callback. Uses timing-safe comparison. Handles duplicated headers from reverse proxies (e.g. Cloudflare).
+Verify the HMAC-SHA256 signature of an incoming callback. Uses timing-safe comparison. Handles
+duplicated headers from reverse proxies (e.g. Cloudflare).
 
 ```typescript
 verifyCallback(rawBody: string, xSignature: string, xTimestamp: string): boolean
@@ -448,25 +455,21 @@ import express from "express";
 const app = express();
 
 // IMPORTANT: Use raw body — do not use express.json() before this route
-app.post(
-  "/api/maib/callback",
-  express.raw({ type: "application/json" }),
-  (req, res) => {
-    const rawBody = req.body.toString("utf-8");
-    const xSignature = req.headers["x-signature"] as string;
-    const xTimestamp = req.headers["x-signature-timestamp"] as string;
+app.post("/api/maib/callback", express.raw({ type: "application/json" }), (req, res) => {
+  const rawBody = req.body.toString("utf-8");
+  const xSignature = req.headers["x-signature"] as string;
+  const xTimestamp = req.headers["x-signature-timestamp"] as string;
 
-    if (!client.verifyCallback(rawBody, xSignature, xTimestamp)) {
-      return res.status(401).send("Invalid signature");
-    }
+  if (!client.verifyCallback(rawBody, xSignature, xTimestamp)) {
+    return res.status(401).send("Invalid signature");
+  }
 
-    const payload: CheckoutCallbackPayload = JSON.parse(rawBody);
-    // Process the payment notification...
-    console.log(payload.paymentId, payload.paymentStatus);
+  const payload: CheckoutCallbackPayload = JSON.parse(rawBody);
+  // Process the payment notification...
+  console.log(payload.paymentId, payload.paymentStatus);
 
-    res.status(200).send("OK");
-  },
-);
+  res.status(200).send("OK");
+});
 ```
 
 ---
@@ -487,7 +490,8 @@ Throws `Error` if `signatureKey` was not provided in the constructor config.
 
 ## Callback Payload
 
-When a checkout completes, maib sends a POST request to your `callbackUrl` with a JSON body matching `CheckoutCallbackPayload`.
+When a checkout completes, maib sends a POST request to your `callbackUrl` with a JSON body matching
+`CheckoutCallbackPayload`.
 
 **CheckoutCallbackPayload**
 
@@ -526,7 +530,8 @@ When a checkout completes, maib sends a POST request to your `callbackUrl` with 
 
 ## Enums
 
-All enums are plain objects with `as const` (not TypeScript `enum`). You can use either the constant or the string literal value.
+All enums are plain objects with `as const` (not TypeScript `enum`). You can use either the constant
+or the string literal value.
 
 ### CheckoutStatus
 

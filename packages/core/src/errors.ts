@@ -1,4 +1,4 @@
-import type { MaibApiError } from "./types.js";
+import type { MaibApiError } from "./types";
 
 export { NetworkError as MaibNetworkError } from "@maib/http";
 

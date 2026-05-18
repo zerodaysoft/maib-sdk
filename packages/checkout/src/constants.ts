@@ -1,5 +1,7 @@
 // Shared enums are centralised in @maib/core and re-exported here for convenience.
 export {
+  Currency,
+  Language,
   PaymentEntryPoint,
   PaymentStatus,
   RefundStatus,

@@ -37,7 +37,19 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "./schemas": {
+      "import": {
+        "types": "./dist/schemas-builder.d.ts",
+        "default": "./dist/schemas-builder.js"
+      },
+      "require": {
+        "types": "./dist/schemas-builder.d.cts",
+        "default": "./dist/schemas-builder.cjs"
+      }
+    },
+    "./schemas/bundle.json": "./dist/schemas/bundle.json",
+    "./schemas/*.json": "./dist/schemas/*.json"
   },
   "files": [
     "dist"
@@ -49,12 +61,15 @@
   "dependencies": {
     "@maib/http": "workspace:*"
   },
+  "devDependencies": {
+    "@maib/internal-schemas": "workspace:*"
+  },
   "scripts": {
-    "build": "tsup && node ../../scripts/copy-docs.mjs",
-    "dev": "tsup --watch",
+    "build": "node ../../scripts/build-schemas.mjs --pre && tsup && node ../../scripts/build-schemas.mjs --post && node ../../scripts/copy-docs.mjs",
+    "dev": "node ../../scripts/build-schemas.mjs --pre && tsup --watch",
     "test": "vitest run",
-    "lint": "biome check src tests",
-    "lint:fix": "biome check --write src tests",
+    "lint": "biome check src __tests__",
+    "lint:fix": "biome check --write src __tests__",
     "typecheck": "tsc --noEmit"
   }
 }

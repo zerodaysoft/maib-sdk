@@ -1,6 +1,7 @@
 # @maib/checkout
 
-TypeScript SDK for the [maib Checkout API](https://docs.maibmerchants.md/checkout) — hosted checkout sessions, payments, and refunds.
+TypeScript SDK for the [maib Checkout API](https://docs.maibmerchants.md/checkout) — hosted checkout
+sessions, payments, and refunds.
 
 ## Install
 
@@ -112,11 +113,7 @@ const client = new CheckoutClient({
 
 ```typescript
 // In your webhook handler
-const isValid = client.verifyCallback(
-  rawBody,
-  xSignatureHeader,
-  xTimestampHeader,
-);
+const isValid = client.verifyCallback(rawBody, xSignatureHeader, xTimestampHeader);
 ```
 
 ## Enums
@@ -139,8 +136,35 @@ RefundStatus.REJECTED; // "Rejected"
 
 This package ships documentation in `dist/docs/` for AI coding agents and tooling:
 
-- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
-- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from [docs.maibmerchants.md](https://docs.maibmerchants.md/checkout)
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods,
+  types, params)
+- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from
+  [docs.maibmerchants.md](https://docs.maibmerchants.md/checkout)
+- [`schemas.md`](./docs/schemas.md) — How to consume the shipped JSON Schema files at runtime with
+  Zod, Valibot, ArkType, or any Standard-Schema-compatible validator
+
+## Runtime validation (optional)
+
+`@maib/checkout` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic
+helper. Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once
+converted, the parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of
+the Standard Schema ecosystem. Zod is the runnable example:
+
+```ts
+import { z } from "zod";
+import type { CancelSessionResult } from "@maib/checkout";
+import { buildSchema } from "@maib/checkout/schemas";
+import CancelSessionResultDef from "@maib/checkout/schemas/CancelSessionResult.json" with { type: "json" };
+
+export const CancelSessionResultSchema = buildSchema<CancelSessionResult>(
+  z.fromJSONSchema,
+  CancelSessionResultDef,
+);
+
+CancelSessionResultSchema.parse({ checkoutId: "c1", status: "Cancelled" });
+```
+
+See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
 
 ## License
 

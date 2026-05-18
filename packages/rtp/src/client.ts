@@ -1,5 +1,4 @@
 import type { PaginatedResult } from "@maib/core";
-import { BaseClient, computeSignature, verifySignature } from "@maib/core";
 import type {
   CancelRtpRequest,
   CancelRtpResult,
@@ -13,7 +12,9 @@ import type {
   TestAcceptRequest,
   TestAcceptResult,
   TestRejectResult,
-} from "./types.js";
+} from "./types";
+
+import { BaseClient, computeSignature, verifySignature } from "@maib/core";
 
 /**
  * Client for the maib Request to Pay (RTP) API (v2).

@@ -1,5 +1,4 @@
 import type { PaginatedResult } from "@maib/core";
-import { BaseClient, computeSignature, verifySignature } from "@maib/core";
 import type {
   CancelExtensionRequest,
   CancelExtensionResult,
@@ -21,7 +20,9 @@ import type {
   RefundPaymentRequest,
   TestPayRequest,
   TestPayResult,
-} from "./types.js";
+} from "./types";
+
+import { BaseClient, computeSignature, verifySignature } from "@maib/core";
 
 /**
  * Client for the maib MIA QR payment API (v2).

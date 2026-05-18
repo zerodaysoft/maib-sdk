@@ -1,4 +1,7 @@
+import { baseConfig } from "../../tsup.base";
 import { defineConfig } from "tsup";
-import { baseConfig } from "../../tsup.base.js";
 
-export default defineConfig({ ...baseConfig, entry: ["src/index.ts"] });
+export default defineConfig({
+  ...baseConfig,
+  entry: ["src/index.ts", "src/schemas-builder.ts"],
+});

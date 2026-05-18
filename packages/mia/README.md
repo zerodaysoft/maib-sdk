@@ -1,6 +1,7 @@
 # @maib/mia
 
-TypeScript SDK for the [maib MIA QR payment API](https://docs.maibmerchants.md/mia-qr-api/en) — static, dynamic, and hybrid QR code payments.
+TypeScript SDK for the [maib MIA QR payment API](https://docs.maibmerchants.md/mia-qr-api/en) —
+static, dynamic, and hybrid QR code payments.
 
 ## Install
 
@@ -178,8 +179,40 @@ MiaPaymentStatus.REFUNDED; // "Refunded"
 
 This package ships documentation in `dist/docs/` for AI coding agents and tooling:
 
-- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
-- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from [docs.maibmerchants.md](https://docs.maibmerchants.md/mia-qr-api/en)
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods,
+  types, params)
+- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from
+  [docs.maibmerchants.md](https://docs.maibmerchants.md/mia-qr-api/en)
+- [`schemas.md`](./docs/schemas.md) — How to consume the shipped JSON Schema files at runtime with
+  Zod, Valibot, ArkType, or any Standard-Schema-compatible validator
+
+## Runtime validation (optional)
+
+`@maib/mia` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic
+helper. Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once
+converted, the parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of
+the Standard Schema ecosystem. Zod is the runnable example:
+
+```ts
+import { z } from "zod";
+import type { CreateQrRequest } from "@maib/mia";
+import { buildSchema } from "@maib/mia/schemas";
+import CreateQrRequestDef from "@maib/mia/schemas/CreateQrRequest.json" with { type: "json" };
+
+export const CreateQrRequestSchema = buildSchema<CreateQrRequest>(
+  z.fromJSONSchema,
+  CreateQrRequestDef,
+);
+
+CreateQrRequestSchema.parse({
+  type: "Static",
+  amountType: "Free",
+  currency: "MDL",
+  description: "Tip jar",
+});
+```
+
+See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
 
 ## License
 

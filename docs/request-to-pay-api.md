@@ -1,7 +1,6 @@
 # maib Request to Pay (RTP) API Reference
 
-> Source: https://docs.maibmerchants.md/request-to-pay
-> Fetched: 2026-03-23
+> Source: https://docs.maibmerchants.md/request-to-pay Fetched: 2026-03-23
 
 ---
 
@@ -30,7 +29,11 @@
 
 ## Overview
 
-Request to Pay (RTP) is a bank-initiated payment request that a merchant can create and send to a customer through the bank's mobile app. Merchants specify payment details (amount, currency, description, expiration) and customers receive a notification in their banking app where they can accept or reject the payment. When the payment is executed, the merchant receives a server-to-server callback containing the payment outcome.
+Request to Pay (RTP) is a bank-initiated payment request that a merchant can create and send to a
+customer through the bank's mobile app. Merchants specify payment details (amount, currency,
+description, expiration) and customers receive a notification in their banking app where they can
+accept or reject the payment. When the payment is executed, the merchant receives a server-to-server
+callback containing the payment outcome.
 
 ---
 
@@ -51,7 +54,8 @@ Request to Pay (RTP) is a bank-initiated payment request that a merchant can cre
 - **Date/Time Format**: ISO 8601-1:2019 with timezone (e.g., `2029-10-22T10:32:28+03:00`)
 - **Currency**: `MDL` (ISO 4217) - only supported currency
 - **Identifiers**: UUID/GUID format (`rtpId`, `payId`, `refundId`)
-- **Response Structure**: All responses include a top-level `ok` boolean; on failure, an `errors` array is present
+- **Response Structure**: All responses include a top-level `ok` boolean; on failure, an `errors`
+  array is present
 
 ### Standard Response Envelope
 
@@ -136,7 +140,8 @@ Content-Type: application/json
 
 **POST** `/v2/rtp`
 
-Creates a new RTP addressed to a customer alias (phone number). The RTP is created in **Pending** status and automatically transitions to **Expired** if not addressed before `expiresAt`.
+Creates a new RTP addressed to a customer alias (phone number). The RTP is created in **Pending**
+status and automatically transitions to **Expired** if not addressed before `expiresAt`.
 
 #### Request Headers
 
@@ -287,7 +292,8 @@ curl -G "https://api.maibmerchants.md/v2/rtp/123e4567-e89b-12d3-a456-42661417400
 
 **POST** `/v2/rtp/{id}/cancel`
 
-Cancel an RTP that is still in **Pending** state. Cannot cancel if already Accepted, Rejected, or Expired.
+Cancel an RTP that is still in **Pending** state. Cannot cancel if already Accepted, Rejected, or
+Expired.
 
 #### Request Headers
 
@@ -439,14 +445,17 @@ Content-Type: application/json
 
 #### Notes
 
-- Store both `payId` and `rtpId` after successful payments. Use `payId` specifically for refund operations.
+- Store both `payId` and `rtpId` after successful payments. Use `payId` specifically for refund
+  operations.
 - Partial refunds are **not** available (error code `34001` will be returned).
 
 ---
 
 ## Sandbox Simulation
 
-These endpoints are available **only** in the sandbox environment (`https://sandbox.maibmerchants.md`). They allow testing complete payment flows without real transactions.
+These endpoints are available **only** in the sandbox environment
+(`https://sandbox.maibmerchants.md`). They allow testing complete payment flows without real
+transactions.
 
 ### Simulate Acceptance
 
@@ -537,19 +546,22 @@ No request body parameters documented.
 
 #### Note
 
-The test-accept response uses `result.status` while test-reject uses `result.rtpStatus` based on the documentation. This may be an inconsistency in the docs - verify with actual API behavior.
+The test-accept response uses `result.status` while test-reject uses `result.rtpStatus` based on the
+documentation. This may be an inconsistency in the docs - verify with actual API behavior.
 
 ---
 
 ## Callback Notifications
 
-After a successful payment execution, maib sends a **server-to-server POST** request to the merchant's `callbackUrl`.
+After a successful payment execution, maib sends a **server-to-server POST** request to the
+merchant's `callbackUrl`.
 
 ### Callback Request
 
 - **HTTP Method**: POST
 - **Content-Type**: `application/json`
-- **Success Criterion**: Your server must respond with **HTTP 200 OK**. A notification is considered successfully received only if your server responds with `200`.
+- **Success Criterion**: Your server must respond with **HTTP 200 OK**. A notification is considered
+  successfully received only if your server responds with `200`.
 
 ### Callback Payload
 
@@ -597,13 +609,15 @@ After a successful payment execution, maib sends a **server-to-server POST** req
 
 ### Retry Policy
 
-Not explicitly specified. If your server rejects or delays a callback, use `GET /v2/rtp/{id}` to verify payment status.
+Not explicitly specified. If your server rejects or delays a callback, use `GET /v2/rtp/{id}` to
+verify payment status.
 
 ---
 
 ## Signature Verification
 
-The `signature` field in callback notifications must be verified to ensure data integrity and authenticity.
+The `signature` field in callback notifications must be verified to ensure data integrity and
+authenticity.
 
 ### Algorithm
 
@@ -635,16 +649,20 @@ is_valid = (computed_signature == received_signature)
 
 Given the callback payload above and assuming a Signature Key:
 
-1. Non-empty result fields: `rtpId`, `rtpStatus`, `orderId`, `payId`, `amount`, `commission`, `currency`, `payerName`, `payerIban`, `executedAt`
+1. Non-empty result fields: `rtpId`, `rtpStatus`, `orderId`, `payId`, `amount`, `commission`,
+   `currency`, `payerName`, `payerIban`, `executedAt`
 2. Format decimals: `amount` = `100.00`, `commission` = `1.00`
-3. Sort alphabetically (case-insensitive): `amount`, `commission`, `currency`, `executedAt`, `orderId`, `payId`, `payerIban`, `payerName`, `rtpId`, `rtpStatus`
-4. Concatenate values: `100.00:1.00:MDL:2029-10-22T10:32:28+03:00:123:c56a4180-65aa-42ec-a945-5fd21dec0538:MD24AG000225100014156789:John D.:123e4567-e89b-12d3-a456-426614174000:Accepted`
+3. Sort alphabetically (case-insensitive): `amount`, `commission`, `currency`, `executedAt`,
+   `orderId`, `payId`, `payerIban`, `payerName`, `rtpId`, `rtpStatus`
+4. Concatenate values:
+   `100.00:1.00:MDL:2029-10-22T10:32:28+03:00:123:c56a4180-65aa-42ec-a945-5fd21dec0538:MD24AG000225100014156789:John D.:123e4567-e89b-12d3-a456-426614174000:Accepted`
 5. Append signature key: `...Accepted:{SIGNATURE_KEY}`
 6. SHA-256 + Base64 = computed signature
 
 ### Validation Failure
 
-If signature verification fails, return a **non-200** HTTP status code. Do **not** fulfill the order.
+If signature verification fails, return a **non-200** HTTP status code. Do **not** fulfill the
+order.
 
 ---
 

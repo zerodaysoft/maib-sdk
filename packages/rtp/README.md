@@ -1,6 +1,7 @@
 # @maib/rtp
 
-TypeScript SDK for the [maib Request to Pay (RTP) API](https://docs.maibmerchants.md/request-to-pay) — bank-initiated payment requests.
+TypeScript SDK for the [maib Request to Pay (RTP) API](https://docs.maibmerchants.md/request-to-pay)
+— bank-initiated payment requests.
 
 ## Install
 
@@ -116,8 +117,41 @@ RtpStatus.EXPIRED; // "Expired"
 
 This package ships documentation in `dist/docs/` for AI coding agents and tooling:
 
-- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods, types, params)
-- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from [docs.maibmerchants.md](https://docs.maibmerchants.md/request-to-pay)
+- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (all methods,
+  types, params)
+- [`api-reference.md`](./docs/api-reference.md) — Upstream REST API reference from
+  [docs.maibmerchants.md](https://docs.maibmerchants.md/request-to-pay)
+- [`schemas.md`](./docs/schemas.md) — How to consume the shipped JSON Schema files at runtime with
+  Zod, Valibot, ArkType, or any Standard-Schema-compatible validator
+
+## Runtime validation (optional)
+
+`@maib/rtp` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic
+helper. Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once
+converted, the parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of
+the Standard Schema ecosystem. Zod is the runnable example:
+
+```ts
+import { z } from "zod";
+import type { CreateRtpRequest } from "@maib/rtp";
+import { buildSchema } from "@maib/rtp/schemas";
+import CreateRtpRequestDef from "@maib/rtp/schemas/CreateRtpRequest.json" with { type: "json" };
+
+export const CreateRtpRequestSchema = buildSchema<CreateRtpRequest>(
+  z.fromJSONSchema,
+  CreateRtpRequestDef,
+);
+
+CreateRtpRequestSchema.parse({
+  alias: "37360000000",
+  amount: 25,
+  expiresAt: "2029-01-01T00:00:00Z",
+  currency: "MDL",
+  description: "Loan repayment",
+});
+```
+
+See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
 
 ## License
 

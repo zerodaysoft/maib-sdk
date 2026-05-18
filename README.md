@@ -1,6 +1,7 @@
 # maib SDK for Node.js
 
-TypeScript SDK for [maib](https://www.maib.md) merchant APIs — checkout, e-commerce payments, request to pay, MIA QR, and open banking.
+TypeScript SDK for [maib](https://www.maib.md) merchant APIs — checkout, e-commerce payments,
+request to pay, MIA QR, and open banking.
 
 Built by [Zero-day](https://www.zero-day.md).
 
@@ -63,11 +64,13 @@ const checkout = new CheckoutClient({
 });
 ```
 
-> **Note:** The sandbox environment is available for the Checkout, RTP, MIA QR, and Open Banking APIs. The legacy E-Commerce (v1) API does not support sandbox.
+> **Note:** The sandbox environment is available for the Checkout, RTP, MIA QR, and Open Banking
+> APIs. The legacy E-Commerce (v1) API does not support sandbox.
 
 ## AI coding agents
 
-Each package ships version-matched documentation in `dist/docs/` so AI coding agents (Claude Code, Cursor, Copilot, etc.) can reference accurate APIs instead of relying on training data.
+Each package ships version-matched documentation in `dist/docs/` so AI coding agents (Claude Code,
+Cursor, Copilot, etc.) can reference accurate APIs instead of relying on training data.
 
 ```
 node_modules/@maib/<package>/dist/docs/
@@ -101,7 +104,27 @@ Your training data may be outdated — the bundled docs are the source of truth.
 @AGENTS.md
 ```
 
-The `<!-- BEGIN/END -->` markers delimit the SDK-managed section — add your own project rules outside them.
+The `<!-- BEGIN/END -->` markers delimit the SDK-managed section — add your own project rules
+outside them.
+
+## Runtime validation
+
+Every package ships JSON Schema (`draft-2020-12`) bundles under a `/schemas` subpath so you can
+validate payloads at runtime with the validator of your choice — Zod, Valibot, ArkType, or anything
+[Standard Schema](https://standardschema.dev/)-compatible.
+
+```ts
+import { z } from "zod";
+import type { RefundRequest } from "@maib/checkout";
+import { buildSchema } from "@maib/checkout/schemas";
+import RefundRequestDef from "@maib/checkout/schemas/RefundRequest.json" with { type: "json" };
+
+const RefundRequestSchema = buildSchema<RefundRequest>(z.fromJSONSchema, RefundRequestDef);
+const body = RefundRequestSchema.parse({ amount: 5.5, reason: "duplicate charge" });
+```
+
+The resulting parsers plug into TanStack Form, tRPC, Hono validators, the AI SDK, and anything that
+accepts a Standard Schema. See the `schemas.md` doc bundled with each package for the full guide.
 
 ## Requirements
 

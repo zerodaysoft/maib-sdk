@@ -1,4 +1,4 @@
-import type { TokenState } from "./types.js";
+import type { TokenState } from "./types";
 
 /** Default buffer in seconds before token expiry to trigger a proactive refresh. */
 const DEFAULT_REFRESH_BUFFER_S = 30;

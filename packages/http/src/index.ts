@@ -1,5 +1,6 @@
-export { NetworkError } from "./errors.js";
-export { buildQueryString } from "./query.js";
-export { TokenManager } from "./token-manager.js";
-export type { BaseClientConfig, TokenState } from "./types.js";
-export { SDK_VERSION } from "./version.js";
+export type { BaseClientConfig, TokenState } from "./types";
+
+export { NetworkError } from "./errors";
+export { buildQueryString } from "./query";
+export { TokenManager } from "./token-manager";
+export { SDK_VERSION } from "./version";

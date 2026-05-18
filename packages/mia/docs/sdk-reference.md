@@ -1,7 +1,8 @@
 ---
 package: "@maib/mia"
 version: 0.2.4
-description: TypeScript SDK for the maib MIA QR payment API — static, dynamic, and hybrid QR code payments.
+description:
+  TypeScript SDK for the maib MIA QR payment API — static, dynamic, and hybrid QR code payments.
 api_version: v2
 upstream_docs: https://docs.maibmerchants.md/mia-qr-api/en
 upstream_updated: 2026-04-23
@@ -9,7 +10,9 @@ upstream_updated: 2026-04-23
 
 # @maib/mia SDK Reference
 
-TypeScript SDK for the maib MIA QR payment API. You use this SDK to create QR codes for payments (static, dynamic, and hybrid), manage payment sessions, handle refunds, and verify callback signatures.
+TypeScript SDK for the maib MIA QR payment API. You use this SDK to create QR codes for payments
+(static, dynamic, and hybrid), manage payment sessions, handle refunds, and verify callback
+signatures.
 
 ## Installation
 
@@ -24,13 +27,7 @@ yarn add @maib/mia
 ## Quick Start
 
 ```typescript
-import {
-  MiaClient,
-  Environment,
-  Currency,
-  QrType,
-  AmountType,
-} from "@maib/mia";
+import { MiaClient, Environment, Currency, QrType, AmountType } from "@maib/mia";
 
 const client = new MiaClient({
   clientId: "your-project-id",
@@ -57,11 +54,13 @@ console.log(qr.url); // QR code URL for the payer to scan
 
 `MiaClient` extends `BaseClient` from `@maib/core`. The base client handles:
 
-- **OAuth2 Client Credentials authentication** with automatic token acquisition and refresh. You never manage tokens manually.
+- **OAuth2 Client Credentials authentication** with automatic token acquisition and refresh. You
+  never manage tokens manually.
 - **API response unwrapping** from the `{ result: T, ok: true }` envelope.
 - **Error mapping** to `MaibError` (API errors) and `MaibNetworkError` (network failures).
 
-The MIA client adds QR code management, payment operations, and SHA-256 callback signature verification.
+The MIA client adds QR code management, payment operations, and SHA-256 callback signature
+verification.
 
 **API base URLs**:
 
@@ -74,7 +73,9 @@ Understanding the three QR types is essential for correct integration:
 
 ### Static QR
 
-A **reusable** QR code with fixed metadata. You can print it and display it physically. The payer scans the QR and enters the payment amount themselves. Best for: tip jars, donation boxes, in-store payment points.
+A **reusable** QR code with fixed metadata. You can print it and display it physically. The payer
+scans the QR and enters the payment amount themselves. Best for: tip jars, donation boxes, in-store
+payment points.
 
 - Created with `createQr({ type: QrType.STATIC, ... })`
 - Does not expire (unless you set `expiresAt`)
@@ -83,7 +84,8 @@ A **reusable** QR code with fixed metadata. You can print it and display it phys
 
 ### Dynamic QR
 
-A **one-time** QR code with specific payment details. Each QR is used for a single payment session. Best for: online checkout, invoice payments, specific order payments.
+A **one-time** QR code with specific payment details. Each QR is used for a single payment session.
+Best for: online checkout, invoice payments, specific order payments.
 
 - Created with `createQr({ type: QrType.DYNAMIC, ... })`
 - Single use -- becomes inactive after payment
@@ -92,7 +94,9 @@ A **one-time** QR code with specific payment details. Each QR is used for a sing
 
 ### Hybrid QR
 
-A **reusable base QR** with extensions that define individual payment sessions. The base QR is printed or displayed permanently, and you create extensions programmatically to define each payment. Best for: vending machines, parking meters, recurring point-of-sale displays.
+A **reusable base QR** with extensions that define individual payment sessions. The base QR is
+printed or displayed permanently, and you create extensions programmatically to define each payment.
+Best for: vending machines, parking meters, recurring point-of-sale displays.
 
 - Base QR created with `createHybridQr()`
 - Extensions created with `createExtension(qrId, ...)`
@@ -252,9 +256,11 @@ const baseQr = await client.createHybridQr({
 
 ### `createExtension(qrId, params)`
 
-Create a new payment extension on an existing hybrid QR code. Each extension represents one payment session.
+Create a new payment extension on an existing hybrid QR code. Each extension represents one payment
+session.
 
-**Signature**: `createExtension(qrId: string, params: CreateExtensionRequest): Promise<CreateExtensionResult>`
+**Signature**:
+`createExtension(qrId: string, params: CreateExtensionRequest): Promise<CreateExtensionResult>`
 
 **API endpoint**: `POST /v2/mia/qr/{qrId}/extension`
 
@@ -439,7 +445,8 @@ await client.cancelQr("qr_abc123", { reason: "No longer needed" });
 
 Cancel the active extension on a hybrid QR code.
 
-**Signature**: `cancelExtension(qrId: string, params?: CancelExtensionRequest): Promise<CancelExtensionResult>`
+**Signature**:
+`cancelExtension(qrId: string, params?: CancelExtensionRequest): Promise<CancelExtensionResult>`
 
 **API endpoint**: `POST /v2/mia/qr/{qrId}/extension/cancel`
 
@@ -503,7 +510,8 @@ console.log(payment.amount); // 100.0
 
 List payments with optional filters and pagination.
 
-**Signature**: `listPayments(params: ListPaymentsParams): Promise<PaginatedResult<MiaPaymentDetails>>`
+**Signature**:
+`listPayments(params: ListPaymentsParams): Promise<PaginatedResult<MiaPaymentDetails>>`
 
 **API endpoint**: `GET /v2/mia/payments`
 
@@ -575,7 +583,8 @@ await client.refund("pay_xyz789", { reason: "Partial return", amount: 50.0 });
 
 ### `testPay(params)` (Sandbox only)
 
-Simulate a payment in the sandbox environment. This mimics a payer scanning the QR code and completing a payment.
+Simulate a payment in the sandbox environment. This mimics a payer scanning the QR code and
+completing a payment.
 
 **Signature**: `testPay(params: TestPayRequest): Promise<TestPayResult>`
 
@@ -622,7 +631,8 @@ console.log(payment.payId); // Use for refund()
 
 ### `verifyCallback(payload)`
 
-Verify the SHA-256 signature of an incoming callback notification. Returns `true` if the signature is valid, `false` otherwise.
+Verify the SHA-256 signature of an incoming callback notification. Returns `true` if the signature
+is valid, `false` otherwise.
 
 Throws an `Error` if `signatureKey` was not provided in the client config.
 
@@ -650,13 +660,15 @@ app.post("/webhooks/mia", (req, res) => {
 
 ### `computeCallbackSignature(result)`
 
-Compute a SHA-256 signature for a callback result object. Useful for testing or manually verifying signatures.
+Compute a SHA-256 signature for a callback result object. Useful for testing or manually verifying
+signatures.
 
 Throws an `Error` if `signatureKey` was not provided in the client config.
 
 **Signature**: `computeCallbackSignature(result: Record<string, unknown>): string`
 
-**Signature algorithm**: Sort object keys alphabetically (recursively), collect all leaf values in order, join with `:`, append the `signatureKey`, SHA-256 hash, and Base64-encode the digest.
+**Signature algorithm**: Sort object keys alphabetically (recursively), collect all leaf values in
+order, join with `:`, append the `signatureKey`, SHA-256 hash, and Base64-encode the digest.
 
 ```typescript
 const signature = client.computeCallbackSignature({
@@ -778,7 +790,8 @@ The SDK throws two error types:
 
 ### MaibError
 
-Thrown when the maib API returns a response with `ok: false`. Indicates a business logic or validation error.
+Thrown when the maib API returns a response with `ok: false`. Indicates a business logic or
+validation error.
 
 | Property     | Type             | Description                                          |
 | ------------ | ---------------- | ---------------------------------------------------- |
@@ -810,7 +823,8 @@ try {
 
 ### MaibNetworkError
 
-Thrown when a network request fails (DNS resolution, timeout, connection refused, invalid JSON in response). Wraps the underlying cause.
+Thrown when a network request fails (DNS resolution, timeout, connection refused, invalid JSON in
+response). Wraps the underlying cause.
 
 | Property  | Type      | Description                                 |
 | --------- | --------- | ------------------------------------------- |
@@ -840,14 +854,7 @@ Everything you need is exported from the `@maib/mia` package entry point:
 export { MiaClient } from "@maib/mia";
 
 // Constants / enums
-export {
-  QrType,
-  AmountType,
-  QrStatus,
-  MiaPaymentStatus,
-  Currency,
-  Environment,
-} from "@maib/mia";
+export { QrType, AmountType, QrStatus, MiaPaymentStatus, Currency, Environment } from "@maib/mia";
 
 // Types (import type)
 export type {
@@ -880,14 +887,7 @@ export type {
 ## Full Working Example
 
 ```typescript
-import {
-  MiaClient,
-  Environment,
-  Currency,
-  QrType,
-  QrStatus,
-  AmountType,
-} from "@maib/mia";
+import { MiaClient, Environment, Currency, QrType, QrStatus, AmountType } from "@maib/mia";
 import type { MiaCallbackPayload } from "@maib/mia";
 
 // 1. Initialize the client

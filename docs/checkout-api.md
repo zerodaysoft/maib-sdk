@@ -38,7 +38,8 @@
 
 ## Overview
 
-maib's hosted checkout solution handles the complete payment workflow, supporting multiple payment methods within their secure infrastructure.
+maib's hosted checkout solution handles the complete payment workflow, supporting multiple payment
+methods within their secure infrastructure.
 
 Key capabilities:
 
@@ -93,7 +94,8 @@ All responses include a top-level structure:
 ```
 
 - `ok` (boolean) - indicates success
-- `errors` (array | null) - contains error objects with `errorCode`, `errorMessage`, and optional `errorArgs`
+- `errors` (array | null) - contains error objects with `errorCode`, `errorMessage`, and optional
+  `errorArgs`
 
 Always validate both the HTTP status code and the `ok` flag in the JSON response.
 
@@ -307,7 +309,8 @@ Content-Type: application/json
 
 **`POST /v2/checkouts/{id}/cancel`**
 
-Cancels a checkout session that has not yet been completed, moving it to a `Cancelled` state that cannot be resumed.
+Cancels a checkout session that has not yet been completed, moving it to a `Cancelled` state that
+cannot be resumed.
 
 #### Path Parameters
 
@@ -344,7 +347,8 @@ Content-Type: application/json
 }
 ```
 
-**Important:** Cancellation is only possible if the checkout is not already in a terminal state (`Completed`, `Expired`, `Abandoned`, `Failed`, `Cancelled`).
+**Important:** Cancellation is only possible if the checkout is not already in a terminal state
+(`Completed`, `Expired`, `Abandoned`, `Failed`, `Cancelled`).
 
 ---
 
@@ -352,7 +356,8 @@ Content-Type: application/json
 
 **`GET /v2/checkouts/{id}`**
 
-Returns aggregated details of a specific checkout session, including order, payer, and transaction information.
+Returns aggregated details of a specific checkout session, including order, payer, and transaction
+information.
 
 #### Path Parameters
 
@@ -369,7 +374,8 @@ Content-Type: application/json
 
 #### Checkout Status Values
 
-`WaitingForInit`, `Initialized`, `PaymentMethodSelected`, `Completed`, `Expired`, `Abandoned`, `Cancelled`, `Failed`
+`WaitingForInit`, `Initialized`, `PaymentMethodSelected`, `Completed`, `Expired`, `Abandoned`,
+`Cancelled`, `Failed`
 
 #### Response Fields - Root
 
@@ -596,7 +602,8 @@ GET /v2/checkouts?status=Completed&currency=MDL&count=10&offset=0&sortBy=created
 | `ok`                | boolean       | Success indicator                                                           |
 | `errors`            | array \| null | Error list                                                                  |
 
-Each item in `result.items[]` contains the full checkout object including `order`, `payer`, and `payment` sub-objects (see [Get Checkout Details](#get-checkout-details) for field details).
+Each item in `result.items[]` contains the full checkout object including `order`, `payer`, and
+`payment` sub-objects (see [Get Checkout Details](#get-checkout-details) for field details).
 
 ---
 
@@ -891,7 +898,8 @@ GET /v2/payments/refunds/eaed443e-988f-4b59-89da-e76501977fab
 
 ### Browser Redirect Parameters
 
-After checkout completion, users are redirected to `successUrl` or `failUrl` with three query parameters:
+After checkout completion, users are redirected to `successUrl` or `failUrl` with three query
+parameters:
 
 | Parameter        | Description                |
 | ---------------- | -------------------------- |
@@ -901,7 +909,8 @@ After checkout completion, users are redirected to `successUrl` or `failUrl` wit
 
 ### Back Channel Callbacks
 
-Successful payments trigger server-to-server notifications to the merchant's `callbackUrl`, including a `signature` parameter for data authenticity verification.
+Successful payments trigger server-to-server notifications to the merchant's `callbackUrl`,
+including a `signature` parameter for data authenticity verification.
 
 ### Callback Payload Fields
 
@@ -947,10 +956,12 @@ signature = HMAC_SHA256(secretKey, rawBody.timestamp)
 Where:
 
 - **secretKey** - merchant's shared authentication key (UUID format)
-- **rawBody** - exact bytes of JSON body as transmitted (UTF-8 encoded, compact format, no pretty-printing)
+- **rawBody** - exact bytes of JSON body as transmitted (UTF-8 encoded, compact format, no
+  pretty-printing)
 - **timestamp** - callback timestamp from `X-Signature-Timestamp` header
 
-Encode the resulting binary hash as lowercase hex or **Base64**. All parties must use a consistent encoding format.
+Encode the resulting binary hash as lowercase hex or **Base64**. All parties must use a consistent
+encoding format.
 
 #### HTTP Headers
 
@@ -966,7 +977,8 @@ Encode the resulting binary hash as lowercase hex or **Base64**. All parties mus
 3. Concatenate raw JSON body with timestamp using a dot separator: `{body}.{timestamp}`
 4. Compute HMAC-SHA256 hash using the shared secret key
 5. Encode result as Base64
-6. Compare computed signature against received signature using **constant-time comparison** (to prevent timing attacks)
+6. Compare computed signature against received signature using **constant-time comparison** (to
+   prevent timing attacks)
 7. Validate timestamp freshness - absolute difference from current time must be less than N minutes
 
 #### Canonicalization
@@ -1007,9 +1019,7 @@ const hmac = crypto.createHmac("sha256", signatureKey);
 hmac.update(message, "utf8");
 const computedSignature = hmac.digest("base64");
 
-if (
-  crypto.timingSafeEqual(Buffer.from(computedSignature), Buffer.from(signature))
-) {
+if (crypto.timingSafeEqual(Buffer.from(computedSignature), Buffer.from(signature))) {
   console.log("Signature is valid");
 } else {
   console.log("INVALID SIGNATURE!");
@@ -1087,7 +1097,8 @@ else
 
 ### Error Response Format
 
-All errors follow a JSON structure with `errorCode`, `errorMessage`, and optional `errorArgs` for context.
+All errors follow a JSON structure with `errorCode`, `errorMessage`, and optional `errorArgs` for
+context.
 
 ### Error Catalog
 
@@ -1111,7 +1122,8 @@ All errors follow a JSON structure with `errorCode`, `errorMessage`, and optiona
 
 ### Reporting Requirements
 
-When reporting errors to maib support, include: HTTP status, errorCode, errorMessage, timestamp, and integration details (Project ID, Merchant name, application/website info).
+When reporting errors to maib support, include: HTTP status, errorCode, errorMessage, timestamp, and
+integration details (Project ID, Merchant name, application/website info).
 
 ---
 
@@ -1119,17 +1131,13 @@ When reporting errors to maib support, include: HTTP status, errorCode, errorMes
 
 ### MIA QR Testing
 
-When testing MIA QR payments in sandbox, the payment is **not completed automatically** after the QR is displayed. Manual simulation is required.
+When testing MIA QR payments in sandbox, the payment is **not completed automatically** after the QR
+is displayed. Manual simulation is required.
 
 #### Test Credentials
 
-**Test Card:**
-| Field | Value |
-|-------|-------|
-| Cardholder Name | Test Test |
-| Card Number | `5102180060101124` |
-| Expiration | `06/28` |
-| CVV | `760` |
+**Test Card:** | Field | Value | |-------|-------| | Cardholder Name | Test Test | | Card Number |
+`5102180060101124` | | Expiration | `06/28` | | CVV | `760` |
 
 **Test IBAN (for MIA QR sandbox simulation):**
 
@@ -1139,9 +1147,12 @@ MD88AG000000011621810140
 
 #### MIA QR Testing Procedure
 
-1. **QR Generation:** Start a checkout payment and select MIA QR as the payment method. The transaction enters a pending state without executing actual payments.
-2. **QR Identifier Retrieval:** Call the endpoint to list generated QR codes, then identify the most recent one by creation timestamp and extract its `qrId`.
-3. **Payment Simulation:** Using the retrieved `qrId`, simulate the payment according to the sandbox simulation documentation with the test IBAN.
+1. **QR Generation:** Start a checkout payment and select MIA QR as the payment method. The
+   transaction enters a pending state without executing actual payments.
+2. **QR Identifier Retrieval:** Call the endpoint to list generated QR codes, then identify the most
+   recent one by creation timestamp and extract its `qrId`.
+3. **Payment Simulation:** Using the retrieved `qrId`, simulate the payment according to the sandbox
+   simulation documentation with the test IBAN.
 
 ---
 
@@ -1178,9 +1189,13 @@ MD88AG000000011621810140
 
 ### OpenAPI Specifications
 
-OpenAPI files represent the official API contract: endpoints, schemas, parameters, validation rules, and example payloads. Available as a Checkout OpenAPI specification file from the documentation site.
+OpenAPI files represent the official API contract: endpoints, schemas, parameters, validation rules,
+and example payloads. Available as a Checkout OpenAPI specification file from the documentation
+site.
 
 ### Postman Assets
 
-1. **Checkout API Collection** - Pre-built requests for all Checkout API endpoints, ready for import into Postman
-2. **Sandbox Environment** - Environment file with placeholder variables (`clientId`, `clientSecret`, etc.) for local configuration
+1. **Checkout API Collection** - Pre-built requests for all Checkout API endpoints, ready for import
+   into Postman
+2. **Sandbox Environment** - Environment file with placeholder variables (`clientId`,
+   `clientSecret`, etc.) for local configuration

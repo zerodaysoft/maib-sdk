@@ -7,7 +7,15 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!node_modules", "!dist", "!*.d.ts"]
+    "includes": [
+      "**",
+      "!**/*.md",
+      "!node_modules",
+      "!dist",
+      "!*.d.ts",
+      "!**/generated",
+      "!**/.schemas-cache"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -23,6 +31,29 @@
     }
   },
   "assist": {
-    "enabled": true
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "identifierOrder": "natural",
+            "groups": [
+              { "type": true },
+              ":BLANK_LINE:",
+              ":URL:",
+              ":NODE:",
+              [":PACKAGE:", "!@maib/**"],
+              ":BLANK_LINE:",
+              "@maib/**",
+              ":BLANK_LINE:",
+              ["#*", "#*/**"],
+              ":BLANK_LINE:",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
   }
 }
