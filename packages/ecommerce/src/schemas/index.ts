@@ -21,6 +21,7 @@ export {
 } from "./requests";
 export {
   CompleteResultSchema,
+  DeleteCardResultSchema,
   ExecuteRecurringResultSchema,
   PayInfoResultSchema,
   PaymentInitResultSchema,

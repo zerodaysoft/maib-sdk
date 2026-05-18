@@ -52,12 +52,12 @@ If you only need one API, install the individual package instead for a smaller d
 `@maib/merchants` ships an aggregate JSON Schema bundle covering every type from `@maib/checkout`,
 `@maib/ecommerce`, `@maib/rtp`, `@maib/mia`, and `@maib/core` in a single artifact:
 
-| Subpath                                       | Resolves to                                                                          |
-| --------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `@maib/merchants/schemas`                     | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`).                    |
-| `@maib/merchants/schemas/bundle.json`         | Combined JSON Schema bundle across all 5 packages.                                   |
-| `@maib/merchants/schemas/<ShortName>.json`    | Self-contained file per schema where the short name is unique across the bundle.    |
-| `@maib/merchants/schemas/<Pkg><Name>.json`    | Disambiguated PascalCase file for short names shared by multiple packages.          |
+| Subpath                                    | Resolves to                                                                      |
+| ------------------------------------------ | -------------------------------------------------------------------------------- |
+| `@maib/merchants/schemas`                  | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`).                |
+| `@maib/merchants/schemas/bundle.json`      | Combined JSON Schema bundle across all 5 packages.                               |
+| `@maib/merchants/schemas/<ShortName>.json` | Self-contained file per schema where the short name is unique across the bundle. |
+| `@maib/merchants/schemas/<Pkg><Name>.json` | Disambiguated PascalCase file for short names shared by multiple packages.       |
 
 The aggregate bundle contains a few names that collide across packages — e.g. both
 `maib.checkout.RefundRequest` and `maib.ecommerce.RefundRequest`. Those are emitted under

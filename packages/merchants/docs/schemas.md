@@ -9,16 +9,16 @@ description: How to validate any @maib payload at runtime from the umbrella pack
 `@maib/ecommerce`, `@maib/rtp`, `@maib/mia`) plus shared `@maib/core` infrastructure. The runtime
 schemas follow the same aggregation: one bundle, every package's schemas in it.
 
-| Subpath                                       | Resolves to                                                                          |
-| --------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `@maib/merchants/schemas`                     | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`).                    |
-| `@maib/merchants/schemas/bundle.json`         | Combined JSON Schema bundle across checkout + ecommerce + rtp + mia + core.          |
-| `@maib/merchants/schemas/<ShortName>.json`    | Self-contained file per schema when the trailing id segment is unique.               |
-| `@maib/merchants/schemas/<Pkg><Name>.json`    | PascalCase-prefixed file for short names shared by multiple packages.                |
+| Subpath                                    | Resolves to                                                                 |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| `@maib/merchants/schemas`                  | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`).           |
+| `@maib/merchants/schemas/bundle.json`      | Combined JSON Schema bundle across checkout + ecommerce + rtp + mia + core. |
+| `@maib/merchants/schemas/<ShortName>.json` | Self-contained file per schema when the trailing id segment is unique.      |
+| `@maib/merchants/schemas/<Pkg><Name>.json` | PascalCase-prefixed file for short names shared by multiple packages.       |
 
 The shipped artifacts are plain JSON Schema (`draft-2020-12`). Convert them with Zod, Valibot,
-ArkType, or any Standard-Schema-compatible validator. The SDK itself does not validate API
-responses at runtime — that is your choice.
+ArkType, or any Standard-Schema-compatible validator. The SDK itself does not validate API responses
+at runtime — that is your choice.
 
 ## Quick start – Zod, per-schema
 
@@ -31,10 +31,14 @@ import { buildSchema } from "@maib/merchants/schemas";
 import CreateSessionRequestDef from "@maib/merchants/schemas/CreateSessionRequest.json" with { type: "json" };
 import MiaPaymentDetailsDef from "@maib/merchants/schemas/MiaPaymentDetails.json" with { type: "json" };
 
-export const CreateSessionRequestSchema =
-  buildSchema<CreateSessionRequest>(z.fromJSONSchema, CreateSessionRequestDef);
-export const MiaPaymentDetailsSchema =
-  buildSchema<MiaPaymentDetails>(z.fromJSONSchema, MiaPaymentDetailsDef);
+export const CreateSessionRequestSchema = buildSchema<CreateSessionRequest>(
+  z.fromJSONSchema,
+  CreateSessionRequestDef,
+);
+export const MiaPaymentDetailsSchema = buildSchema<MiaPaymentDetails>(
+  z.fromJSONSchema,
+  MiaPaymentDetailsDef,
+);
 ```
 
 ## Disambiguating collisions
@@ -42,30 +46,31 @@ export const MiaPaymentDetailsSchema =
 A handful of short names exist in more than one merchant API. Per-schema files for those use the
 PascalCase-prefixed form so each filename matches the type alias exported from `@maib/merchants`:
 
-| Aggregate filename                                            | Original id                          | Type alias                    |
-| ------------------------------------------------------------- | ------------------------------------ | ----------------------------- |
-| `@maib/merchants/schemas/CheckoutRefundRequest.json`          | `maib.checkout.RefundRequest`        | `CheckoutRefundRequest`       |
-| `@maib/merchants/schemas/EcommerceRefundRequest.json`         | `maib.ecommerce.RefundRequest`       | `EcommerceRefundRequest`      |
-| `@maib/merchants/schemas/CheckoutRefundResult.json`           | `maib.checkout.RefundResult`         | `CheckoutRefundResult`        |
-| `@maib/merchants/schemas/EcommerceRefundResult.json`          | `maib.ecommerce.RefundResult`        | `EcommerceRefundResult`       |
-| `@maib/merchants/schemas/CheckoutListPaymentsParams.json`     | `maib.checkout.ListPaymentsParams`   | `CheckoutListPaymentsParams`  |
-| `@maib/merchants/schemas/MiaListPaymentsParams.json`          | `maib.mia.ListPaymentsParams`        | `MiaListPaymentsParams`       |
+| Aggregate filename                                        | Original id                        | Type alias                   |
+| --------------------------------------------------------- | ---------------------------------- | ---------------------------- |
+| `@maib/merchants/schemas/CheckoutRefundRequest.json`      | `maib.checkout.RefundRequest`      | `CheckoutRefundRequest`      |
+| `@maib/merchants/schemas/EcommerceRefundRequest.json`     | `maib.ecommerce.RefundRequest`     | `EcommerceRefundRequest`     |
+| `@maib/merchants/schemas/CheckoutRefundResult.json`       | `maib.checkout.RefundResult`       | `CheckoutRefundResult`       |
+| `@maib/merchants/schemas/EcommerceRefundResult.json`      | `maib.ecommerce.RefundResult`      | `EcommerceRefundResult`      |
+| `@maib/merchants/schemas/CheckoutListPaymentsParams.json` | `maib.checkout.ListPaymentsParams` | `CheckoutListPaymentsParams` |
+| `@maib/merchants/schemas/MiaListPaymentsParams.json`      | `maib.mia.ListPaymentsParams`      | `MiaListPaymentsParams`      |
 
 Schema and type stay paired by name:
 
 ```ts
-import type {
-  CheckoutRefundRequest,
-  EcommerceRefundRequest,
-} from "@maib/merchants";
+import type { CheckoutRefundRequest, EcommerceRefundRequest } from "@maib/merchants";
 import { buildSchema } from "@maib/merchants/schemas";
 import CheckoutRefundRequestDef from "@maib/merchants/schemas/CheckoutRefundRequest.json" with { type: "json" };
 import EcommerceRefundRequestDef from "@maib/merchants/schemas/EcommerceRefundRequest.json" with { type: "json" };
 
-export const CheckoutRefundRequestSchema =
-  buildSchema<CheckoutRefundRequest>(z.fromJSONSchema, CheckoutRefundRequestDef);
-export const EcommerceRefundRequestSchema =
-  buildSchema<EcommerceRefundRequest>(z.fromJSONSchema, EcommerceRefundRequestDef);
+export const CheckoutRefundRequestSchema = buildSchema<CheckoutRefundRequest>(
+  z.fromJSONSchema,
+  CheckoutRefundRequestDef,
+);
+export const EcommerceRefundRequestSchema = buildSchema<EcommerceRefundRequest>(
+  z.fromJSONSchema,
+  EcommerceRefundRequestDef,
+);
 ```
 
 ## Bulk import – every schema at once
@@ -73,10 +78,10 @@ export const EcommerceRefundRequestSchema =
 The whole-bundle path works too, but you must opt in to a collision strategy so the short-name
 collisions described above don't trip the helper. Two strategies are available:
 
-| `onCollision`          | Colliding key example         | Use when                                                                       |
-| ---------------------- | ----------------------------- | ------------------------------------------------------------------------------ |
-| `"namespace-prefix"`   | `CheckoutRefundRequest`       | You want keys that match the per-schema filenames and the type aliases (recommended). |
-| `"namespace"`          | `"checkout.RefundRequest"`    | You want dotted keys instead of PascalCase.                                    |
+| `onCollision`        | Colliding key example      | Use when                                                                              |
+| -------------------- | -------------------------- | ------------------------------------------------------------------------------------- |
+| `"namespace-prefix"` | `CheckoutRefundRequest`    | You want keys that match the per-schema filenames and the type aliases (recommended). |
+| `"namespace"`        | `"checkout.RefundRequest"` | You want dotted keys instead of PascalCase.                                           |
 
 ### `namespace-prefix` (recommended)
 

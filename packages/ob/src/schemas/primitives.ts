@@ -20,7 +20,7 @@ export const ObAmountOfMoneySchema = z
 export const ObBankRoutingSchema = z
   .looseObject({
     scheme: z.string().meta({
-      description: "Routing scheme name (e.g. `BIC`, `IBAN`).",
+      description: "Routing scheme name (e.g. `OBP`, `BIC`, `IBAN`).",
     }),
     address: z.string().meta({
       description: "Routing address value matching the declared scheme.",

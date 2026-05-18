@@ -32,7 +32,7 @@ export const CreateRtpRequestSchema = z
       description: "Terminal ID provided by the bank (max 100 chars).",
     }),
     callbackUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
@@ -41,13 +41,13 @@ export const CreateRtpRequestSchema = z
           "HTTPS URL where the merchant receives payment data after a successful payment (max 1000 chars).",
       }),
     redirectUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
       .meta({
         description:
-          "HTTPS URL where the customer is redirected after successful payment (max 1000 chars).",
+          "HTTPS URL where the customer is redirected after successful payment (for website integration; max 1000 chars).",
       }),
   })
   .meta({
@@ -86,21 +86,21 @@ export const ListRtpParamsSchema = z
         description: "Filter by merchant-side order identifier.",
       }),
       amount: z.string().optional().meta({
-        description: "Filter by amount (upstream docs type: `string(enum)`).",
+        description: 'Filter by amount (upstream docs type: `string(enum)`, e.g. `"10.00"`).',
       }),
       description: z.string().optional().meta({ description: "Filter by description." }),
       status: RtpStatusEnum.optional(),
       createdAtFrom: z.iso.datetime().optional().meta({
-        description: "Creation date — from (ISO 8601).",
+        description: "Filter by RTP creation date (from, inclusive). ISO 8601.",
       }),
       createdAtTo: z.iso.datetime().optional().meta({
-        description: "Creation date — to (ISO 8601).",
+        description: "Filter by RTP creation date (to, inclusive). ISO 8601.",
       }),
       expiresAtFrom: z.iso.datetime().optional().meta({
-        description: "Expiration date — from (ISO 8601).",
+        description: "Filter by RTP expiration date (from, inclusive). ISO 8601.",
       }),
       expiresAtTo: z.iso.datetime().optional().meta({
-        description: "Expiration date — to (ISO 8601).",
+        description: "Filter by RTP expiration date (to, inclusive). ISO 8601.",
       }),
       terminalId: z.string().optional().meta({
         description: "Filter by terminal ID (provided by the bank).",

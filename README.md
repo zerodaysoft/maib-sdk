@@ -18,6 +18,17 @@ Built by [Zero-day](https://www.zero-day.md).
 | [`@maib/core`](https://www.npmjs.com/package/@maib/core)           | Shared HTTP client, auth, errors & signature helpers                      |
 | [`@maib/http`](https://www.npmjs.com/package/@maib/http)           | Shared HTTP primitives — network errors, query builder & token management |
 
+## Before you start
+
+You need maib-issued credentials (`Project ID`, `Project Secret`, `Signature Key`) to call any API.
+Request sandbox credentials by emailing **ecom@maib.md** with your IDNO, target website/app, and
+integration type.
+
+The full onboarding path — sandbox testing → questionnaire → contract → portal registration →
+production activation — is documented in [docs/getting-started.md](./docs/getting-started.md), with
+the upstream source at
+[docs.maibmerchants.md/main/en/integration](https://docs.maibmerchants.md/main/en/integration).
+
 ## Quick start
 
 ```bash

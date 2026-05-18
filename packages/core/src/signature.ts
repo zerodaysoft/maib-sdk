@@ -31,10 +31,18 @@ function collectValues(obj: Record<string, unknown>): string[] {
 }
 
 /**
- * Compute SHA-256 signature for ecomm/rtp/mia callbacks.
+ * Compute SHA-256 signature for **legacy e-Commerce v1** callbacks only.
  *
- * Algorithm: sort keys alphabetically, collect leaf values, join with ":",
- * append signatureKey, SHA-256 hash, base64 encode.
+ * Algorithm: sort keys alphabetically (case-sensitive), collect leaf values,
+ * join with ":", append signatureKey, SHA-256, Base64. Null/empty values are
+ * preserved and amount fields are not reformatted.
+ *
+ * @deprecated For MIA QR and RTP callbacks use {@link computeSignatureModern}
+ *   instead — those products use a different algorithm (case-insensitive sort,
+ *   skip null/empty, `.toFixed(2)` for `amount`/`commission`). This function
+ *   remains the correct implementation for the legacy e-Commerce v1 API and is
+ *   not slated for removal; the deprecation tag is a guard against accidental
+ *   reuse on other products.
  */
 export function computeSignature(result: Record<string, unknown>, signatureKey: string): string {
   const sorted = sortByKeyRecursive(result);
@@ -45,7 +53,11 @@ export function computeSignature(result: Record<string, unknown>, signatureKey: 
 }
 
 /**
- * Verify a SHA-256 callback signature (ecomm/rtp/mia).
+ * Verify a SHA-256 callback signature using the **legacy e-Commerce v1**
+ * algorithm.
+ *
+ * @deprecated For MIA QR and RTP callbacks use {@link verifySignatureModern}
+ *   instead. See {@link computeSignature} for the full rationale.
  */
 export function verifySignature(
   result: Record<string, unknown>,
@@ -53,11 +65,72 @@ export function verifySignature(
   signatureKey: string,
 ): boolean {
   const computed = computeSignature(result, signatureKey);
-  if (computed.length !== signature.length) return false;
-  const a = Buffer.from(computed);
-  const b = Buffer.from(signature);
-  return a.length === b.length && timingSafeEqual(a, b);
+  return timingSafeEqualStrings(computed, signature);
 }
+
+/**
+ * Format a numeric leaf for the modern signature: amount-like fields are
+ * stringified with exactly two decimals, everything else uses `String(value)`.
+ */
+function formatModernValue(
+  key: string,
+  value: unknown,
+  decimalFields: ReadonlySet<string>,
+): string {
+  if (decimalFields.has(key) && typeof value === "number" && Number.isFinite(value)) {
+    return value.toFixed(2);
+  }
+  return String(value);
+}
+
+/**
+ * Compute SHA-256 signature using the modern MIA QR / RTP algorithm.
+ *
+ * Differences from {@link computeSignature}:
+ *  - keys in the top-level `result` object are sorted **case-insensitively**;
+ *  - fields whose value is `null` or empty string `""` are **excluded**;
+ *  - the fields named `amount` and `commission` are formatted with exactly
+ *    two decimal places (e.g. `100` -> `"100.00"`);
+ *  - only the top level is iterated (no recursion into nested objects/arrays
+ *    – upstream does not nest values inside `result`).
+ *
+ * @see https://docs.maibmerchants.md/mia-qr-api/en/notifications-on-callback-url
+ * @see https://docs.maibmerchants.md/request-to-pay/api-reference/callback-notifications
+ */
+export function computeSignatureModern(
+  result: Record<string, unknown>,
+  signatureKey: string,
+  decimalFields: ReadonlySet<string> = MODERN_DECIMAL_FIELDS,
+): string {
+  const keys = Object.keys(result).sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: "base" }),
+  );
+  const parts: string[] = [];
+  for (const key of keys) {
+    const value = result[key];
+    if (value === null || value === undefined) continue;
+    if (typeof value === "string" && value === "") continue;
+    parts.push(formatModernValue(key, value, decimalFields));
+  }
+  parts.push(signatureKey);
+  const signString = parts.join(":");
+  return createHash("sha256").update(signString).digest("base64");
+}
+
+/**
+ * Verify a modern SHA-256 callback signature (MIA QR / RTP).
+ */
+export function verifySignatureModern(
+  result: Record<string, unknown>,
+  signature: string,
+  signatureKey: string,
+  decimalFields: ReadonlySet<string> = MODERN_DECIMAL_FIELDS,
+): boolean {
+  const computed = computeSignatureModern(result, signatureKey, decimalFields);
+  return timingSafeEqualStrings(computed, signature);
+}
+
+const MODERN_DECIMAL_FIELDS: ReadonlySet<string> = new Set(["amount", "commission"]);
 
 /**
  * Compute HMAC-SHA256 signature for checkout callbacks.
@@ -94,10 +167,14 @@ export function verifyHmacSignature(
 
   const signature = cleanSignature.startsWith("sha256=") ? cleanSignature.slice(7) : cleanSignature;
   const computed = computeHmacSignature(rawBody, cleanTimestamp, signatureKey);
-  if (computed.length !== signature.length) return false;
-  const a = Buffer.from(computed);
-  const b = Buffer.from(signature);
-  return a.length === b.length && timingSafeEqual(a, b);
+  return timingSafeEqualStrings(computed, signature);
+}
+
+function timingSafeEqualStrings(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return ab.length === bb.length && timingSafeEqual(ab, bb);
 }
 
 /**

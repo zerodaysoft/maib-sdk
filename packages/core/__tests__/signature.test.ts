@@ -1,11 +1,14 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 
 import { Currency } from "../src/constants";
 import {
   computeHmacSignature,
   computeSignature,
+  computeSignatureModern,
   verifyHmacSignature,
   verifySignature,
+  verifySignatureModern,
 } from "../src/signature";
 
 // -----------------------------------------------------------------------
@@ -157,6 +160,106 @@ describe("verifyHmacSignature", () => {
     expect(
       verifyHmacSignature(rawBody, duplicatedSignature, duplicatedTimestamp, HMAC_SECRET),
     ).toBe(true);
+  });
+});
+
+// -----------------------------------------------------------------------
+// Modern SHA-256 signature (MIA QR / RTP)
+// -----------------------------------------------------------------------
+
+const MODERN_KEY = "8508706b-3454-4733-8295-56e617c4abcf";
+
+// Canonical RTP callback example from upstream docs:
+// https://docs.maibmerchants.md/request-to-pay/api-reference/callback-notifications
+const RTP_CALLBACK_RESULT = {
+  rtpId: "123e4567-e89b-12d3-a456-426614174000",
+  rtpStatus: "Accepted",
+  orderId: "123",
+  payId: "c56a4180-65aa-42ec-a945-5fd21dec0538",
+  amount: 100.0,
+  commission: 1.0,
+  currency: "MDL",
+  payerName: "John D.",
+  payerIban: "MD24AG000225100014156789",
+  executedAt: "2029-10-22T10:32:28+03:00",
+};
+
+function sha256Base64(input: string): string {
+  return createHash("sha256").update(input).digest("base64");
+}
+
+describe("computeSignatureModern", () => {
+  it("formats amount and commission with two decimals", () => {
+    // Hand-computed canonical string per upstream algorithm:
+    // sort keys alpha case-insensitive -> amount, commission, currency, executedAt,
+    // orderId, payerIban, payerName, payId, rtpId, rtpStatus.
+    const expectedString = [
+      "100.00",
+      "1.00",
+      "MDL",
+      "2029-10-22T10:32:28+03:00",
+      "123",
+      "MD24AG000225100014156789",
+      "John D.",
+      "c56a4180-65aa-42ec-a945-5fd21dec0538",
+      "123e4567-e89b-12d3-a456-426614174000",
+      "Accepted",
+      MODERN_KEY,
+    ].join(":");
+    const expected = sha256Base64(expectedString);
+    expect(computeSignatureModern(RTP_CALLBACK_RESULT, MODERN_KEY)).toBe(expected);
+  });
+
+  it("excludes null and empty-string fields", () => {
+    const withNulls = {
+      ...RTP_CALLBACK_RESULT,
+      extra: null,
+      empty: "",
+    } as Record<string, unknown>;
+    expect(computeSignatureModern(withNulls, MODERN_KEY)).toBe(
+      computeSignatureModern(RTP_CALLBACK_RESULT, MODERN_KEY),
+    );
+  });
+
+  it("is insensitive to input key order (sorts case-insensitively)", () => {
+    const reordered = {
+      rtpStatus: RTP_CALLBACK_RESULT.rtpStatus,
+      amount: RTP_CALLBACK_RESULT.amount,
+      orderId: RTP_CALLBACK_RESULT.orderId,
+      currency: RTP_CALLBACK_RESULT.currency,
+      commission: RTP_CALLBACK_RESULT.commission,
+      executedAt: RTP_CALLBACK_RESULT.executedAt,
+      rtpId: RTP_CALLBACK_RESULT.rtpId,
+      payerIban: RTP_CALLBACK_RESULT.payerIban,
+      payId: RTP_CALLBACK_RESULT.payId,
+      payerName: RTP_CALLBACK_RESULT.payerName,
+    };
+    expect(computeSignatureModern(reordered, MODERN_KEY)).toBe(
+      computeSignatureModern(RTP_CALLBACK_RESULT, MODERN_KEY),
+    );
+  });
+
+  it("formats whole-number amount as `X.00`", () => {
+    // Regression: legacy computeSignature would emit "100" instead of "100.00".
+    const sig = computeSignatureModern({ amount: 100, commission: 0, currency: "MDL" }, MODERN_KEY);
+    expect(sig).toBe(sha256Base64(`100.00:0.00:MDL:${MODERN_KEY}`));
+  });
+});
+
+describe("verifySignatureModern", () => {
+  it("returns true for a self-computed signature (round-trip)", () => {
+    const sig = computeSignatureModern(RTP_CALLBACK_RESULT, MODERN_KEY);
+    expect(verifySignatureModern(RTP_CALLBACK_RESULT, sig, MODERN_KEY)).toBe(true);
+  });
+
+  it("returns false for a tampered payload", () => {
+    const sig = computeSignatureModern(RTP_CALLBACK_RESULT, MODERN_KEY);
+    const tampered = { ...RTP_CALLBACK_RESULT, amount: 999 };
+    expect(verifySignatureModern(tampered, sig, MODERN_KEY)).toBe(false);
+  });
+
+  it("returns false for an invalid signature", () => {
+    expect(verifySignatureModern(RTP_CALLBACK_RESULT, "not-a-signature==", MODERN_KEY)).toBe(false);
   });
 });
 

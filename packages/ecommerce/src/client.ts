@@ -2,6 +2,7 @@ import type {
   CallbackPayload,
   CompleteRequest,
   CompleteResult,
+  DeleteCardResult,
   EcommerceClientConfig,
   ExecuteOneclickRequest,
   ExecuteRecurringRequest,
@@ -199,8 +200,8 @@ export class EcommerceClient extends BaseClient {
    *
    * `DELETE /v1/delete-card/{billerId}`
    */
-  public async deleteCard(billerId: string): Promise<void> {
-    await this._deleteRequest(`/${this._apiVersion}/delete-card/${encodeURIComponent(billerId)}`);
+  public async deleteCard(billerId: string): Promise<DeleteCardResult> {
+    return this._deleteRequest(`/${this._apiVersion}/delete-card/${encodeURIComponent(billerId)}`);
   }
 
   // -----------------------------------------------------------------------

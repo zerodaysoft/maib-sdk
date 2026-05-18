@@ -160,6 +160,20 @@ export const PayInfoResultSchema = z
     description: "Details returned by `EcommerceClient.getPayInfo`.",
   });
 
+export const DeleteCardResultSchema = z
+  .looseObject({
+    billerId: z.string().meta({
+      description: "Identifier of the stored card that was deleted.",
+    }),
+    status: z.literal("OK").meta({
+      description: "Deletion result. Always `OK` on success.",
+    }),
+  })
+  .meta({
+    id: "maib.ecommerce.DeleteCardResult",
+    description: "Result returned by `EcommerceClient.deleteCard`.",
+  });
+
 export const ExecuteRecurringResultSchema = z
   .looseObject({
     payId: z.string().meta({

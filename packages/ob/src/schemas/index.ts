@@ -2,6 +2,7 @@ export {
   ObAccountDetailsSchema,
   ObAccountSchema,
   ObBankSchema,
+  ObCheckFundsResultSchema,
 } from "./banks-accounts";
 export {
   ConsentStatusEnum,
@@ -13,6 +14,7 @@ export {
   CreateConsentBodySchema,
   CreatePaymentBodySchema,
   ObChallengeSchema,
+  ObConsentInfoSchema,
   ObConsentSchema,
   ObTransactionRequestSchema,
   ObTransactionRequestTypeSchema,
@@ -27,7 +29,9 @@ export {
   ListTransactionsParamsSchema,
   ObTransactionAccountSchema,
   ObTransactionDetailsSchema,
+  ObTransactionOtherAccountSchema,
   ObTransactionSchema,
+  ObTransactionThisAccountSchema,
 } from "./transactions";
 export {
   ObApiInfoSchema,

@@ -5,7 +5,7 @@ description:
   TypeScript SDK for the maib Open Banking API (OBP) — accounts, transactions, payments, consents.
 platform: Open Bank Project (OBP) v5.1.0
 upstream_docs: https://ob-sandbox.maib.md
-upstream_updated: 2025-11-10
+upstream_updated: 2026-05-19
 ---
 
 # @maib/ob SDK Reference
@@ -114,8 +114,8 @@ interface ObUser {
 
 | Method      | Signature                                  | Returns    | Description                                                              |
 | ----------- | ------------------------------------------ | ---------- | ------------------------------------------------------------------------ |
-| `listBanks` | `listBanks(): Promise<ObBank[]>`           | `ObBank[]` | List all available banks. Calls `GET /obp/v4.0.0/banks`.                 |
-| `getBank`   | `getBank(bankId: string): Promise<ObBank>` | `ObBank`   | Get details for a specific bank. Calls `GET /obp/v5.0.0/banks/{bankId}`. |
+| `listBanks` | `listBanks(): Promise<ObBank[]>`           | `ObBank[]` | List all available banks. Calls `GET /obp/v5.1.0/banks`.                 |
+| `getBank`   | `getBank(bankId: string): Promise<ObBank>` | `ObBank`   | Get details for a specific bank. Calls `GET /obp/v5.1.0/banks/{bankId}`. |
 
 #### `ObBank`
 
@@ -124,6 +124,8 @@ interface ObBank {
   id: string;
   short_name: string;
   full_name: string;
+  // `logo` and `website` are plain strings — upstream OBP examples are not always URL-valid,
+  // so the SDK does not enforce URL parsing.
   logo: string;
   website: string;
   bank_routings: ObBankRouting[];
@@ -137,11 +139,11 @@ interface ObBankRouting {
 
 ### Accounts
 
-| Method         | Signature                                                                                                                                | Returns                        | Description                                                                                                                                                                 |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `listAccounts` | `listAccounts(bankId: string): Promise<ObAccount[]>`                                                                                     | `ObAccount[]`                  | List accounts the current user has access to at a bank. Calls `GET /obp/v4.0.0/banks/{bankId}/accounts`.                                                                    |
-| `getAccount`   | `getAccount(bankId: string, accountId: string, viewId?: string): Promise<ObAccountDetails>`                                              | `ObAccountDetails`             | Get full account details including balance, IBAN, and owners. `viewId` defaults to `"owner"`. Calls `GET /obp/v4.0.0/banks/{bankId}/accounts/{accountId}/{viewId}/account`. |
-| `checkFunds`   | `checkFunds(bankId: string, accountId: string, viewId: string, amount: string, currency: string): Promise<{ funds_available: boolean }>` | `{ funds_available: boolean }` | Check if an account has sufficient funds (PSD2 PIIS). Calls `GET /obp/v4.0.0/banks/{bankId}/accounts/{accountId}/{viewId}/funds-available`.                                 |
+| Method         | Signature                                                                                                                      | Returns              | Description                                                                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `listAccounts` | `listAccounts(bankId: string): Promise<ObAccount[]>`                                                                           | `ObAccount[]`        | List accounts the current user has access to at a bank. Calls `GET /obp/v5.1.0/banks/{bankId}/accounts`.                                                                                                     |
+| `getAccount`   | `getAccount(bankId: string, accountId: string, viewId?: string): Promise<ObAccountDetails>`                                    | `ObAccountDetails`   | Get full account details including balance, owners, and `account_routings` (IBAN lives there). `viewId` defaults to `"owner"`. Calls `GET /obp/v5.1.0/banks/{bankId}/accounts/{accountId}/{viewId}/account`. |
+| `checkFunds`   | `checkFunds(bankId: string, accountId: string, viewId: string, amount: string, currency: string): Promise<ObCheckFundsResult>` | `ObCheckFundsResult` | Check if an account has sufficient funds (PSD2 PIIS). Calls `GET /obp/v5.1.0/banks/{bankId}/accounts/{accountId}/{viewId}/funds-available`.                                                                  |
 
 #### `ObAccount`
 
@@ -169,9 +171,14 @@ interface ObAccountDetails {
   label: string;
   number: string;
   owners: ObAccountOwner[];
-  type: string;
+  // Product code of the account (e.g. `CURRENT`, `SAVINGS`). Replaces the legacy `type` field.
+  product_code?: string;
   balance: ObAmountOfMoney;
-  IBAN: string;
+  // Routing entries identifying the account. The IBAN is exposed here with `scheme: "IBAN"`
+  // (it is no longer a top-level `IBAN` field).
+  account_routings: ObBankRouting[];
+  account_attributes?: Array<Record<string, unknown>>;
+  tags?: Array<Record<string, unknown>>;
   views_available: ObAccountView[];
 }
 
@@ -187,12 +194,25 @@ interface ObAmountOfMoney {
 }
 ```
 
+#### `ObCheckFundsResult`
+
+```typescript
+interface ObCheckFundsResult {
+  // `"yes"` if the funds can be reserved, otherwise `"no"`.
+  answer: "yes" | "no";
+  // Server time at which the check was performed (ISO 8601).
+  date: string;
+  // Server-issued correlation id for this funds-available check.
+  available_funds_request_id: string;
+}
+```
+
 ### Transactions
 
 | Method             | Signature                                                                                                                         | Returns           | Description                                                                                                                                          |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `listTransactions` | `listTransactions(bankId: string, accountId: string, viewId?: string, params?: ListTransactionsParams): Promise<ObTransaction[]>` | `ObTransaction[]` | List transactions for an account. `viewId` defaults to `"owner"`. Calls `GET /obp/v4.0.0/banks/{bankId}/accounts/{accountId}/{viewId}/transactions`. |
-| `getTransaction`   | `getTransaction(bankId: string, accountId: string, viewId: string, transactionId: string): Promise<ObTransaction>`                | `ObTransaction`   | Get a single transaction by ID. Calls `GET /obp/v4.0.0/banks/{bankId}/accounts/{accountId}/{viewId}/transactions/{transactionId}/transaction`.       |
+| `listTransactions` | `listTransactions(bankId: string, accountId: string, viewId?: string, params?: ListTransactionsParams): Promise<ObTransaction[]>` | `ObTransaction[]` | List transactions for an account. `viewId` defaults to `"owner"`. Calls `GET /obp/v5.1.0/banks/{bankId}/accounts/{accountId}/{viewId}/transactions`. |
+| `getTransaction`   | `getTransaction(bankId: string, accountId: string, viewId: string, transactionId: string): Promise<ObTransaction>`                | `ObTransaction`   | Get a single transaction by ID. Calls `GET /obp/v5.1.0/banks/{bankId}/accounts/{accountId}/{viewId}/transactions/{transactionId}/transaction`.       |
 
 #### `ListTransactionsParams`
 
@@ -219,18 +239,37 @@ interface ListTransactionsParams {
 ```typescript
 interface ObTransaction {
   id: string;
-  this_account: ObTransactionAccount;
-  other_account: ObTransactionAccount;
+  this_account: ObTransactionThisAccount;
+  other_account: ObTransactionOtherAccount;
   details: ObTransactionDetails;
+  // Free-form attribute objects attached to the transaction. Optional on the SDK side
+  // for forward-compat, even though upstream `TransactionJsonV300` requires it.
+  transaction_attributes?: Array<Record<string, unknown>>;
   metadata: Record<string, unknown>;
 }
 
-interface ObTransactionAccount {
+// Local side of a transaction. Holders are exposed as an array.
+interface ObTransactionThisAccount {
   id: string;
-  holders: Array<{ name: string }>;
+  holders: Array<{ name: string; is_alias: boolean }>;
   bank_routing: ObBankRouting;
   account_routings: ObBankRouting[];
 }
+
+// Counterparty side of a transaction. Singular holder.
+interface ObTransactionOtherAccount {
+  id: string;
+  holder: { name: string; is_alias: boolean };
+  bank_routing: ObBankRouting;
+  account_routings: ObBankRouting[];
+}
+
+/**
+ * @deprecated Use `ObTransactionThisAccount` for `this_account` or
+ * `ObTransactionOtherAccount` for `other_account`. The two sides have different
+ * holder shapes upstream (`holders[]` vs single `holder`).
+ */
+type ObTransactionAccount = ObTransactionThisAccount;
 
 interface ObTransactionDetails {
   type: string;
@@ -246,7 +285,7 @@ interface ObTransactionDetails {
 
 | Method                       | Signature                                                                                                                                | Returns                      | Description                                                                                                                                                                                                                                         |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `getTransactionRequestTypes` | `getTransactionRequestTypes(bankId: string): Promise<ObTransactionRequestType[]>`                                                        | `ObTransactionRequestType[]` | List supported payment types for a bank. Calls `GET /obp/v4.0.0/banks/{bankId}/transaction-request-types`.                                                                                                                                          |
+| `getTransactionRequestTypes` | `getTransactionRequestTypes(bankId: string): Promise<ObTransactionRequestType[]>`                                                        | `ObTransactionRequestType[]` | List supported payment types for a bank. Calls `GET /obp/v5.1.0/banks/{bankId}/transaction-request-types`.                                                                                                                                          |
 | `createPayment`              | `createPayment(bankId: string, accountId: string, viewId: string, type: string, body: CreatePaymentBody): Promise<ObTransactionRequest>` | `ObTransactionRequest`       | Create a payment (transaction request). `type` is the payment type (e.g. `"SANDBOX_TAN"`, `"SEPA"`, `"COUNTERPARTY"`). Calls `POST /obp/v5.1.0/banks/{bankId}/accounts/{accountId}/{viewId}/transaction-request-types/{type}/transaction-requests`. |
 
 #### `CreatePaymentBody`
@@ -284,12 +323,11 @@ const payment = await client.createPayment(
 #### `ObTransactionRequestType`
 
 ```typescript
+// Entry from `GET /banks/{BANK_ID}/transaction-request-types`. Items expose just the
+// type name; the associated `charge` only appears on `ObTransactionRequest` after a
+// request is created.
 interface ObTransactionRequestType {
-  value: string;
-  charge: {
-    summary: string;
-    value: ObAmountOfMoney;
-  };
+  transaction_request_type: string;
 }
 ```
 
@@ -321,12 +359,12 @@ interface ObChallenge {
 
 ### Consents
 
-| Method                   | Signature                                                                                                         | Returns       | Description                                                                                                                                                                                |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `createConsent`          | `createConsent(bankId: string, scaMethod: string, body: CreateConsentBody): Promise<ObConsent>`                   | `ObConsent`   | Create a consent for account access. `scaMethod` is the SCA delivery method: `"SMS"`, `"EMAIL"`, or `"IMPLICIT"`. Calls `POST /obp/v4.0.0/banks/{bankId}/my/consents/{scaMethod}`.         |
-| `answerConsentChallenge` | `answerConsentChallenge(bankId: string, consentId: string, body: AnswerConsentChallengeBody): Promise<ObConsent>` | `ObConsent`   | Answer a consent challenge (SCA verification). Calls `POST /obp/v4.0.0/banks/{bankId}/consents/{consentId}/challenge`.                                                                     |
-| `listMyConsents`         | `listMyConsents(bankId?: string): Promise<ObConsent[]>`                                                           | `ObConsent[]` | List all consents for the current user. When `bankId` is provided, lists consents for that bank only. Calls `GET /obp/v5.1.0/banks/{bankId}/my/consents` or `GET /obp/v5.1.0/my/consents`. |
-| `revokeConsent`          | `revokeConsent(bankId: string, consentId: string): Promise<void>`                                                 | `void`        | Revoke a consent. Calls `DELETE /obp/v5.1.0/banks/{bankId}/consents/{consentId}`. Returns `void` on success (HTTP 204).                                                                    |
+| Method                   | Signature                                                                                                         | Returns           | Description                                                                                                                                                                                                                                     |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createConsent`          | `createConsent(bankId: string, scaMethod: string, body: CreateConsentBody): Promise<ObConsent>`                   | `ObConsent`       | Create a consent for account access. `scaMethod` is the SCA delivery method: `"SMS"`, `"EMAIL"`, or `"IMPLICIT"`. Calls `POST /obp/v5.1.0/banks/{bankId}/my/consents/{scaMethod}`.                                                              |
+| `answerConsentChallenge` | `answerConsentChallenge(bankId: string, consentId: string, body: AnswerConsentChallengeBody): Promise<ObConsent>` | `ObConsent`       | Answer a consent challenge (SCA verification). Calls `POST /obp/v5.1.0/banks/{bankId}/consents/{consentId}/challenge`.                                                                                                                          |
+| `listMyConsents`         | `listMyConsents(bankId?: string): Promise<ObConsentInfo[]>`                                                       | `ObConsentInfo[]` | List all consents for the current user. When `bankId` is provided, lists consents for that bank only. Unwraps the upstream `{ consents: [...] }` envelope. Calls `GET /obp/v5.1.0/banks/{bankId}/my/consents` or `GET /obp/v5.1.0/my/consents`. |
+| `revokeConsent`          | `revokeConsent(bankId: string, consentId: string): Promise<void>`                                                 | `void`            | Revoke a consent. Calls `DELETE /obp/v5.1.0/banks/{bankId}/consents/{consentId}`. Returns `void` on success (HTTP 204).                                                                                                                         |
 
 #### `CreateConsentBody`
 
@@ -342,14 +380,36 @@ interface CreateConsentBody {
     bank_id: string;
     role_name: string;
   }>;
+  // Optional fields supported by the OBP/Berlin Group consent payload.
+  consumer_id?: string;
+  email?: string;
+  phone_number?: string;
+  valid_from?: string;
+  time_to_live?: number;
+  // Berlin Group AIS access block.
+  access?: Record<string, unknown>;
+  recurringIndicator?: boolean;
+  validUntil?: string;
+  frequencyPerDay?: number;
+  combinedServiceIndicator?: boolean;
 }
 ```
 
-| Property       | Type                                      | Required | Description                                                               |
-| -------------- | ----------------------------------------- | -------- | ------------------------------------------------------------------------- |
-| `everything`   | `boolean`                                 | Yes      | If `true`, grants access to all accounts and views.                       |
-| `views`        | `Array<{ bank_id, account_id, view_id }>` | Yes      | Specific views to grant access to. Pass `[]` when `everything` is `true`. |
-| `entitlements` | `Array<{ bank_id, role_name }>`           | Yes      | Specific roles to grant. Pass `[]` if not needed.                         |
+| Property                   | Type                                      | Required | Description                                                                          |
+| -------------------------- | ----------------------------------------- | -------- | ------------------------------------------------------------------------------------ |
+| `everything`               | `boolean`                                 | Yes      | If `true`, grants access to all accounts and views.                                  |
+| `views`                    | `Array<{ bank_id, account_id, view_id }>` | Yes      | Specific views to grant access to. Pass `[]` when `everything` is `true`.            |
+| `entitlements`             | `Array<{ bank_id, role_name }>`           | Yes      | Specific roles to grant. Pass `[]` if not needed.                                    |
+| `consumer_id`              | `string`                                  | No       | Identifier of the OBP consumer (app) the consent is bound to.                        |
+| `email`                    | `string`                                  | No       | Email address used to deliver the SCA challenge.                                     |
+| `phone_number`             | `string`                                  | No       | Phone number used to deliver the SCA challenge (E.164).                              |
+| `valid_from`               | `string`                                  | No       | Earliest moment from which the consent becomes usable (ISO 8601).                    |
+| `time_to_live`             | `number`                                  | No       | Lifetime of the consent in seconds, counted from `valid_from`.                       |
+| `access`                   | `Record<string, unknown>`                 | No       | Berlin Group access object – granular `accounts`, `balances`, `transactions` arrays. |
+| `recurringIndicator`       | `boolean`                                 | No       | Berlin Group flag: `true` for recurring AIS access, `false` for one-off.             |
+| `validUntil`               | `string`                                  | No       | Berlin Group cutoff date (`YYYY-MM-DD`) for AIS access.                              |
+| `frequencyPerDay`          | `number`                                  | No       | Berlin Group cap on the number of consent uses per day.                              |
+| `combinedServiceIndicator` | `boolean`                                 | No       | Berlin Group flag declaring AIS+PIS in the same consent session.                     |
 
 #### `AnswerConsentChallengeBody`
 
@@ -361,11 +421,41 @@ interface AnswerConsentChallengeBody {
 
 #### `ObConsent`
 
+Compact record returned at create / challenge-answer time.
+
 ```typescript
 interface ObConsent {
   consent_id: string;
   jwt: string;
-  status: string;
+  status: ConsentStatus;
+}
+```
+
+#### `ObConsentInfo`
+
+Richer record returned by `listMyConsents` (12-field shape per `ConsentInfoJsonV510`).
+
+```typescript
+interface ObConsentInfo {
+  consent_id: string;
+  jwt: string;
+  // Decoded payload of the consent JWT.
+  jwt_payload: Record<string, unknown>;
+  status: ConsentStatus;
+  // Stable reference id for cross-referencing the consent across systems.
+  consent_reference_id: string;
+  // OBP API version under which the consent was issued (e.g. `v5.1.0`).
+  api_version: string;
+  // API standard family (e.g. `OBP`, `Berlin Group`).
+  api_standard: string;
+  consumer_id: string;
+  created_by_user_id: string;
+  // Last moment the consent was successfully used (ISO 8601).
+  last_usage_date: string;
+  // Last moment the consent state changed (ISO 8601).
+  last_action_date: string;
+  // Expiry of the underlying JWT (ISO 8601).
+  jwt_expires_at: string;
 }
 ```
 
@@ -392,7 +482,7 @@ const authorized = await client.answerConsentChallenge("maib.md.sandbox", consen
 | Method           | Signature                                   | Returns          | Description                                                                        |
 | ---------------- | ------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
 | `getApiInfo`     | `getApiInfo(): Promise<ObApiInfo>`          | `ObApiInfo`      | Get API info (version, host, connector, git commit). Calls `GET /obp/v5.1.0/root`. |
-| `getApiVersions` | `getApiVersions(): Promise<ObApiVersion[]>` | `ObApiVersion[]` | Get all available API versions. Calls `GET /obp/v4.0.0/api/versions`.              |
+| `getApiVersions` | `getApiVersions(): Promise<ObApiVersion[]>` | `ObApiVersion[]` | Get all available API versions. Calls `GET /obp/v5.1.0/api/versions`.              |
 
 #### `ObApiInfo`
 
@@ -418,6 +508,9 @@ interface ObApiInfo {
     organisation: string;
     organisation_website: string;
   };
+  // Whether fetching resource docs requires an explicit OBP role. Reflects the server's
+  // `resource_docs_requires_role` configuration.
+  resource_docs_requires_role?: boolean;
 }
 ```
 
@@ -439,32 +532,38 @@ interface ObApiVersion {
 ```typescript
 const ConsentStatus = {
   INITIATED: "INITIATED",
+  AWAITINGAUTHORISATION: "AWAITINGAUTHORISATION",
   ACCEPTED: "ACCEPTED",
+  AUTHORISED: "AUTHORISED",
   REJECTED: "REJECTED",
   REVOKED: "REVOKED",
   EXPIRED: "EXPIRED",
-  AUTHORISED: "AUTHORISED",
 } as const;
 
 type ConsentStatus = (typeof ConsentStatus)[keyof typeof ConsentStatus];
 ```
 
-| Key          | Value          | Description                                     |
-| ------------ | -------------- | ----------------------------------------------- |
-| `INITIATED`  | `"INITIATED"`  | Consent created, awaiting SCA challenge answer. |
-| `ACCEPTED`   | `"ACCEPTED"`   | Consent accepted by the bank.                   |
-| `REJECTED`   | `"REJECTED"`   | Consent rejected.                               |
-| `REVOKED`    | `"REVOKED"`    | Consent revoked by the user.                    |
-| `EXPIRED`    | `"EXPIRED"`    | Consent expired.                                |
-| `AUTHORISED` | `"AUTHORISED"` | Consent fully authorized after SCA.             |
+| Key                     | Value                     | Description                                                                     |
+| ----------------------- | ------------------------- | ------------------------------------------------------------------------------- |
+| `INITIATED`             | `"INITIATED"`             | Consent created, awaiting SCA challenge answer.                                 |
+| `AWAITINGAUTHORISATION` | `"AWAITINGAUTHORISATION"` | Consent waiting for the user to complete the authorisation step (Berlin Group). |
+| `ACCEPTED`              | `"ACCEPTED"`              | Consent accepted by the bank.                                                   |
+| `AUTHORISED`            | `"AUTHORISED"`            | Consent fully authorized after SCA.                                             |
+| `REJECTED`              | `"REJECTED"`              | Consent rejected.                                                               |
+| `REVOKED`               | `"REVOKED"`               | Consent revoked by the user.                                                    |
+| `EXPIRED`               | `"EXPIRED"`               | Consent expired.                                                                |
 
 ### `TransactionRequestStatus`
 
 ```typescript
 const TransactionRequestStatus = {
   INITIATED: "INITIATED",
+  INITIALISED: "INITIALISED",
   PENDING: "PENDING",
+  NEXT_CHALLENGE_PENDING: "NEXT_CHALLENGE_PENDING",
+  FORWARDED: "FORWARDED",
   COMPLETED: "COMPLETED",
+  REJECTED: "REJECTED",
   FAILED: "FAILED",
 } as const;
 
@@ -472,12 +571,16 @@ type TransactionRequestStatus =
   (typeof TransactionRequestStatus)[keyof typeof TransactionRequestStatus];
 ```
 
-| Key         | Value         | Description                     |
-| ----------- | ------------- | ------------------------------- |
-| `INITIATED` | `"INITIATED"` | Payment request created.        |
-| `PENDING`   | `"PENDING"`   | Payment processing.             |
-| `COMPLETED` | `"COMPLETED"` | Payment completed successfully. |
-| `FAILED`    | `"FAILED"`    | Payment failed.                 |
+| Key                      | Value                      | Description                                                                        |
+| ------------------------ | -------------------------- | ---------------------------------------------------------------------------------- |
+| `INITIATED`              | `"INITIATED"`              | Payment request created.                                                           |
+| `INITIALISED`            | `"INITIALISED"`            | British-spelling variant emitted by some OBP builds for the freshly-created state. |
+| `PENDING`                | `"PENDING"`                | Payment processing.                                                                |
+| `NEXT_CHALLENGE_PENDING` | `"NEXT_CHALLENGE_PENDING"` | Awaiting the next SCA challenge in a multi-step flow.                              |
+| `FORWARDED`              | `"FORWARDED"`              | Request handed off to an external clearing/settlement system.                      |
+| `COMPLETED`              | `"COMPLETED"`              | Payment completed successfully.                                                    |
+| `REJECTED`               | `"REJECTED"`               | Payment rejected by the bank or risk engine.                                       |
+| `FAILED`                 | `"FAILED"`                 | Payment failed.                                                                    |
 
 ## Error Handling
 
@@ -532,7 +635,7 @@ try {
   await client.listBanks();
 } catch (error) {
   if (error instanceof NetworkError) {
-    console.log(error.message); // "Network request to GET /obp/v4.0.0/banks failed"
+    console.log(error.message); // "Network request to GET /obp/v5.1.0/banks failed"
     console.log(error.cause); // Original fetch error
   }
 }
@@ -556,8 +659,10 @@ Everything below is exported from the `@maib/ob` package entry point:
 **Types** (type-only exports): `AnswerConsentChallengeBody`, `CreateConsentBody`,
 `CreatePaymentBody`, `ListTransactionsParams`, `ObAccount`, `ObAccountDetails`, `ObAccountOwner`,
 `ObAccountView`, `ObAmountOfMoney`, `ObApiInfo`, `ObApiVersion`, `ObBank`, `ObBankRouting`,
-`ObChallenge`, `ObClientConfig`, `ObConsent`, `ObTransaction`, `ObTransactionAccount`,
-`ObTransactionDetails`, `ObTransactionRequest`, `ObTransactionRequestType`, `ObUser`
+`ObChallenge`, `ObCheckFundsResult`, `ObClientConfig`, `ObConsent`, `ObConsentInfo`,
+`ObTransaction`, `ObTransactionAccount` _(deprecated)_, `ObTransactionThisAccount`,
+`ObTransactionOtherAccount`, `ObTransactionDetails`, `ObTransactionRequest`,
+`ObTransactionRequestType`, `ObUser`
 
 `NetworkError` is not re-exported from `@maib/ob`. Import it from `@maib/http` directly:
 

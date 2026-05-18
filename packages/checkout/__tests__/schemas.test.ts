@@ -132,7 +132,7 @@ describe("@maib/checkout schemas — boundary validation", () => {
     ).toBe(false);
   });
 
-  it("CreateSessionRequest accepts an IPv4 payerInfo.ip but rejects IPv6", () => {
+  it("CreateSessionRequest accepts both IPv4 and IPv6 payerInfo.ip", () => {
     const v4 = CreateSessionRequestSchema.safeParse({
       amount: 10,
       currency: "MDL",
@@ -144,7 +144,13 @@ describe("@maib/checkout schemas — boundary validation", () => {
       currency: "MDL",
       payerInfo: { ip: "2001:db8::1" },
     });
-    expect(v6.success).toBe(false);
+    expect(v6.success).toBe(true);
+    const invalid = CreateSessionRequestSchema.safeParse({
+      amount: 10,
+      currency: "MDL",
+      payerInfo: { ip: "not-an-ip" },
+    });
+    expect(invalid.success).toBe(false);
   });
 
   it("CreateSessionRequest rejects an invalid language enum value", () => {

@@ -22,7 +22,7 @@ import type {
   TestPayResult,
 } from "./types";
 
-import { BaseClient, computeSignature, verifySignature } from "@maib/core";
+import { BaseClient, computeSignatureModern, verifySignatureModern } from "@maib/core";
 
 /**
  * Client for the maib MIA QR payment API (v2).
@@ -207,7 +207,7 @@ export class MiaClient extends BaseClient {
         "Cannot verify callback signature: no signatureKey was provided in MiaClient config",
       );
     }
-    return verifySignature(
+    return verifySignatureModern(
       payload.result as unknown as Record<string, unknown>,
       payload.signature,
       this._config.signatureKey,
@@ -222,6 +222,6 @@ export class MiaClient extends BaseClient {
     if (!this._config.signatureKey) {
       throw new Error("Cannot compute signature: no signatureKey was provided in MiaClient config");
     }
-    return computeSignature(result, this._config.signatureKey);
+    return computeSignatureModern(result, this._config.signatureKey);
   }
 }

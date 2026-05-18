@@ -7,15 +7,19 @@ import { RtpStatusEnum } from "./enums";
 export const RtpCallbackResultSchema = z
   .looseObject({
     rtpId: z.string().meta({ description: "RTP unique identifier." }),
-    rtpStatus: RtpStatusEnum.meta({ description: "RTP status." }),
-    orderId: z.string().optional().meta({
-      description: "Merchant-side order identifier.",
+    rtpStatus: RtpStatusEnum.meta({
+      description: "Notification status. Upstream callbacks deliver `Accepted`.",
     }),
-    payId: z.string().meta({ description: "Payment unique identifier." }),
+    orderId: z.string().optional().meta({
+      description: "Merchant order identifier (if provided at create).",
+    }),
+    payId: z.string().meta({ description: "Unique payment identifier." }),
     amount: z.number().nonnegative().meta({ description: "Payment amount." }),
     commission: z.number().nonnegative().meta({ description: "Payment commission." }),
-    currency: z.literal(Currency.MDL).meta({ description: "Payment currency (`MDL`)." }),
-    payerName: z.string().meta({ description: "Payer abbreviated name." }),
+    currency: z.literal(Currency.MDL).meta({
+      description: "Payment currency. Possible values: `MDL` (ISO 4217).",
+    }),
+    payerName: z.string().meta({ description: 'Payer abbreviated name (e.g., `"John D."`).' }),
     payerIban: z.string().meta({ description: "Payer IBAN." }),
     executedAt: z.iso.datetime().meta({
       description: "Payment execution timestamp (ISO 8601).",
@@ -31,7 +35,7 @@ export const RtpCallbackPayloadSchema = z
     result: RtpCallbackResultSchema,
     signature: z.string().meta({
       description:
-        "Notification validation signature (Base64 SHA256 over sorted `result` fields + signatureKey).",
+        "Validation signature (Base64) for integrity and authenticity: SHA256 over alphabetically sorted non-empty `result` fields joined by `:`, with the merchant `signatureKey` appended.",
     }),
   })
   .meta({

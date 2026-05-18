@@ -1,6 +1,6 @@
 ---
 source: https://docs.maibmerchants.md/request-to-pay
-upstream_updated: 2026-04-23
+upstream_updated: 2026-05-19
 ---
 
 # maib Request to Pay (RTP) API Reference

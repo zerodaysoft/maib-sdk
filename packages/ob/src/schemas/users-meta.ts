@@ -17,7 +17,9 @@ export const ObUserSchema = z
           .array(
             z.looseObject({
               entitlement_id: z.string().meta({ description: "Unique entitlement identifier." }),
-              role_name: z.string().meta({ description: "Role granted to the user." }),
+              role_name: z.string().meta({
+                description: "Role granted to the user (e.g. `CanQueryOtherUser`).",
+              }),
               bank_id: z.string().meta({ description: "Bank the role applies to." }),
             }),
           )
@@ -72,6 +74,10 @@ export const ObApiInfoSchema = z
         organisation_website: z.url().meta({ description: "Energy supplier website." }),
       })
       .meta({ description: "Information about the energy supplier powering the host." }),
+    resource_docs_requires_role: z.boolean().optional().meta({
+      description:
+        "Whether fetching resource docs requires an explicit OBP role. Reflects the server's `resource_docs_requires_role` configuration.",
+    }),
   })
   .meta({
     id: "maib.ob.ObApiInfo",

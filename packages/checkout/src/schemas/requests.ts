@@ -13,8 +13,8 @@ export const OrderItemSchema = z
     externalId: z.string().optional().meta({
       description: "External product identifier (SKU).",
     }),
-    title: z.string().optional().meta({
-      description: "Product name or title.",
+    title: z.string().max(125).optional().meta({
+      description: "Product name or title. Maximum 125 characters.",
     }),
     amount: z.number().optional().meta({
       description: "Item price, in major currency units.",
@@ -71,7 +71,10 @@ export const PayerInfoSchema = z
     name: z.string().optional().meta({ description: "Payer full name." }),
     email: z.email().optional().meta({ description: "Payer email address." }),
     phone: z.string().optional().meta({ description: "Payer phone number (E.164 format)." }),
-    ip: z.ipv4().optional().meta({ description: "IPv4 address of the payer." }),
+    ip: z
+      .union([z.ipv4(), z.ipv6()])
+      .optional()
+      .meta({ description: "IP address of the payer (IPv4 or IPv6)." }),
     userAgent: z.string().optional().meta({
       description: "User agent string of the payer's device.",
     }),
@@ -129,7 +132,10 @@ export const ListSessionsParamsSchema = z
       payerName: z.string().optional().meta({ description: "Payer name." }),
       payerEmail: z.email().optional().meta({ description: "Payer email." }),
       payerPhone: z.string().optional().meta({ description: "Payer phone." }),
-      payerIp: z.ipv4().optional().meta({ description: "Payer IPv4 address." }),
+      payerIp: z
+        .union([z.ipv4(), z.ipv6()])
+        .optional()
+        .meta({ description: "Payer IP address (IPv4 or IPv6)." }),
       createdAtFrom: z.iso.datetime().optional().meta({
         description: "Return records created after this timestamp (ISO 8601).",
       }),
@@ -191,7 +197,9 @@ export const ListPaymentsParamsSchema = z
         description: "Merchant order identifier associated with the payment.",
       }),
       note: z.string().optional().meta({ description: "Filter payments by note content." }),
-      status: PaymentStatusEnum.optional().meta({ description: "Payment status filter." }),
+      status: PaymentStatusEnum.optional().meta({
+        description: "Payment status filter (e.g. `Executed`).",
+      }),
       executedAtFrom: z.iso.datetime().optional().meta({
         description: "Start of execution date interval (inclusive, ISO 8601).",
       }),

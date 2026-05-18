@@ -107,7 +107,11 @@ export const SessionPayerSchema = z
     phone: z.string().nullable().optional().meta({
       description: "Payer phone number (E.164 format).",
     }),
-    ip: z.ipv4().nullable().optional().meta({ description: "IPv4 address of the payer." }),
+    ip: z
+      .union([z.ipv4(), z.ipv6()])
+      .nullable()
+      .optional()
+      .meta({ description: "IP address of the payer (IPv4 or IPv6)." }),
     userAgent: z.string().nullable().optional().meta({
       description: "User agent string of the payer's device.",
     }),
@@ -121,7 +125,9 @@ export const SessionPaymentSchema = z
   .looseObject({
     paymentId: z.string().meta({ description: "Payment identifier." }),
     executedAt: z.iso.datetime().meta({ description: "Execution timestamp (ISO 8601)." }),
-    status: PaymentStatusEnum.meta({ description: "Payment status." }),
+    status: PaymentStatusEnum.meta({
+      description: "Payment status (e.g. `Executed`, `Failed`).",
+    }),
     amount: z.number().nonnegative().meta({ description: "Payment amount (major units)." }),
     currency: CurrencyEnum.meta({ description: "ISO 4217 currency code." }),
     type: z.string().meta({ description: "Payment type (e.g. `MIA`)." }),
@@ -213,7 +219,10 @@ export const PaymentDetailsSchema = z
     executedAt: z.iso.datetime().meta({
       description: "Date and time when the payment was executed (ISO 8601).",
     }),
-    status: PaymentStatusEnum.meta({ description: "Current status of the payment." }),
+    status: PaymentStatusEnum.meta({
+      description:
+        "Current status of the payment (`Executed`, `PartiallyRefunded`, `Refunded`, `Failed`).",
+    }),
     amount: z.number().nonnegative().meta({ description: "Amount of the payment (major units)." }),
     currency: CurrencyEnum.meta({
       description: "Currency code of the payment (ISO 4217).",
@@ -237,10 +246,10 @@ export const PaymentDetailsSchema = z
     mcc: z.string().meta({
       description: "Merchant Category Code associated with the payment.",
     }),
-    orderId: z.string().meta({
+    orderId: z.string().nullable().optional().meta({
       description: "Merchant order identifier linked to the payment.",
     }),
-    terminalId: z.string().meta({
+    terminalId: z.string().nullable().optional().meta({
       description: "Identifier of the terminal that initiated the payment.",
     }),
     refundedAmount: z.number().nonnegative().meta({
@@ -284,7 +293,7 @@ export const PaymentDetailsSchema = z
 
 export const RefundResultSchema = z
   .looseObject({
-    refundId: z.string().meta({ description: "Unique identifier of the created refund." }),
+    refundId: z.string().meta({ description: "Unique identifier of the refunded payment." }),
     status: z.literal(RefundStatus.CREATED).meta({
       description: "Initial status of the refund (always `Created`).",
     }),

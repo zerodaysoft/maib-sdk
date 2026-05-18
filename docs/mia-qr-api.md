@@ -1,3 +1,8 @@
+---
+source: https://docs.maibmerchants.md/mia-qr-api/en
+upstream_updated: 2026-05-19
+---
+
 # maib MIA QR API - Complete API Reference
 
 > Source: <https://docs.maibmerchants.md/mia-qr-api/en>
@@ -200,7 +205,7 @@ call.
 | QR       | POST   | `/v2/mia/qr/{qrId}/extension/cancel` | Cancel active QR extension       |
 | Payments | GET    | `/v2/mia/payments/{payId}`           | Get payment details by ID        |
 | Payments | GET    | `/v2/mia/payments`                   | Get payment list (with filter)   |
-| Payments | POST   | `/v2/mia/payments/{payId}/refund`    | Refund payment                   |
+| Payments | POST   | `/v2/payments/{payId}/refund`        | Refund payment                   |
 | Testing  | POST   | `/v2/mia/test-pay`                   | Simulate payment (sandbox only)  |
 
 ---
@@ -708,11 +713,11 @@ curl -G "https://api.maibmerchants.md/v2/mia/payments/123e4567-e89b-12d3-a456-42
 
 ### 11. Refund Payment by ID
 
-|            |                                   |
-| ---------- | --------------------------------- |
-| **Method** | `POST`                            |
-| **URL**    | `/v2/mia/payments/{payId}/refund` |
-| **Auth**   | Bearer token                      |
+|            |                               |
+| ---------- | ----------------------------- |
+| **Method** | `POST`                        |
+| **URL**    | `/v2/payments/{payId}/refund` |
+| **Auth**   | Bearer token                  |
 
 Initiates a full or partial refund for a completed payment. Refunds are irreversible.
 

@@ -6,6 +6,7 @@
 
 - [AGENTS.md](AGENTS.md): Instructions for AI coding agents
 - [README.md](README.md): Project overview and quick start
+- [docs/getting-started.md](docs/getting-started.md): Operational onboarding — how to obtain credentials, sandbox test data, and the path to production
 
 ## Packages
 
@@ -23,6 +24,7 @@
 ### @maib/ecommerce
 - [README](packages/ecommerce/README.md)
 - [SDK Reference](packages/ecommerce/docs/sdk-reference.md)
+- [API Reference](packages/ecommerce/docs/api-reference.md)
 - [Runtime schemas](packages/ecommerce/docs/schemas.md)
 
 ### @maib/rtp

@@ -11,11 +11,11 @@ export const MiaCallbackResultSchema = z
       description: "QR extension identifier (for Hybrid).",
     }),
     qrStatus: z.enum([QrStatus.ACTIVE, QrStatus.PAID]).meta({
-      description: "QR status (callbacks emit `Active` or `Paid`).",
+      description: "QR status in the notification. Known values: `Active`, `Paid`.",
     }),
     payId: z.string().meta({ description: "Payment unique identifier." }),
     referenceId: z.string().optional().meta({
-      description: "RRN code from the instant payments service.",
+      description: "RRN code from the instant payments service (max 15 chars).",
     }),
     orderId: z.string().optional().meta({
       description: "Merchant-side order identifier.",

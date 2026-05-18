@@ -20,8 +20,8 @@ export const CheckoutCallbackPayloadSchema = z
     payerPhone: z.string().nullish().meta({
       description: "Payer's phone number (MSISDN).",
     }),
-    payerIp: z.ipv4().nullish().meta({
-      description: "Payer's IPv4 address.",
+    payerIp: z.union([z.ipv4(), z.ipv6()]).nullish().meta({
+      description: "Payer's IP address (IPv4 or IPv6).",
     }),
     orderId: z.string().nullish().meta({
       description: "Merchant's order identifier.",

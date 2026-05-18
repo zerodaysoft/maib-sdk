@@ -14,7 +14,7 @@ import type {
   TestRejectResult,
 } from "./types";
 
-import { BaseClient, computeSignature, verifySignature } from "@maib/core";
+import { BaseClient, computeSignatureModern, verifySignatureModern } from "@maib/core";
 
 /**
  * Client for the maib Request to Pay (RTP) API (v2).
@@ -141,7 +141,7 @@ export class RtpClient extends BaseClient {
         "Cannot verify callback signature: no signatureKey was provided in RtpClient config",
       );
     }
-    return verifySignature(
+    return verifySignatureModern(
       payload.result as unknown as Record<string, unknown>,
       payload.signature,
       this._config.signatureKey,
@@ -156,6 +156,6 @@ export class RtpClient extends BaseClient {
     if (!this._config.signatureKey) {
       throw new Error("Cannot compute signature: no signatureKey was provided in RtpClient config");
     }
-    return computeSignature(result, this._config.signatureKey);
+    return computeSignatureModern(result, this._config.signatureKey);
   }
 }

@@ -5,7 +5,7 @@ description:
   TypeScript SDK for the maib MIA QR payment API — static, dynamic, and hybrid QR code payments.
 api_version: v2
 upstream_docs: https://docs.maibmerchants.md/mia-qr-api/en
-upstream_updated: 2026-04-23
+upstream_updated: 2026-05-19
 ---
 
 # @maib/mia SDK Reference
@@ -140,7 +140,7 @@ Create a static or dynamic QR code.
 | ------------- | ------------ | ----------- | --------------------------------------------------------------------------- |
 | `type`        | `QrType`     | Yes         | QR code type: `"Static"` or `"Dynamic"`. Use `createHybridQr()` for hybrid. |
 | `amountType`  | `AmountType` | Yes         | Amount type: `"Fixed"`, `"Controlled"`, or `"Free"`.                        |
-| `currency`    | `Currency`   | Yes         | Payment currency (`"MDL"`, `"EUR"`, or `"USD"`).                            |
+| `currency`    | `"MDL"`      | Yes         | Payment currency. MIA QR is restricted to `"MDL"`.                          |
 | `description` | `string`     | Yes         | Human-readable payment description shown to the payer.                      |
 | `amount`      | `number`     | Conditional | Payment amount. Required when `amountType` is `"Fixed"`.                    |
 | `amountMin`   | `number`     | No          | Minimum allowed amount. Used when `amountType` is `"Controlled"`.           |
@@ -304,26 +304,26 @@ Retrieve details of a QR code.
 
 #### QrDetails
 
-| Field         | Type       | Description                                           |
-| ------------- | ---------- | ----------------------------------------------------- |
-| `qrId`        | `string`   | QR code identifier.                                   |
-| `extensionId` | `string?`  | Extension identifier (if applicable).                 |
-| `orderId`     | `string?`  | Your order ID.                                        |
-| `status`      | `string`   | Current status (see `QrStatus`).                      |
-| `type`        | `string`   | QR type (`"Static"`, `"Dynamic"`, or `"Hybrid"`).     |
-| `url`         | `string`   | QR code URL.                                          |
-| `amountType`  | `string`   | Amount type (`"Fixed"`, `"Controlled"`, or `"Free"`). |
-| `amount`      | `number?`  | Fixed amount.                                         |
-| `amountMin`   | `number?`  | Minimum amount.                                       |
-| `amountMax`   | `number?`  | Maximum amount.                                       |
-| `currency`    | `Currency` | Payment currency.                                     |
-| `description` | `string?`  | Payment description.                                  |
-| `callbackUrl` | `string?`  | Callback URL.                                         |
-| `redirectUrl` | `string?`  | Redirect URL.                                         |
-| `createdAt`   | `string`   | Creation timestamp.                                   |
-| `updatedAt`   | `string`   | Last update timestamp.                                |
-| `expiresAt`   | `string?`  | Expiration timestamp.                                 |
-| `terminalId`  | `string?`  | Terminal identifier.                                  |
+| Field         | Type      | Description                                           |
+| ------------- | --------- | ----------------------------------------------------- |
+| `qrId`        | `string`  | QR code identifier.                                   |
+| `extensionId` | `string?` | Extension identifier (if applicable).                 |
+| `orderId`     | `string?` | Your order ID.                                        |
+| `status`      | `string`  | Current status (see `QrStatus`).                      |
+| `type`        | `string`  | QR type (`"Static"`, `"Dynamic"`, or `"Hybrid"`).     |
+| `url`         | `string`  | QR code URL.                                          |
+| `amountType`  | `string`  | Amount type (`"Fixed"`, `"Controlled"`, or `"Free"`). |
+| `amount`      | `number?` | Fixed amount.                                         |
+| `amountMin`   | `number?` | Minimum amount.                                       |
+| `amountMax`   | `number?` | Maximum amount.                                       |
+| `currency`    | `"MDL"`   | Payment currency. MIA QR is restricted to `"MDL"`.    |
+| `description` | `string?` | Payment description.                                  |
+| `callbackUrl` | `string?` | Callback URL.                                         |
+| `redirectUrl` | `string?` | Redirect URL.                                         |
+| `createdAt`   | `string`  | Creation timestamp.                                   |
+| `updatedAt`   | `string`  | Last update timestamp.                                |
+| `expiresAt`   | `string?` | Expiration timestamp.                                 |
+| `terminalId`  | `string?` | Terminal identifier.                                  |
 
 ```typescript
 const qr = await client.getQr("qr_abc123");
@@ -480,23 +480,23 @@ Retrieve details of a completed payment.
 
 #### MiaPaymentDetails
 
-| Field         | Type       | Description                                    |
-| ------------- | ---------- | ---------------------------------------------- |
-| `payId`       | `string`   | Payment identifier.                            |
-| `referenceId` | `string?`  | Bank reference ID.                             |
-| `qrId`        | `string`   | QR code identifier.                            |
-| `extensionId` | `string?`  | Extension identifier (for hybrid QR payments). |
-| `orderId`     | `string?`  | Your order ID.                                 |
-| `amount`      | `number`   | Payment amount.                                |
-| `commission`  | `number`   | Commission charged.                            |
-| `currency`    | `Currency` | Payment currency.                              |
-| `description` | `string?`  | Payment description.                           |
-| `payerName`   | `string?`  | Payer name.                                    |
-| `payerIban`   | `string?`  | Payer IBAN.                                    |
-| `status`      | `string`   | Payment status (see `MiaPaymentStatus`).       |
-| `executedAt`  | `string`   | Execution timestamp.                           |
-| `refundedAt`  | `string?`  | Refund timestamp (if refunded).                |
-| `terminalId`  | `string?`  | Terminal identifier.                           |
+| Field         | Type      | Description                                     |
+| ------------- | --------- | ----------------------------------------------- |
+| `payId`       | `string`  | Payment identifier.                             |
+| `referenceId` | `string?` | Bank reference ID.                              |
+| `qrId`        | `string`  | QR code identifier.                             |
+| `extensionId` | `string?` | Extension identifier (for hybrid QR payments).  |
+| `orderId`     | `string?` | Your order ID.                                  |
+| `amount`      | `number`  | Payment amount.                                 |
+| `commission`  | `number`  | Commission charged.                             |
+| `currency`    | `"MDL"`   | Payment currency. MIA QR payments are MDL-only. |
+| `description` | `string?` | Payment description.                            |
+| `payerName`   | `string?` | Payer name.                                     |
+| `payerIban`   | `string?` | Payer IBAN.                                     |
+| `status`      | `string`  | Payment status (see `MiaPaymentStatus`).        |
+| `executedAt`  | `string`  | Execution timestamp.                            |
+| `refundedAt`  | `string?` | Refund timestamp (if refunded).                 |
+| `terminalId`  | `string?` | Terminal identifier.                            |
 
 ```typescript
 const payment = await client.getPayment("pay_xyz789");
@@ -554,7 +554,7 @@ Refund a completed payment. You can refund the full amount or a partial amount.
 
 **Signature**: `refund(payId: string, params: RefundPaymentRequest): Promise<MiaRefundResult>`
 
-**API endpoint**: `POST /v2/mia/payments/{payId}/refund`
+**API endpoint**: `POST /v2/payments/{payId}/refund`
 
 #### RefundPaymentRequest
 
@@ -592,29 +592,29 @@ completing a payment.
 
 #### TestPayRequest
 
-| Field       | Type       | Required | Description                |
-| ----------- | ---------- | -------- | -------------------------- |
-| `qrId`      | `string`   | Yes      | QR code identifier to pay. |
-| `amount`    | `number`   | Yes      | Payment amount.            |
-| `iban`      | `string`   | Yes      | Simulated payer IBAN.      |
-| `currency`  | `Currency` | Yes      | Payment currency.          |
-| `payerName` | `string`   | Yes      | Simulated payer name.      |
+| Field       | Type     | Required | Description                |
+| ----------- | -------- | -------- | -------------------------- |
+| `qrId`      | `string` | Yes      | QR code identifier to pay. |
+| `amount`    | `number` | Yes      | Payment amount.            |
+| `iban`      | `string` | Yes      | Simulated payer IBAN.      |
+| `currency`  | `"MDL"`  | Yes      | Payment currency (MDL).    |
+| `payerName` | `string` | Yes      | Simulated payer name.      |
 
 #### TestPayResult
 
-| Field        | Type       | Description                           |
-| ------------ | ---------- | ------------------------------------- |
-| `qrId`       | `string`   | QR code identifier.                   |
-| `qrStatus`   | `string`   | QR status after payment.              |
-| `orderId`    | `string?`  | Your order ID.                        |
-| `payId`      | `string`   | Payment identifier (use for refunds). |
-| `amount`     | `number`   | Payment amount.                       |
-| `commission` | `number`   | Commission charged.                   |
-| `currency`   | `Currency` | Payment currency.                     |
-| `payerName`  | `string`   | Payer name.                           |
-| `payerIban`  | `string`   | Payer IBAN.                           |
-| `executedAt` | `string`   | Execution timestamp.                  |
-| `signature`  | `string`   | Callback signature.                   |
+| Field          | Type      | Description                                        |
+| -------------- | --------- | -------------------------------------------------- |
+| `qrId`         | `string`  | QR code identifier.                                |
+| `qrStatus`     | `string`  | QR status after payment.                           |
+| `orderId`      | `string?` | Your order ID.                                     |
+| `payId`        | `string`  | Payment identifier (use for refunds).              |
+| `amount`       | `number`  | Payment amount.                                    |
+| `commission`   | `number`  | Commission charged.                                |
+| `currency`     | `"MDL"`   | Payment currency (MDL).                            |
+| `payerName`    | `string`  | Payer name.                                        |
+| `payerIban`    | `string`  | Payer IBAN.                                        |
+| `executedAt`   | `string`  | Execution timestamp.                               |
+| `signatureKey` | `string`  | Signature key used to sign the simulated callback. |
 
 ```typescript
 const payment = await client.testPay({
@@ -697,18 +697,18 @@ The top-level structure sent to your callback URL.
 
 ### MiaCallbackResult
 
-| Field        | Type       | Description          |
-| ------------ | ---------- | -------------------- |
-| `qrId`       | `string`   | QR code identifier.  |
-| `qrStatus`   | `string`   | Current QR status.   |
-| `orderId`    | `string?`  | Your order ID.       |
-| `payId`      | `string`   | Payment identifier.  |
-| `amount`     | `number`   | Payment amount.      |
-| `commission` | `number`   | Commission charged.  |
-| `currency`   | `Currency` | Payment currency.    |
-| `payerName`  | `string`   | Payer name.          |
-| `payerIban`  | `string`   | Payer IBAN.          |
-| `executedAt` | `string`   | Execution timestamp. |
+| Field        | Type      | Description             |
+| ------------ | --------- | ----------------------- |
+| `qrId`       | `string`  | QR code identifier.     |
+| `qrStatus`   | `string`  | Current QR status.      |
+| `orderId`    | `string?` | Your order ID.          |
+| `payId`      | `string`  | Payment identifier.     |
+| `amount`     | `number`  | Payment amount.         |
+| `commission` | `number`  | Commission charged.     |
+| `currency`   | `"MDL"`   | Payment currency (MDL). |
+| `payerName`  | `string`  | Payer name.             |
+| `payerIban`  | `string`  | Payer IBAN.             |
+| `executedAt` | `string`  | Execution timestamp.    |
 
 ## Enums and Constants
 

@@ -1,6 +1,6 @@
 ---
 source: https://ob-explorer-sandbox.maib.md
-upstream_updated: 2025-11-10
+upstream_updated: 2026-05-19
 ---
 
 # maib Open Banking API Reference
@@ -141,17 +141,17 @@ The API organizes endpoints into these tag groups:
 
 ### Core Endpoints
 
-| Method | Path                                                                          | Description                                                           |
-| ------ | ----------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| GET    | `/obp/v4.0.0/accounts/public`                                                 | List public accounts across all banks                                 |
-| GET    | `/obp/v4.0.0/banks/{BANK_ID}/accounts`                                        | List accounts user has access to                                      |
-| POST   | `/obp/v4.0.0/banks/{BANK_ID}/accounts`                                        | Create account at bank                                                |
-| GET    | `/obp/v4.0.0/banks/{BANK_ID}/accounts-held`                                   | Get accounts held by current user                                     |
-| POST   | `/obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}`                           | Update account label                                                  |
-| GET    | `/obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/account`         | Get full account details (number, owners, type, balance, IBAN, views) |
-| GET    | `/obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/funds-available` | Check available funds (PSD2 PIIS)                                     |
-| GET    | `/obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/permissions`               | List account permissions                                              |
-| POST   | `/obp/v4.0.0/account/check/scheme/iban`                                       | Validate IBAN                                                         |
+| Method | Path                                                                          | Description                                                                                                     |
+| ------ | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| GET    | `/obp/v4.0.0/accounts/public`                                                 | List public accounts across all banks                                                                           |
+| GET    | `/obp/v5.1.0/banks/{BANK_ID}/accounts`                                        | List accounts user has access to                                                                                |
+| POST   | `/obp/v4.0.0/banks/{BANK_ID}/accounts`                                        | Create account at bank                                                                                          |
+| GET    | `/obp/v4.0.0/banks/{BANK_ID}/accounts-held`                                   | Get accounts held by current user                                                                               |
+| POST   | `/obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}`                           | Update account label                                                                                            |
+| GET    | `/obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/account`         | Get full account details (number, owners, `product_code`, balance, `account_routings`, attributes, tags, views) |
+| GET    | `/obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/funds-available` | Check available funds (PSD2 PIIS) – returns `{ answer, date, available_funds_request_id }`                      |
+| GET    | `/obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/permissions`               | List account permissions                                                                                        |
+| POST   | `/obp/v4.0.0/account/check/scheme/iban`                                       | Validate IBAN                                                                                                   |
 
 ### Account Applications
 
@@ -199,7 +199,9 @@ The API organizes endpoints into these tag groups:
 
 **ModeratedAccountJSON400** (response):
 
-- `bank_id`, `account_id`, `label`, `number`, `owners`, `type`, `balance`, `IBAN`, `views_available`
+- `bank_id`, `id`, `label`, `number`, `owners`, `product_code`, `balance`, `account_routings[]`
+  (IBAN exposed with `scheme: "IBAN"`), optional `account_attributes`, optional `tags`,
+  `views_available`
 
 ---
 
@@ -209,7 +211,7 @@ The API organizes endpoints into these tag groups:
 
 | Method | Path                                                                                      | Description                   |
 | ------ | ----------------------------------------------------------------------------------------- | ----------------------------- |
-| GET    | `/obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/transactions`                | List transactions (paginated) |
+| GET    | `/obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/transactions`                | List transactions (paginated) |
 | GET    | `.../{VIEW_ID}/transactions/{TRANSACTION_ID}/transaction`                                 | Get single transaction        |
 | GET    | `/obp/v4.0.0/my/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/transactions`                       | Get core transactions         |
 | GET    | `/obp/v4.0.0/banks/{BANK_ID}/firehose/accounts/{ACCOUNT_ID}/views/{VIEW_ID}/transactions` | Firehose (bulk) access        |
@@ -255,8 +257,10 @@ Each transaction supports rich metadata via sub-endpoints under `.../{TRANSACTIO
 
 **TransactionJsonV300**:
 
-- `id`, `this_account`, `other_account`, `details` (type, description, posted, completed,
+- `id`, `this_account` (`ThisAccountJsonV300` – `holders[]` array), `other_account`
+  (`OtherAccountJsonV300` – single `holder`), `details` (type, description, posted, completed,
   new_balance, value)
+- `transaction_attributes[]` – free-form attribute objects attached to the transaction
 - `metadata` (narrative, comments, tags, images, where)
 
 ---
@@ -345,10 +349,13 @@ POST /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/transaction-req
 ### Get Transaction Request Types
 
 ```
-GET /obp/v4.0.0/banks/{BANK_ID}/transaction-request-types
+GET /obp/v5.1.0/banks/{BANK_ID}/transaction-request-types
 ```
 
-Returns the list of supported transaction request types for a bank.
+Returns the list of supported transaction request types for a bank. Each item exposes just the type
+name as `{ "transaction_request_type": "SANDBOX_TAN" }` (per `TransactionRequestTypeJSONV210`). The
+associated `charge` only appears on `TransactionRequestWithChargeJSON210` after a request is
+created.
 
 ---
 
@@ -358,9 +365,9 @@ Returns the list of supported transaction request types for a bank.
 
 | Method | Path                                               | Description                          |
 | ------ | -------------------------------------------------- | ------------------------------------ |
-| POST   | `/obp/v4.0.0/banks/{BANK_ID}/my/consents/EMAIL`    | Create consent (email SCA)           |
-| POST   | `/obp/v4.0.0/banks/{BANK_ID}/my/consents/SMS`      | Create consent (SMS SCA)             |
-| POST   | `/obp/v4.0.0/banks/{BANK_ID}/my/consents/IMPLICIT` | Create consent (implicit SCA)        |
+| POST   | `/obp/v5.1.0/banks/{BANK_ID}/my/consents/EMAIL`    | Create consent (email SCA)           |
+| POST   | `/obp/v5.1.0/banks/{BANK_ID}/my/consents/SMS`      | Create consent (SMS SCA)             |
+| POST   | `/obp/v5.1.0/banks/{BANK_ID}/my/consents/IMPLICIT` | Create consent (implicit SCA)        |
 | POST   | `/obp/v5.1.0/my/consents/IMPLICIT`                 | Create consent (implicit, all banks) |
 
 ### Consent Requests (Third-Party Flow)
@@ -385,7 +392,7 @@ Returns the list of supported transaction request types for a bank.
 | Method | Path                                                                    | Description              |
 | ------ | ----------------------------------------------------------------------- | ------------------------ |
 | PUT    | `/obp/v4.0.0/banks/{BANK_ID}/consents/{CONSENT_ID}`                     | Update consent status    |
-| POST   | `/obp/v4.0.0/banks/{BANK_ID}/consents/{CONSENT_ID}/challenge`           | Answer consent challenge |
+| POST   | `/obp/v5.1.0/banks/{BANK_ID}/consents/{CONSENT_ID}/challenge`           | Answer consent challenge |
 | PUT    | `/obp/v4.0.0/banks/{BANK_ID}/consents/{CONSENT_ID}/user-update-request` | Add user to consent      |
 | DELETE | `/obp/v5.1.0/banks/{BANK_ID}/consents/{CONSENT_ID}`                     | Revoke consent at bank   |
 | DELETE | `/obp/v5.1.0/my/consent/current`                                        | Revoke current consent   |
@@ -413,17 +420,21 @@ Returns the list of supported transaction request types for a bank.
 
 ### Consent Statuses
 
-`INITIATED` | `ACCEPTED` | `REJECTED` | `REVOKED` | `EXPIRED` | `AUTHORISED`
+`INITIATED` | `AWAITINGAUTHORISATION` | `ACCEPTED` | `AUTHORISED` | `REJECTED` | `REVOKED` |
+`EXPIRED`
 
 ### Consent Response Fields
 
-- `consent_id` (UUID)
-- `jwt` (signed token encoding consent details)
-- `status`
+`ConsentJsonV310` (compact, returned at create / challenge-answer):
+
+- `consent_id` (UUID), `jwt`, `status`
+
+`ConsentInfoJsonV510` (returned by `GET /my/consents` and `GET /banks/{BANK_ID}/my/consents`):
+
+- `consent_id`, `jwt`, `jwt_payload`, `status`
+- `consent_reference_id`, `api_version`, `api_standard`
 - `consumer_id`, `created_by_user_id`
-- `views` (account access specifications)
-- `entitlements` (role-based permissions)
-- `last_action_date`, `last_usage_date`
+- `last_usage_date`, `last_action_date`, `jwt_expires_at`
 
 ---
 
@@ -431,14 +442,14 @@ Returns the list of supported transaction request types for a bank.
 
 | Method | Path                                                    | Description                        |
 | ------ | ------------------------------------------------------- | ---------------------------------- |
-| GET    | `/obp/v4.0.0/banks`                                     | List all banks (public)            |
-| GET    | `/obp/v5.0.0/banks/{BANK_ID}`                           | Get bank details                   |
+| GET    | `/obp/v5.1.0/banks`                                     | List all banks (public)            |
+| GET    | `/obp/v5.1.0/banks/{BANK_ID}`                           | Get bank details                   |
 | POST   | `/obp/v5.1.0/banks`                                     | Create bank                        |
 | PUT    | `/obp/v5.1.0/banks`                                     | Update bank                        |
 | GET    | `/obp/v4.0.0/banks/{BANK_ID}/branches`                  | List branches                      |
 | GET    | `/obp/v4.0.0/banks/{BANK_ID}/branches/{BRANCH_ID}`      | Get branch                         |
 | GET    | `/obp/v4.0.0/banks/{BANK_ID}/attributes`                | Get bank attributes                |
-| GET    | `/obp/v4.0.0/banks/{BANK_ID}/transaction-request-types` | Get supported payment types        |
+| GET    | `/obp/v5.1.0/banks/{BANK_ID}/transaction-request-types` | Get supported payment types        |
 | GET    | `/obp/v4.0.0/banks/{BANK_ID}/transaction-types`         | Get transaction types with charges |
 | POST   | `/obp/v4.0.0/banks/{BANK_ID}/account-web-hooks`         | Create webhook                     |
 | DELETE | `/obp/v4.0.0/management/cascading/banks/{BANK_ID}`      | Delete bank (cascade)              |
@@ -511,13 +522,13 @@ Returns the list of supported transaction request types for a bank.
 
 ## Documentation & Meta
 
-| Method | Path                                                      | Description                                     |
-| ------ | --------------------------------------------------------- | ----------------------------------------------- |
-| GET    | `/obp/v5.1.0/root`                                        | API info (version, host, connector, git commit) |
-| GET    | `/obp/v4.0.0/api/versions`                                | List all API versions                           |
-| GET    | `/obp/v1.4.0/resource-docs/{VERSION}/swagger`             | Get Swagger docs (filterable by tags)           |
-| GET    | `/obp/v1.4.0/resource-docs/{VERSION}/obp`                 | Get OBP-format docs (auth required)             |
-| GET    | `/obp/v1.4.0/banks/{BANK_ID}/resource-docs/{VERSION}/obp` | Bank-level dynamic docs                         |
+| Method | Path                                                      | Description                                                                             |
+| ------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| GET    | `/obp/v5.1.0/root`                                        | API info (version, host, connector, git commit, optional `resource_docs_requires_role`) |
+| GET    | `/obp/v5.1.0/api/versions`                                | List all API versions                                                                   |
+| GET    | `/obp/v1.4.0/resource-docs/{VERSION}/swagger`             | Get Swagger docs (filterable by tags)                                                   |
+| GET    | `/obp/v1.4.0/resource-docs/{VERSION}/obp`                 | Get OBP-format docs (auth required)                                                     |
+| GET    | `/obp/v1.4.0/banks/{BANK_ID}/resource-docs/{VERSION}/obp` | Bank-level dynamic docs                                                                 |
 
 **Swagger filtering**: Add `?tags=Account,Transaction` to filter by category.
 

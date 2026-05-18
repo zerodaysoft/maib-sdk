@@ -29,6 +29,7 @@ export {
   BaseClient,
   computeHmacSignature,
   computeSignature,
+  computeSignatureModern,
   DEFAULT_API_HOST,
   Environment,
   isMaibResponse,
@@ -41,6 +42,7 @@ export {
   TOKEN_REFRESH_BUFFER_S,
   verifyHmacSignature,
   verifySignature,
+  verifySignatureModern,
 } from "@maib/core";
 
 // ---------------------------------------------------------------------------

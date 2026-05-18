@@ -6,7 +6,7 @@ description:
   payments.
 api_version: v1
 upstream_docs: https://docs.maibmerchants.md/e-commerce
-upstream_updated: 2026-04-23
+upstream_updated: 2026-05-19
 ---
 
 # @maib/ecommerce SDK Reference

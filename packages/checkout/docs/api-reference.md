@@ -1,6 +1,6 @@
 ---
 source: https://docs.maibmerchants.md/checkout
-upstream_updated: 2026-04-23
+upstream_updated: 2026-05-19
 ---
 
 # maib e-Commerce Checkout API - Complete Reference

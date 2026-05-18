@@ -31,7 +31,9 @@ export { MaibError, MaibNetworkError } from "./errors";
 export {
   computeHmacSignature,
   computeSignature,
+  computeSignatureModern,
   verifyHmacSignature,
   verifySignature,
+  verifySignatureModern,
 } from "./signature";
 export { isMaibResponse } from "./utils";

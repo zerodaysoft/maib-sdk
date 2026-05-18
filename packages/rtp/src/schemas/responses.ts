@@ -25,36 +25,42 @@ export const RtpStatusResultSchema = z
       description: "Merchant-side order identifier.",
     }),
     status: RtpStatusEnum.meta({ description: "RTP status." }),
-    amount: z.number().nonnegative().meta({ description: "RTP amount." }),
-    currency: z.literal(Currency.MDL).meta({ description: "Payment currency (`MDL`)." }),
+    amount: z.number().nonnegative().meta({ description: "RTP amount (fixed)." }),
+    currency: z.literal(Currency.MDL).meta({
+      description: "Payment currency. Possible values: `MDL` (ISO 4217).",
+    }),
     description: z.string().meta({ description: "Order description." }),
     url: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .optional()
       .meta({
         description: "RTP URL (HTTPS). Returned on list items only.",
       }),
     callbackUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .optional()
       .meta({
-        description: "HTTPS callback URL.",
+        description:
+          "HTTPS URL where the merchant receives payment data after a successful payment in the Bank App.",
       }),
     redirectUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .optional()
       .meta({
-        description: "HTTPS redirect URL.",
+        description:
+          "HTTPS URL where the customer is redirected after a successful payment in the Bank App.",
       }),
-    createdAt: z.iso.datetime().meta({ description: "Creation timestamp (ISO 8601)." }),
+    createdAt: z.iso.datetime().meta({
+      description: "Timestamp when the RTP was created (ISO 8601).",
+    }),
     updatedAt: z.iso.datetime().meta({
-      description: "Last status update timestamp (ISO 8601).",
+      description: "Timestamp of the last status update (ISO 8601).",
     }),
     expiresAt: z.iso.datetime().meta({
-      description: "Expiration timestamp (ISO 8601).",
+      description: "Timestamp when the RTP expires (ISO 8601).",
     }),
     terminalId: z.string().optional().meta({
       description: "Terminal ID provided by the bank.",
@@ -92,7 +98,10 @@ export const RefundRtpResultSchema = z
 
 const testResultShape = {
   rtpId: z.string().meta({ description: "RTP unique identifier." }),
-  rtpStatus: RtpStatusEnum.meta({ description: "RTP status." }),
+  rtpStatus: RtpStatusEnum.meta({
+    description:
+      "RTP status (`Pending`, `Accepted`, `Rejected`, `Expired`, `Cancelled`, `Refunded`).",
+  }),
   orderId: z.string().optional().meta({
     description: "Merchant-side order identifier.",
   }),
@@ -100,10 +109,10 @@ const testResultShape = {
   amount: z.number().nonnegative().meta({ description: "Payment amount." }),
   commission: z.number().nonnegative().meta({ description: "Payment commission." }),
   currency: z.literal(Currency.MDL).meta({ description: "Payment currency (`MDL`)." }),
-  payerName: z.string().meta({ description: "Payer abbreviated name." }),
+  payerName: z.string().meta({ description: 'Payer abbreviated name (e.g., `"John D."`).' }),
   payerIban: z.string().meta({ description: "Payer IBAN." }),
   executedAt: z.iso.datetime().meta({
-    description: "Payment execution timestamp (ISO 8601).",
+    description: "Timestamp when the payment was executed (ISO 8601).",
   }),
   signature: z.string().meta({ description: "Notification validation signature." }),
 } as const;

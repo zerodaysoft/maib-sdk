@@ -9,8 +9,10 @@ import type {
   ObApiInfo,
   ObApiVersion,
   ObBank,
+  ObCheckFundsResult,
   ObClientConfig,
   ObConsent,
+  ObConsentInfo,
   ObTransaction,
   ObTransactionRequest,
   ObTransactionRequestType,
@@ -173,13 +175,13 @@ export class ObClient {
 
   /** List all available banks. */
   public async listBanks(): Promise<ObBank[]> {
-    const result = await this._get<{ banks: ObBank[] }>("/obp/v4.0.0/banks");
+    const result = await this._get<{ banks: ObBank[] }>("/obp/v5.1.0/banks");
     return result.banks;
   }
 
   /** Get details for a specific bank. */
   public async getBank(bankId: string): Promise<ObBank> {
-    return this._get(`/obp/v5.0.0/banks/${e(bankId)}`);
+    return this._get(`/obp/v5.1.0/banks/${e(bankId)}`);
   }
 
   // -----------------------------------------------------------------------
@@ -188,30 +190,38 @@ export class ObClient {
 
   /** List accounts the current user has access to at a bank. */
   public async listAccounts(bankId: string): Promise<ObAccount[]> {
-    return this._get(`/obp/v4.0.0/banks/${e(bankId)}/accounts`);
+    const result = await this._get<{ accounts: ObAccount[] }>(
+      `/obp/v5.1.0/banks/${e(bankId)}/accounts`,
+    );
+    return result.accounts;
   }
 
-  /** Get full account details including balance, IBAN, and owners. */
+  /** Get full account details including balance, routings (IBAN), and owners. */
   public async getAccount(
     bankId: string,
     accountId: string,
     viewId = "owner",
   ): Promise<ObAccountDetails> {
     return this._get(
-      `/obp/v4.0.0/banks/${e(bankId)}/accounts/${e(accountId)}/${e(viewId)}/account`,
+      `/obp/v5.1.0/banks/${e(bankId)}/accounts/${e(accountId)}/${e(viewId)}/account`,
     );
   }
 
-  /** Check if an account has sufficient funds (PSD2 PIIS). */
+  /**
+   * Check if an account has sufficient funds (PSD2 PIIS).
+   *
+   * Returns `{ answer, date, available_funds_request_id }` — inspect
+   * `answer === "yes"` to decide.
+   */
   public async checkFunds(
     bankId: string,
     accountId: string,
     viewId: string,
     amount: string,
     currency: string,
-  ): Promise<{ funds_available: boolean }> {
+  ): Promise<ObCheckFundsResult> {
     return this._get(
-      `/obp/v4.0.0/banks/${e(bankId)}/accounts/${e(accountId)}/${e(viewId)}/funds-available`,
+      `/obp/v5.1.0/banks/${e(bankId)}/accounts/${e(accountId)}/${e(viewId)}/funds-available`,
       { amount, currency },
     );
   }
@@ -228,7 +238,7 @@ export class ObClient {
     params?: ListTransactionsParams,
   ): Promise<ObTransaction[]> {
     const result = await this._get<{ transactions: ObTransaction[] }>(
-      `/obp/v4.0.0/banks/${e(bankId)}/accounts/${e(accountId)}/${e(viewId)}/transactions`,
+      `/obp/v5.1.0/banks/${e(bankId)}/accounts/${e(accountId)}/${e(viewId)}/transactions`,
       params as unknown as Record<string, unknown>,
     );
     return result.transactions;
@@ -242,7 +252,7 @@ export class ObClient {
     transactionId: string,
   ): Promise<ObTransaction> {
     return this._get(
-      `/obp/v4.0.0/banks/${e(bankId)}/accounts/${e(accountId)}/${e(viewId)}/transactions/${e(transactionId)}/transaction`,
+      `/obp/v5.1.0/banks/${e(bankId)}/accounts/${e(accountId)}/${e(viewId)}/transactions/${e(transactionId)}/transaction`,
     );
   }
 
@@ -253,7 +263,7 @@ export class ObClient {
   /** Get supported transaction request types for a bank. */
   public async getTransactionRequestTypes(bankId: string): Promise<ObTransactionRequestType[]> {
     const result = await this._get<{ transaction_request_types: ObTransactionRequestType[] }>(
-      `/obp/v4.0.0/banks/${e(bankId)}/transaction-request-types`,
+      `/obp/v5.1.0/banks/${e(bankId)}/transaction-request-types`,
     );
     return result.transaction_request_types;
   }
@@ -292,7 +302,7 @@ export class ObClient {
     body: CreateConsentBody,
   ): Promise<ObConsent> {
     return this._post(
-      `/obp/v4.0.0/banks/${e(bankId)}/my/consents/${e(scaMethod)}`,
+      `/obp/v5.1.0/banks/${e(bankId)}/my/consents/${e(scaMethod)}`,
       body as unknown as Record<string, unknown>,
     );
   }
@@ -304,17 +314,22 @@ export class ObClient {
     body: AnswerConsentChallengeBody,
   ): Promise<ObConsent> {
     return this._post(
-      `/obp/v4.0.0/banks/${e(bankId)}/consents/${e(consentId)}/challenge`,
+      `/obp/v5.1.0/banks/${e(bankId)}/consents/${e(consentId)}/challenge`,
       body as unknown as Record<string, unknown>,
     );
   }
 
-  /** List all consents for the current user. */
-  public async listMyConsents(bankId?: string): Promise<ObConsent[]> {
-    if (bankId) {
-      return this._get(`/obp/v5.1.0/banks/${e(bankId)}/my/consents`);
-    }
-    return this._get("/obp/v5.1.0/my/consents");
+  /**
+   * List all consents for the current user.
+   *
+   * Returns the richer {@link ObConsentInfo} shape — `listMyConsents` includes
+   * `last_usage_date`, `last_action_date`, `consumer_id`, etc. that are not on
+   * the smaller `ObConsent` returned by create/challenge.
+   */
+  public async listMyConsents(bankId?: string): Promise<ObConsentInfo[]> {
+    const path = bankId ? `/obp/v5.1.0/banks/${e(bankId)}/my/consents` : "/obp/v5.1.0/my/consents";
+    const result = await this._get<{ consents: ObConsentInfo[] }>(path);
+    return result.consents;
   }
 
   /** Revoke a consent at a bank. */
@@ -334,7 +349,7 @@ export class ObClient {
   /** Get all available API versions. */
   public async getApiVersions(): Promise<ObApiVersion[]> {
     const result = await this._get<{ scanned_api_versions: ObApiVersion[] }>(
-      "/obp/v4.0.0/api/versions",
+      "/obp/v5.1.0/api/versions",
     );
     return result.scanned_api_versions;
   }

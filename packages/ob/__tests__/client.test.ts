@@ -211,7 +211,7 @@ describe("ObClient", () => {
 
       const bank = await client.getBank("maib.md");
       expect(bank.id).toBe("maib.md");
-      expect(mockFetch.mock.calls[1][0]).toBe("https://ob-test.local/obp/v5.0.0/banks/maib.md");
+      expect(mockFetch.mock.calls[1][0]).toBe("https://ob-test.local/obp/v5.1.0/banks/maib.md");
     });
   });
 
@@ -225,16 +225,21 @@ describe("ObClient", () => {
         TOKEN_RESPONSE,
         {
           status: 200,
-          body: [{ id: "acc-1", label: "My Account", bank_id: "maib.md", views_available: [] }],
+          body: {
+            accounts: [
+              { id: "acc-1", label: "My Account", bank_id: "maib.md", views_available: [] },
+            ],
+          },
         },
       ]);
       client = new ObClient(createTestConfig(mockFetch));
 
       const accounts = await client.listAccounts("maib.md");
       expect(mockFetch.mock.calls[1][0]).toBe(
-        "https://ob-test.local/obp/v4.0.0/banks/maib.md/accounts",
+        "https://ob-test.local/obp/v5.1.0/banks/maib.md/accounts",
       );
-      expect(accounts).toBeDefined();
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0]!.id).toBe("acc-1");
     });
   });
 
@@ -250,9 +255,9 @@ describe("ObClient", () => {
             label: "My Account",
             number: "123",
             owners: [],
-            type: "CURRENT",
+            product_code: "CURRENT",
             balance: { currency: "MDL", amount: "1000.00" },
-            IBAN: "MD24MAIB0000000000123456",
+            account_routings: [{ scheme: "IBAN", address: "MD24MAIB0000000000123456" }],
             views_available: [],
           },
         },
@@ -260,7 +265,7 @@ describe("ObClient", () => {
       client = new ObClient(createTestConfig(mockFetch));
 
       const account = await client.getAccount("maib.md", "acc-1");
-      expect(account.IBAN).toBe("MD24MAIB0000000000123456");
+      expect(account.account_routings[0]!.address).toBe("MD24MAIB0000000000123456");
       expect(mockFetch.mock.calls[1][0]).toContain("/owner/account");
     });
   });
@@ -432,7 +437,8 @@ describe("ObClient", () => {
 
       const versions = await client.getApiVersions();
       expect(versions).toHaveLength(1);
-      expect(versions[0].API_VERSION).toBe("OBPv4.0.0");
+      expect(versions[0]!.API_VERSION).toBe("OBPv4.0.0");
+      expect(mockFetch.mock.calls[1][0]).toBe("https://ob-test.local/obp/v5.1.0/api/versions");
     });
   });
 });

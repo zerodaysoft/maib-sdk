@@ -65,13 +65,13 @@ describe("@maib/ob schemas — buildSchemasBundle", () => {
       id: "tx-1",
       this_account: {
         id: "acc-1",
-        holders: [{ name: "Alice" }],
+        holders: [{ name: "Alice", is_alias: false }],
         bank_routing: { scheme: "BIC", address: "AGRNMD2X" },
         account_routings: [{ scheme: "IBAN", address: "MD24AG000000022500000000" }],
       },
       other_account: {
         id: "acc-2",
-        holders: [{ name: "Bob" }],
+        holder: { name: "Bob", is_alias: false },
         bank_routing: { scheme: "BIC", address: "AGRNMD2X" },
         account_routings: [{ scheme: "IBAN", address: "MD24AG000000022500000001" }],
       },

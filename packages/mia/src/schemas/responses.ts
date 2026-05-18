@@ -10,13 +10,15 @@ export const CreateQrResultSchema = z
     qrId: z.string().meta({ description: "Unique identifier of the QR code." }),
     extensionId: z.string().optional().meta({ description: "QR extension identifier." }),
     orderId: z.string().optional().meta({ description: "Merchant's order ID." }),
-    type: QrTypeEnum.meta({ description: "QR type." }),
+    type: QrTypeEnum.meta({
+      description: "Returned QR type. Known values: `Static`, `Dynamic`, `Hybrid`.",
+    }),
     url: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .meta({ description: "Generated QR URL (HTTPS)." }),
     expiresAt: z.iso.datetime().optional().meta({
-      description: "QR expiration timestamp (ISO 8601), for Dynamic/Hybrid.",
+      description: "QR expiration timestamp (ISO 8601), for `Dynamic` / `Hybrid`.",
     }),
   })
   .meta({
@@ -31,7 +33,7 @@ export const CreateHybridQrResultSchema = z
       description: "Identifier of the initial extension, if one was provided.",
     }),
     url: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .meta({ description: "Generated QR URL (HTTPS)." }),
   })
@@ -55,18 +57,24 @@ export const QrDetailsSchema = z
   .looseObject({
     qrId: z.string().meta({ description: "Unique QR code identifier." }),
     extensionId: z.string().optional().meta({
-      description: "QR extension identifier (for Hybrid).",
+      description: "QR extension identifier (for `Hybrid`).",
     }),
     orderId: z.string().optional().meta({
       description: "Merchant-side order identifier.",
     }),
-    status: QrStatusEnum.meta({ description: "QR status." }),
-    type: QrTypeEnum.meta({ description: "QR type." }),
+    status: QrStatusEnum.meta({
+      description: "QR status. Known values: `Active`, `Inactive`, `Expired`, `Paid`, `Cancelled`.",
+    }),
+    type: QrTypeEnum.meta({
+      description: "QR type. Known values: `Static`, `Dynamic`, `Hybrid`.",
+    }),
     url: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .meta({ description: "QR URL (HTTPS)." }),
-    amountType: AmountTypeEnum.meta({ description: "Amount type." }),
+    amountType: AmountTypeEnum.meta({
+      description: "Amount type. Known values: `Fixed`, `Controlled`, `Free`.",
+    }),
     amount: z.number().nonnegative().optional().meta({
       description: "Fixed amount (for `Fixed`).",
     }),
@@ -89,7 +97,7 @@ export const QrDetailsSchema = z
       description: "Last status update timestamp (ISO 8601).",
     }),
     expiresAt: z.iso.datetime().optional().meta({
-      description: "Expiry timestamp (for Dynamic/Hybrid).",
+      description: "Expiry timestamp (ISO 8601), for `Dynamic` / `Hybrid`.",
     }),
     terminalId: z.string().optional().meta({
       description: "Terminal ID provided by the bank.",
@@ -149,13 +157,13 @@ export const MiaPaymentDetailsSchema = z
     }),
     payerIban: z.string().optional().meta({ description: "Payer's IBAN." }),
     status: PaymentStatusEnum.meta({
-      description: "Payment status (MIA emits `Executed` / `Refunded`).",
+      description: "Payment status. Known values: `Executed`, `Refunded`.",
     }),
     executedAt: z.iso.datetime().meta({
       description: "Payment execution timestamp (ISO 8601).",
     }),
     refundedAt: z.iso.datetime().optional().meta({
-      description: "Refund timestamp (ISO 8601), if refunded.",
+      description: "Refund timestamp (ISO 8601), if applicable.",
     }),
     terminalId: z.string().optional().meta({
       description: "Terminal ID provided by the bank.",
@@ -182,7 +190,10 @@ export const MiaRefundResultSchema = z
 export const TestPayResultSchema = z
   .looseObject({
     qrId: z.string().meta({ description: "Unique identifier of the QR code." }),
-    qrStatus: QrStatusEnum.meta({ description: "Status of the QR code." }),
+    qrStatus: QrStatusEnum.meta({
+      description:
+        "QR code status after the simulated payment. Known values: `Active`, `Inactive`, `Expired`, `Paid`, `Cancelled`.",
+    }),
     orderId: z.string().optional().meta({
       description: "Merchant-side order identifier.",
     }),

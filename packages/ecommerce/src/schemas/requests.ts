@@ -1,6 +1,17 @@
 import { z } from "zod";
 
 import { basePaymentParamsShape, customerFacingParamsShape, PaymentItemSchema } from "./common";
+
+// Server-initiated requests (execute-recurring, execute-oneclick) do not carry
+// customer personal-identifier fields — upstream omits clientName/email/phone
+// from these payloads (the saved billerId is already linked to the customer).
+const {
+  clientName: _omittedClientName,
+  email: _omittedEmail,
+  phone: _omittedPhone,
+  ...serverInitiatedBasePaymentParamsShape
+} = basePaymentParamsShape;
+
 import { SupportedCurrencyEnum } from "./enums";
 
 export const PayRequestSchema = z
@@ -86,7 +97,7 @@ export const SavecardRecurringRequestSchema = z
 export const ExecuteRecurringRequestSchema = z
   .object({
     billerId: z.string().min(1).meta({
-      description: "Identifier of the previously stored card (`billerId`).",
+      description: "Card identifier saved in the maib ecomm system.",
     }),
     amount: z.number().positive().meta({
       description: "Transaction amount in major currency units. Format: `X.XX`.",
@@ -119,7 +130,7 @@ export const SavecardOneclickRequestSchema = z
       .regex(/^\d{4}$/)
       .meta({
         description:
-          "Card expiry cutoff for stored card data. Format: `MMYY` (e.g. `1229` → 31 December 2029).",
+          "Card expiry cutoff for stored card data. Format: `MMYY` (e.g. `1229` → 31 December 2029). If the card itself expires earlier, the card's own expiry is used.",
       }),
     amount: z.number().positive().optional().meta({
       description:
@@ -133,10 +144,10 @@ export const SavecardOneclickRequestSchema = z
 
 export const ExecuteOneclickRequestSchema = z
   .object({
-    ...basePaymentParamsShape,
+    ...serverInitiatedBasePaymentParamsShape,
     ...customerFacingParamsShape,
     billerId: z.string().min(1).meta({
-      description: "Identifier of the previously stored card (`billerId`).",
+      description: "Card identifier saved in the maib ecomm system.",
     }),
     amount: z.number().positive().meta({
       description: "Transaction amount. Format: `X.XX`.",
@@ -144,5 +155,6 @@ export const ExecuteOneclickRequestSchema = z
   })
   .meta({
     id: "maib.ecommerce.ExecuteOneclickRequest",
-    description: "Request body for `EcommerceClient.executeOneclick`.",
+    description:
+      "Request body for `EcommerceClient.executeOneclick`. Upstream lists no `clientName`, `email`, or `phone` for this endpoint — the saved card's billerId already identifies the customer.",
   });

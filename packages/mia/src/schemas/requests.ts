@@ -43,7 +43,7 @@ export const CreateQrRequestSchema = z
       description: "Merchant-side order identifier (max 100 chars).",
     }),
     callbackUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
@@ -51,7 +51,7 @@ export const CreateQrRequestSchema = z
         description: "HTTPS URL where the merchant receives payment result data (max 1000 chars).",
       }),
     redirectUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
@@ -71,7 +71,8 @@ export const CreateQrRequestSchema = z
 export const HybridExtensionSchema = z
   .object({
     expiresAt: z.iso.datetime().meta({
-      description: "Expiration timestamp of the Hybrid QR (ISO 8601). Min 1 minute, max 60 days.",
+      description:
+        "Expiration timestamp of the Hybrid QR (ISO 8601). Min 1 minute, max 60 days. The QR also expires if no payment is made in the last 30 days.",
     }),
     description: z.string().max(500).meta({
       description: "Order description (max 500 chars).",
@@ -89,7 +90,7 @@ export const HybridExtensionSchema = z
       description: "Merchant-side order identifier (max 100 chars).",
     }),
     callbackUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
@@ -97,7 +98,7 @@ export const HybridExtensionSchema = z
         description: "HTTPS URL where the merchant receives payment result data (max 1000 chars).",
       }),
     redirectUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
@@ -138,19 +139,22 @@ export const CreateExtensionRequestSchema = z
       description: "Order description (max 500 chars).",
     }),
     amount: z.number().positive().optional().meta({
-      description: "Fixed amount for the extension (required for `Fixed` and `Controlled`).",
+      description:
+        "Payment amount (required for `Fixed` and `Controlled`). Must satisfy `amountMin ≤ amount ≤ amountMax`. Range: > 0 to 100000. Not allowed for `Free`.",
     }),
     amountMin: z.number().positive().optional().meta({
-      description: "Minimum allowed amount (for `Controlled`).",
+      description:
+        "Minimum allowed amount (for `Controlled`). Must be > 0 and < `amountMax`. Not allowed for `Fixed` or `Free`.",
     }),
     amountMax: z.number().positive().optional().meta({
-      description: "Maximum allowed amount (for `Controlled`).",
+      description:
+        "Maximum allowed amount (for `Controlled`). Must be > `amountMin` and ≤ 100000. Not allowed for `Fixed` or `Free`.",
     }),
     orderId: z.string().optional().meta({
-      description: "Merchant-side order identifier.",
+      description: "Merchant-side order identifier (max 100 chars).",
     }),
     callbackUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
@@ -158,7 +162,7 @@ export const CreateExtensionRequestSchema = z
         description: "HTTPS URL for payment result callback (max 1000 chars).",
       }),
     redirectUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
@@ -203,7 +207,7 @@ export const RefundPaymentRequestSchema = z
         "Refund amount. If provided, a partial refund is initiated. If omitted, a full refund is initiated.",
     }),
     callbackUrl: z
-      .url()
+      .url({ protocol: /^https$/ })
       .regex(/^https:\/\/.+/)
       .max(1000)
       .optional()
@@ -256,7 +260,10 @@ export const ListQrParamsSchema = z
       amountFrom: z.number().optional().meta({ description: "Minimum amount value (inclusive)." }),
       amountTo: z.number().optional().meta({ description: "Maximum amount value (inclusive)." }),
       description: z.string().optional().meta({ description: "Filter by description." }),
-      status: QrStatusEnum.optional().meta({ description: "QR status." }),
+      status: QrStatusEnum.optional().meta({
+        description:
+          "QR status. Known values: `Active`, `Inactive`, `Expired`, `Paid`, `Cancelled`.",
+      }),
       createdAtFrom: z.iso.datetime().optional().meta({
         description: "Creation date — from (ISO 8601).",
       }),
@@ -325,7 +332,7 @@ export const ListPaymentsParamsSchema = z
       payerName: z.string().optional().meta({ description: "Filter by payer name." }),
       payerIban: z.string().optional().meta({ description: "Filter by payer IBAN." }),
       status: PaymentStatusEnum.optional().meta({
-        description: "Payment status (MIA emits `Executed` / `Refunded`).",
+        description: "Payment status. Known values: `Executed`, `Refunded`.",
       }),
       executedAtFrom: z.iso.datetime().optional().meta({
         description: "Execution date — from (ISO 8601).",
