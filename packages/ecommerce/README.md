@@ -21,9 +21,9 @@ npm install @maib/merchants
 import { EcommerceClient, Currency, Language } from "@maib/ecommerce";
 
 const client = new EcommerceClient({
-  projectId: process.env.MAIB_PROJECT_ID!,
-  projectSecret: process.env.MAIB_PROJECT_SECRET!,
-  signatureKey: process.env.MAIB_SIGNATURE_KEY!, // for callback verification
+  projectId: process.env.MAIB_PROJECT_ID,
+  projectSecret: process.env.MAIB_PROJECT_SECRET,
+  signatureKey: process.env.MAIB_SIGNATURE_KEY, // for callback verification
 });
 ```
 

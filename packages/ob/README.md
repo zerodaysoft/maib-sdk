@@ -15,9 +15,9 @@ npm install @maib/ob
 import { ObClient } from "@maib/ob";
 
 const client = new ObClient({
-  username: process.env.OBP_USERNAME!,
-  password: process.env.OBP_PASSWORD!,
-  consumerKey: process.env.OBP_CONSUMER_KEY!,
+  username: process.env.OBP_USERNAME,
+  password: process.env.OBP_PASSWORD,
+  consumerKey: process.env.OBP_CONSUMER_KEY,
 });
 ```
 

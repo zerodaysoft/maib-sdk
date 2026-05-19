@@ -47,7 +47,7 @@ import { CheckoutClient, Currency } from "@maib/merchants";
 const checkout = new CheckoutClient({
   clientId: process.env.MAIB_CLIENT_ID,
   clientSecret: process.env.MAIB_CLIENT_SECRET,
-  signatureKey: process.env.MAIB_SIGNATURE_KEY!,
+  signatureKey: process.env.MAIB_SIGNATURE_KEY,
 });
 
 const session = await checkout.createSession({

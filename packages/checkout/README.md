@@ -23,7 +23,7 @@ import { CheckoutClient, Currency } from "@maib/checkout";
 const client = new CheckoutClient({
   clientId: process.env.MAIB_CLIENT_ID,
   clientSecret: process.env.MAIB_CLIENT_SECRET,
-  signatureKey: process.env.MAIB_SIGNATURE_KEY!, // for callback verification
+  signatureKey: process.env.MAIB_SIGNATURE_KEY, // for callback verification
 });
 ```
 

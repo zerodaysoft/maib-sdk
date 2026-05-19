@@ -892,9 +892,9 @@ import type { MiaCallbackPayload } from "@maib/mia";
 
 // 1. Initialize the client
 const client = new MiaClient({
-  clientId: process.env.MAIB_CLIENT_ID!,
-  clientSecret: process.env.MAIB_CLIENT_SECRET!,
-  signatureKey: process.env.MAIB_SIGNATURE_KEY!,
+  clientId: process.env.MAIB_CLIENT_ID,
+  clientSecret: process.env.MAIB_CLIENT_SECRET,
+  signatureKey: process.env.MAIB_SIGNATURE_KEY,
   environment: Environment.SANDBOX,
 });
 

@@ -577,9 +577,9 @@ import type { RtpCallbackPayload } from "@maib/rtp";
 
 // 1. Initialize the client
 const client = new RtpClient({
-  clientId: process.env.MAIB_CLIENT_ID!,
-  clientSecret: process.env.MAIB_CLIENT_SECRET!,
-  signatureKey: process.env.MAIB_SIGNATURE_KEY!,
+  clientId: process.env.MAIB_CLIENT_ID,
+  clientSecret: process.env.MAIB_CLIENT_SECRET,
+  signatureKey: process.env.MAIB_SIGNATURE_KEY,
   environment: Environment.SANDBOX,
 });
 
