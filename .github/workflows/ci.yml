@@ -12,9 +12,10 @@ concurrency:
 
 jobs:
   ci:
+    name: CI (build + lint + typecheck + test)
     runs-on:
       group: mac-mini
-      labels: [self-hosted, macOS, ARM64, ci]
+      labels: [self-hosted, ci]
     steps:
       - uses: actions/checkout@v6
 

@@ -8,8 +8,110 @@ concurrency:
   group: publish
   cancel-in-progress: false
 
+# Single source of truth for "what is publishable" across every job:
+#
+#   - `maib-sdk` is the deprecated meta package — must be skipped in both the
+#     version-bump and publish steps.
+#   - `@maib/internal-schemas` is `private: true`, so `pnpm publish` skips it
+#     automatically. The explicit filter only matters for the version-bump
+#     step (keeps it pinned at 0.0.0 across releases). Including it in the
+#     publish step too is harmless and keeps the variable monolithic.
+#
+# Word-splits cleanly when used unquoted as `$PUBLISHABLE`. No inner quoting
+# needed on non-interactive runners (history expansion is off by default).
+env:
+  PUBLISHABLE: --filter !maib-sdk --filter !@maib/internal-schemas
+
 jobs:
+  ci:
+    name: CI (build + lint + typecheck + test)
+    runs-on:
+      group: mac-mini
+      labels: [self-hosted, ci]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - run: pnpm lint
+
+      - run: pnpm typecheck
+
+      - run: pnpm test
+
+  publish-dry-run:
+    name: Publish (dry-run)
+    needs: ci
+    runs-on:
+      group: mac-mini
+      labels: [self-hosted, ci]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Set version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Dry-run publishing version $VERSION"
+          pnpm -r $PUBLISHABLE exec -- npm pkg set "version=$VERSION"
+
+      - name: Update docs version metadata
+        run: |
+          find packages/*/docs -name 'sdk-reference.md' -exec \
+            sed -i "" "s/^version: .*/version: $VERSION/" {} +
+
+      - run: pnpm build
+
+      - name: Verify version is not already published
+        # Fails fast if any package already has this exact version on the
+        # registry — avoids hitting `pnpm publish` only to be rejected per-pkg.
+        # `npm view` returns the version string if taken, empty if not, and
+        # errors if the package itself doesn't exist (first-time publish — OK).
+        run: |
+          FAIL=0
+          for pkg in packages/*/package.json; do
+            NAME=$(node -p "require('./$pkg').name")
+            PRIVATE=$(node -p "require('./$pkg').private === true")
+            [ "$NAME" = "maib-sdk" ] && continue
+            [ "$PRIVATE" = "true" ] && continue
+            EXISTING=$(npm view "$NAME@$VERSION" version 2>/dev/null || true)
+            if [ -n "$EXISTING" ]; then
+              echo "::error::$NAME@$VERSION is already published on npm"
+              FAIL=1
+            else
+              echo "✓ $NAME@$VERSION available"
+            fi
+          done
+          [ "$FAIL" -eq 0 ]
+
+      - name: Dry-run publish
+        # Runs the full prepack/pack pipeline without uploading. Catches
+        # missing files, invalid package.json fields, prepublish hook errors,
+        # etc. before the real publish job kicks in.
+        run: pnpm -r $PUBLISHABLE publish --dry-run --no-git-checks --access public
+
   publish:
+    name: Publish to npm
+    needs: publish-dry-run
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,7 +134,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "Publishing version $VERSION"
-          pnpm -r --filter '!maib-sdk' --filter '!@maib/internal-schemas' exec -- npm pkg set "version=$VERSION"
+          pnpm -r $PUBLISHABLE exec -- npm pkg set "version=$VERSION"
 
       - name: Update docs version metadata
         run: |
@@ -42,7 +144,7 @@ jobs:
       - run: pnpm build
 
       - name: Publish packages
-        run: pnpm -r --filter '!maib-sdk' publish --no-git-checks --access public
+        run: pnpm -r $PUBLISHABLE publish --no-git-checks --access public
         env:
           NPM_CONFIG_PROVENANCE: true
 
