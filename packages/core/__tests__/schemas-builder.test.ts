@@ -122,7 +122,7 @@ describe("buildSchemasBundle", () => {
     });
     // Collisions are keyed by id minus the leading `maib.` namespace; uniques
     // keep their short-name key — symmetric with the per-schema file layout
-    // emitted by `scripts/build-schemas.mjs --allow-collisions`.
+    // emitted by `scripts/build-schemas.mjs --on-collision=namespace`.
     expect(Object.keys(out).sort()).toEqual(["Unique", "alpha.Foo", "beta.Foo"]);
     const alphaFoo = out["alpha.Foo"] as z.ZodType<string>;
     const betaFoo = out["beta.Foo"] as z.ZodType<number>;

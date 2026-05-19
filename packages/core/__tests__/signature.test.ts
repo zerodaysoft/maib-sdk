@@ -99,9 +99,8 @@ const HMAC_RAW_BODY_2 =
 
 describe("computeHmacSignature", () => {
   it("computes the correct HMAC signature from documentation test data", () => {
-    // We need the actual raw JSON body that produces this signature.
-    // From the docs, the signature is computed as HMAC_SHA256(key, body + "." + timestamp)
-    // We'll test with a known body that produces the expected result.
+    // HMAC_SHA256(secret, body + "." + timestamp). `[CALLBACK MESSAGE]` is the
+    // literal placeholder body the upstream docs sign against HMAC_EXPECTED_SIGNATURE.
     const rawBody = "[CALLBACK MESSAGE]";
     const sig = computeHmacSignature(rawBody, HMAC_TIMESTAMP, HMAC_SECRET);
     expect(sig).toBe(HMAC_EXPECTED_SIGNATURE);

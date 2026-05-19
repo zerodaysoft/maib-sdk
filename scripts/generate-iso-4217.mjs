@@ -12,23 +12,22 @@
 
 import { writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { XMLParser } from "fast-xml-parser";
 
-const ISO_4217_URL =
+export const ISO_4217_URL =
   "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(__dirname, "../packages/internal-schemas/src/iso-4217.ts");
 
-async function fetchXml() {
+export async function fetchXml() {
   const res = await fetch(ISO_4217_URL);
   if (!res.ok) throw new Error(`Failed to fetch ISO 4217 list: ${res.status} ${res.statusText}`);
   return res.text();
 }
 
-function parseCurrencies(xml) {
+export function parseCurrencies(xml) {
   const parser = new XMLParser({
     ignoreAttributes: false,
     attributeNamePrefix: "@_",
@@ -57,7 +56,7 @@ function parseCurrencies(xml) {
   };
 }
 
-function render({ published, currencies }) {
+export function render({ published, currencies }) {
   const enumBody = currencies
     .map(({ code, name, isFund }) => {
       const label = isFund ? `${name} (fund)` : name;
@@ -87,10 +86,14 @@ export type Currency = (typeof Currency)[keyof typeof Currency];
 `;
 }
 
-const xml = await fetchXml();
-const parsed = parseCurrencies(xml);
-const output = render(parsed);
-writeFileSync(OUTPUT_PATH, output);
-console.log(
-  `Wrote ${parsed.currencies.length} currency codes to ${OUTPUT_PATH} (published ${parsed.published})`,
-);
+// Only run the IO pipeline when the script is invoked directly. Tests import
+// `parseCurrencies` / `render` without triggering the network fetch.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const xml = await fetchXml();
+  const parsed = parseCurrencies(xml);
+  const output = render(parsed);
+  writeFileSync(OUTPUT_PATH, output);
+  console.log(
+    `Wrote ${parsed.currencies.length} currency codes to ${OUTPUT_PATH} (published ${parsed.published})`,
+  );
+}

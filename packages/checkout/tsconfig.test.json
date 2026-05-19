@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  // Vitest's typecheck mode runs tsc against this config. Restricted to
+  // `.test-d.ts` files so the regular `.test.ts` runtime tests aren't
+  // type-checked here.
+  "include": ["src", "__tests__/**/*.test-d.ts", "dist/schemas/*.d.ts"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  // Vitest's typecheck mode runs tsc against this config. We restrict it to
+  // `.test-d.ts` files so the regular `.test.ts` runtime tests aren't
+  // type-checked here — they're checked structurally by the main `typecheck`
+  // script and run by vitest normally. `dist/schemas/*.d.ts` is included so
+  // the wrapper-inference test can import the generated artifacts.
+  "include": ["src", "__tests__/**/*.test-d.ts", "dist/schemas/*.d.ts"],
+  "exclude": ["node_modules"]
+}

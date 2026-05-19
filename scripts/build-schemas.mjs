@@ -150,7 +150,7 @@ if (phase === "post") {
     const parts = stripped.split(".");
     if (parts.length === 2) {
       const [ns, name] = parts;
-      return (ns.charAt(0).toUpperCase() + ns.slice(1)) + name;
+      return ns.charAt(0).toUpperCase() + ns.slice(1) + name;
     }
     return stripped;
   }
@@ -189,41 +189,54 @@ if (phase === "post") {
     // "@maib/<pkg>/schemas/<ShortName>"` and have `buildSchema(Def)` infer
     // `ParsingValidator<ShortName>` without a manual type argument.
     const wrapperBase = join(distSchemasDir, fileBase);
+    const fileBaseDef = `${fileBase}Def`;
+    // Inline the phantom-marker type instead of importing `TypedSchemaDef`
+    // from `@maib/internal-schemas/schemas-builder`. That package is only a
+    // workspace devDependency of consuming packages and isn't installed on
+    // the npm-consumer side, so a cross-package type import would resolve to
+    // `any` for end users — breaking `buildSchema(Def)` inference (the
+    // generic falls back to `unknown` and the call signature collapses to
+    // `ParsingValidator<unknown>`). The structural shape below is the only
+    // thing `buildSchema`'s inference overload matches against.
     writeFileSync(
       `${wrapperBase}.d.ts`,
       [
-        `import type { TypedSchemaDef } from "@maib/internal-schemas/schemas-builder";`,
         `import type { ${fileBase} } from "../index.js";`,
         ``,
-        `declare const def: TypedSchemaDef<${fileBase}>;`,
-        `export default def;`,
+        `declare const ${fileBaseDef}: { readonly __maibType: ${fileBase} } & Record<string, unknown>;`,
+        `export { ${fileBaseDef} };`,
+        `export default ${fileBaseDef};`,
         ``,
       ].join("\n"),
     );
     writeFileSync(
       `${wrapperBase}.d.cts`,
       [
-        `import type { TypedSchemaDef } from "@maib/internal-schemas/schemas-builder";`,
         `import type { ${fileBase} } from "../index.cjs";`,
         ``,
-        `declare const def: TypedSchemaDef<${fileBase}>;`,
-        `export default def;`,
+        `declare const ${fileBaseDef}: { readonly __maibType: ${fileBase} } & Record<string, unknown>;`,
+        `export { ${fileBaseDef} };`,
+        `export default ${fileBaseDef};`,
         ``,
       ].join("\n"),
     );
     writeFileSync(
       `${wrapperBase}.js`,
       [
-        `import def from "./${fileBase}.json" with { type: "json" };`,
-        `export default def;`,
+        `import ${fileBaseDef} from "./${fileBase}.json" with { type: "json" };`,
+        `export { ${fileBaseDef} };`,
+        `export default ${fileBaseDef};`,
         ``,
       ].join("\n"),
     );
     writeFileSync(
       `${wrapperBase}.cjs`,
-      [`"use strict";`, `module.exports = { default: require("./${fileBase}.json") };`, ``].join(
-        "\n",
-      ),
+      [
+        `"use strict";`,
+        `const ${fileBaseDef} = require("./${fileBase}.json");`,
+        `module.exports = { ${fileBaseDef}, default: ${fileBaseDef} };`,
+        ``,
+      ].join("\n"),
     );
   }
   process.exit(0);
