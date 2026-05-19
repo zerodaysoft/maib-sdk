@@ -1,6 +1,6 @@
 ---
 package: "@maib/merchants"
-version: 0.3.1
+version: 0.3.2
 description:
   Umbrella SDK for all maib merchant APIs – single import for checkout, e-commerce, RTP, and MIA QR.
 ---
