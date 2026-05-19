@@ -80,24 +80,67 @@ single type or the whole bundle, hand it to your validator's conversion function
 with Zod, Valibot, ArkType, Effect Schema, or any other validator – and once converted via a
 Standard-Schema-conformant validator the parser plugs straight into TanStack Form, tRPC, hono
 validators, the AI SDK, and the wider Standard Schema ecosystem. The snippet below uses Zod
-(lightest setup, what the SDK is tested against):
+(lightest setup, what the SDK is tested against).
+
+**Preferred: typed wrapper (no generic).** Import the wrapper from `@maib/<pkg>/schemas/<ShortName>`
+(no `.json` suffix); `buildSchema` infers the SDK type from the wrapper, so `.parse()` is already
+typed against the matching interface:
 
 ```ts
 import { z } from "zod";
-import { buildSchema, buildSchemasBundle } from "@maib/checkout/schemas";
-import RefundRequestDef from "@maib/checkout/schemas/RefundRequest.json" with { type: "json" };
-import SchemasBundleDef from "@maib/checkout/schemas/bundle.json" with { type: "json" };
+import { buildSchema, buildSchemasBundle } from "@maib/core/schemas";
+import PaginationParamsDef from "@maib/core/schemas/PaginationParams";
+import SchemasBundleDef from "@maib/core/schemas/bundle.json" with { type: "json" };
 
-export const RefundRequest = buildSchema(z.fromJSONSchema, RefundRequestDef);
+export const PaginationParamsSchema = buildSchema(z.fromJSONSchema, PaginationParamsDef);
+// → ParsingValidator<PaginationParams> (inferred)
 export const SchemasBundle = buildSchemasBundle(z.fromJSONSchema, SchemasBundleDef);
 
-RefundRequest.parse(someData);
-SchemasBundle.RefundRequest.parse(someData);
+PaginationParamsSchema.parse({ count: 10, offset: 0 });
+SchemasBundle.PaginationParams.parse({ count: 10, offset: 0 });
+```
+
+**Alternative: raw JSON import (explicit generic).** For build setups that can't yet do
+`with { type: "json" }` import attributes, or when you prefer the JSON-only path:
+
+```ts
+import { z } from "zod";
+import type { PaginationParams } from "@maib/core";
+import { buildSchema } from "@maib/core/schemas";
+import PaginationParamsDef from "@maib/core/schemas/PaginationParams.json" with { type: "json" };
+
+export const PaginationParamsSchema = buildSchema<PaginationParams>(
+  z.fromJSONSchema,
+  PaginationParamsDef,
+);
 ```
 
 The SDK does not validate responses at runtime — that is your choice. See
 [`docs/schemas.md`](./docs/schemas.md) for full examples and details on Standard Schema
 compatibility, the Ajv pattern, and Valibot.
+
+## AI / agent coding
+
+Pointers for LLM-driven coding agents using this package:
+
+- Canonical TypeScript reference: [`./docs/sdk-reference.md`](./docs/sdk-reference.md) (every class,
+  type, and signature function exported from `@maib/core`).
+- Runtime-validation reference: [`./docs/schemas.md`](./docs/schemas.md).
+- Prefer the typed-wrapper validation pattern – `import Def from "@maib/core/schemas/<ShortName>"`
+  then `buildSchema(convert, Def)` with no generic. Type inference is automatic.
+- JSON Schema artifacts are available at `@maib/core/schemas/bundle.json` (full bundle) and
+  `@maib/core/schemas/<ShortName>.json` (one self-contained file per type). Use these for any
+  validator that prefers raw JSON Schema (e.g. Ajv).
+- The convert callback signature is `(schema: _JSONSchema) => unknown` – structurally identical to
+  Zod's `z.fromJSONSchema`. `JSONSchema` and `_JSONSchema` are re-exported from
+  `@maib/core/schemas`; `JSONSchemaDef` is a deprecated alias of `JSONSchema`.
+- This package is part of a workspace alongside `@maib/checkout`, `@maib/ecommerce`, `@maib/mia`,
+  `@maib/rtp`, and the aggregator `@maib/merchants`. Prefer the documented public types over
+  inferring shapes from response bodies.
+- The SDK does not validate at runtime. If you need it, opt in via the helper above; for envelope
+  detection use the `isMaibResponse` type guard.
+- Errors are `MaibError` (API rejected the call) or `MaibNetworkError` (transport failure). Always
+  narrow with `instanceof` before reading fields.
 
 ## License
 

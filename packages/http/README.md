@@ -1,11 +1,12 @@
 # @maib/http
 
-Shared HTTP primitives for [maib](https://www.maib.md) SDK packages — network errors, query string
+Shared HTTP primitives for [maib](https://www.maib.md) SDK packages – network errors, query string
 builder, and token management.
 
 > This is an internal foundation package. You probably want
 > [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants),
-> [`@maib/ob`](https://www.npmjs.com/package/@maib/ob), or one of the API-specific packages instead.
+> [`@maib/ob`](https://www.npmjs.com/package/@maib/ob), or one of the API-specific packages instead
+> (`@maib/checkout`, `@maib/ecommerce`, `@maib/rtp`, `@maib/mia`).
 
 ## Install
 
@@ -74,8 +75,38 @@ try {
 
 This package ships documentation in `dist/docs/` for AI coding agents and tooling:
 
-- [`sdk-reference.md`](./docs/sdk-reference.md) — Complete TypeScript API surface (TokenManager,
+- [`sdk-reference.md`](./docs/sdk-reference.md) – Complete TypeScript API surface (TokenManager,
   NetworkError, utilities)
+
+## AI / agent coding
+
+Pointers for LLM-driven coding agents touching this package:
+
+- This is shared infra. If you are writing application code against maib APIs, reach for
+  [`@maib/merchants`](https://www.npmjs.com/package/@maib/merchants) (aggregator) or an API-specific
+  package (`@maib/checkout`, `@maib/ecommerce`, `@maib/rtp`, `@maib/mia`, `@maib/ob`) – not
+  `@maib/http` directly.
+- `TokenManager` owns token caching, proactive refresh (`refreshBufferS` before expiry), and
+  concurrent-request deduplication. Inject the auth flow via
+  `new TokenManager(async () => ({ accessToken, accessExpiresAt }))`. Don't fork it – extend
+  behavior through the `acquire` callback and the `state` getter/setter (e.g. refresh-token
+  exchanges).
+- `NetworkError` is thrown for fetch/transport failures (DNS, timeout, JSON parse). API-surfaced
+  errors (non-2xx responses with an envelope) come from `MaibError` in `@maib/core`. Use
+  `instanceof` to distinguish them.
+- This package ships no JSON Schemas. Runtime validation lives in the API-specific packages:
+  `@maib/checkout`, `@maib/ecommerce`, `@maib/rtp`, `@maib/mia`, `@maib/ob` – each exposes
+  `schemas/bundle.json`, `schemas/<ShortName>.json`, and typed-wrapper subpaths.
+- Typed-wrapper validation pattern (in those packages):
+  `import Def from "@maib/ecommerce/schemas/<ShortName>"` then `buildSchema(z.fromJSONSchema, Def)`
+  – no explicit generic, type is inferred via `TypedSchemaDef<T>`. The raw-JSON form
+  (`...<ShortName>.json` with `{ type: "json" }` + explicit `buildSchema<Type>`) still works.
+- Canonical TypeScript reference for this package:
+  [`./docs/sdk-reference.md`](./docs/sdk-reference.md).
+- `buildQueryString` omits `undefined`/`null` and URL-encodes keys and values – safe for both
+  required and optional params.
+- `BaseClientConfig` (`baseUrl?`, `fetch?`) is extended by `MaibClientConfig` and `ObClientConfig`;
+  prefer those for new clients instead of consuming `BaseClientConfig` directly.
 
 ## License
 

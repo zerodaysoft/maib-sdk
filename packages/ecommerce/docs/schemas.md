@@ -5,22 +5,51 @@ description: How to validate @maib/ecommerce payloads at runtime.
 
 # Validating @maib/ecommerce payloads at runtime
 
-`@maib/ecommerce` ships three subpaths for runtime validation:
+`@maib/ecommerce` ships four subpath shapes for runtime validation:
 
-| Subpath                                   | Resolves to                                                                      |
-| ----------------------------------------- | -------------------------------------------------------------------------------- |
-| `@maib/ecommerce/schemas`                 | Validator-agnostic helper (`buildSchema`, `buildSchemasBundle`).                 |
-| `@maib/ecommerce/schemas/bundle.json`     | Full JSON Schema bundle for the package (including merged `@maib/core` schemas). |
-| `@maib/ecommerce/schemas/<TypeName>.json` | One self-contained file per type, with `$defs` embedded.                         |
+| Subpath                                   | Resolves to                                                                                                              |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `@maib/ecommerce/schemas`                 | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`) plus re-exported `JSONSchema`/`_JSONSchema` types.      |
+| `@maib/ecommerce/schemas/<TypeName>`      | **Typed wrapper** (no `.json` suffix). Default export is a `TypedSchemaDef<T>` – `buildSchema` infers `T` automatically. |
+| `@maib/ecommerce/schemas/<TypeName>.json` | Raw JSON Schema – one self-contained file per type, with `$defs` embedded. Requires `with { type: "json" }`.             |
+| `@maib/ecommerce/schemas/bundle.json`     | Full JSON Schema bundle for the package (including merged `@maib/core` schemas).                                         |
 
 The shipped artifact is plain JSON Schema (`draft-2020-12`). Convert it with Zod, Valibot, ArkType,
 or any Standard-Schema-compatible validator and the resulting parser plugs into TanStack Form, tRPC,
 hono validators, the AI SDK, and anything else that accepts a Standard Schema. Zod is the runnable
-example below; swap the `convert` callback for any other.
+example below; swap the `convert` callback for any other – its signature is
+`(schema: _JSONSchema) => unknown`, matching `z.fromJSONSchema` exactly.
 
 The SDK does not validate responses at runtime – that is your choice.
 
-## Quick start – Zod
+## Quick start – Zod (typed wrapper, preferred)
+
+Import the typed wrapper (no `.json` suffix). `buildSchema` infers `ParsingValidator<T>` from the
+phantom marker the wrapper carries – no explicit generic, no separate `import type`.
+
+```ts
+import { z } from "zod";
+import { buildSchema } from "@maib/ecommerce/schemas";
+import RefundRequestDef from "@maib/ecommerce/schemas/RefundRequest";
+import RefundResultDef from "@maib/ecommerce/schemas/RefundResult";
+
+export const RefundRequestSchema = buildSchema(z.fromJSONSchema, RefundRequestDef);
+export const RefundResultSchema = buildSchema(z.fromJSONSchema, RefundResultDef);
+// → ParsingValidator<RefundRequest>, ParsingValidator<RefundResult>
+
+// Validate before sending
+const body = RefundRequestSchema.parse({ payId: "tx-1", refundAmount: 5.5 });
+await client.refund(body);
+
+// Validate what comes back
+const result = RefundResultSchema.safeParse(await client.refund(body));
+if (!result.success) console.warn("RefundResult drifted:", result.error);
+```
+
+## Raw JSON import (legacy, still supported)
+
+The original `with { type: "json" }` pattern keeps working. Pass the SDK's TS interface as the
+explicit generic on `buildSchema`:
 
 ```ts
 import { z } from "zod";
@@ -31,14 +60,6 @@ import RefundResultDef from "@maib/ecommerce/schemas/RefundResult.json" with { t
 
 export const RefundRequestSchema = buildSchema<RefundRequest>(z.fromJSONSchema, RefundRequestDef);
 export const RefundResultSchema = buildSchema<RefundResult>(z.fromJSONSchema, RefundResultDef);
-
-// Validate before sending
-const body = RefundRequestSchema.parse({ payId: "tx-1", refundAmount: 5.5 });
-await client.refund(body);
-
-// Validate what comes back
-const result = RefundResultSchema.safeParse(await client.refund(body));
-if (!result.success) console.warn("RefundResult drifted:", result.error);
 ```
 
 ## Bulk import – every schema at once

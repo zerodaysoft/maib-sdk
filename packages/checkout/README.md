@@ -148,7 +148,22 @@ This package ships documentation in `dist/docs/` for AI coding agents and toolin
 `@maib/checkout` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic
 helper. Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once
 converted, the parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of
-the Standard Schema ecosystem. Zod is the runnable example:
+the Standard Schema ecosystem. Zod is the runnable example.
+
+**Preferred – typed wrapper (no generic argument needed):**
+
+```ts
+import { z } from "zod";
+import { buildSchema } from "@maib/checkout/schemas";
+import CancelSessionResultDef from "@maib/checkout/schemas/CancelSessionResult";
+
+export const CancelSessionResultSchema = buildSchema(z.fromJSONSchema, CancelSessionResultDef);
+// → ParsingValidator<CancelSessionResult>, inferred from the typed-wrapper phantom
+
+CancelSessionResultSchema.parse({ checkoutId: "c1", status: "Cancelled" });
+```
+
+**Legacy – raw JSON import with explicit generic (still supported):**
 
 ```ts
 import { z } from "zod";
@@ -160,11 +175,39 @@ export const CancelSessionResultSchema = buildSchema<CancelSessionResult>(
   z.fromJSONSchema,
   CancelSessionResultDef,
 );
-
-CancelSessionResultSchema.parse({ checkoutId: "c1", status: "Cancelled" });
 ```
 
 See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
+
+## AI / agent coding
+
+Notes for LLM coding agents working against this package.
+
+- Canonical references shipped in `dist/docs/`: [`./docs/sdk-reference.md`](./docs/sdk-reference.md)
+  (full TypeScript API surface) and [`./docs/schemas.md`](./docs/schemas.md) (runtime validation).
+  Read these before guessing.
+- Prefer the documented public types exported from `@maib/checkout` (e.g. `CreateSessionRequest`,
+  `RefundRequest`, `CancelSessionResult`, `CheckoutCallbackPayload`) over inferring shapes from
+  example payloads.
+- For runtime validation, use the typed-wrapper pattern: import from
+  `@maib/checkout/schemas/<TypeName>` (no `.json` suffix) and call `buildSchema(convert, def)` with
+  no generic argument – the result is `ParsingValidator<T>` with `T` inferred.
+- JSON Schema artifacts: per-type files at `@maib/checkout/schemas/<TypeName>.json` (each is
+  self-contained with embedded `$defs`) and a full package bundle at
+  `@maib/checkout/schemas/bundle.json` (use `buildSchemasBundle` for bulk import).
+- The `convert` callback signature is `(schema: _JSONSchema) => unknown` – matches
+  `z.fromJSONSchema` exactly. `JSONSchema`, `_JSONSchema`, and the backwards-compat alias
+  `JSONSchemaDef` are re-exported from `@maib/checkout/schemas`.
+- Callback signature verification uses **HMAC-SHA256** (this differs from `@maib/ecommerce`, which
+  uses SHA-256 over sorted values). Use `client.verifyCallback(rawBody, xSignature, xTimestamp)`;
+  underlying primitive is `verifyHmacSignature` from `@maib/core`. Always pass the **raw** request
+  body string – do not parse and re-serialize.
+- OAuth2 token management is automatic. Never set the `Authorization` header yourself; just call the
+  client methods.
+- Enums are `as const` objects, not TypeScript `enum`s. Both the constant
+  (`CheckoutStatus.COMPLETED`) and the string literal (`"Completed"`) are accepted.
+- Errors: `MaibError` (API returned `ok: false`) and `MaibNetworkError` (transport failure). Both
+  imported from `@maib/core`.
 
 ## License
 

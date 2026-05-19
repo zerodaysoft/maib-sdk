@@ -239,7 +239,7 @@ describe("ObClient", () => {
         "https://ob-test.local/obp/v5.1.0/banks/maib.md/accounts",
       );
       expect(accounts).toHaveLength(1);
-      expect(accounts[0]!.id).toBe("acc-1");
+      expect(accounts[0]?.id).toBe("acc-1");
     });
   });
 
@@ -265,7 +265,7 @@ describe("ObClient", () => {
       client = new ObClient(createTestConfig(mockFetch));
 
       const account = await client.getAccount("maib.md", "acc-1");
-      expect(account.account_routings[0]!.address).toBe("MD24MAIB0000000000123456");
+      expect(account?.account_routings?.[0]?.address).toBe("MD24MAIB0000000000123456");
       expect(mockFetch.mock.calls[1][0]).toContain("/owner/account");
     });
   });
@@ -380,7 +380,7 @@ describe("ObClient", () => {
       });
 
       await client.revokeConsent("maib.md", "consent-1");
-      expect(customFetch.mock.calls[1][1].method).toBe("DELETE");
+      expect((customFetch.mock.calls[1][1] as Request).method).toBe("DELETE");
     });
   });
 
@@ -437,7 +437,7 @@ describe("ObClient", () => {
 
       const versions = await client.getApiVersions();
       expect(versions).toHaveLength(1);
-      expect(versions[0]!.API_VERSION).toBe("OBPv4.0.0");
+      expect(versions[0]?.API_VERSION).toBe("OBPv4.0.0");
       expect(mockFetch.mock.calls[1][0]).toBe("https://ob-test.local/obp/v5.1.0/api/versions");
     });
   });

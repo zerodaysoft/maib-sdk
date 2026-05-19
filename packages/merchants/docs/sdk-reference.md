@@ -2,7 +2,7 @@
 package: "@maib/merchants"
 version: 0.3.0
 description:
-  Umbrella SDK for all maib merchant APIs — single import for checkout, e-commerce, RTP, and MIA QR.
+  Umbrella SDK for all maib merchant APIs – single import for checkout, e-commerce, RTP, and MIA QR.
 ---
 
 # @maib/merchants SDK Reference
@@ -69,8 +69,13 @@ with a prefixed alias to avoid collisions.
 
 **Functions:**
 
-- `computeSignature(result, signatureKey)` -- SHA-256 signature for ecomm/rtp/mia callbacks.
-- `verifySignature(result, signature, signatureKey)` -- Verify SHA-256 callback signature.
+- `computeSignature(result, signatureKey)` -- SHA-256 signature for ecomm/rtp/mia callbacks
+  (legacy).
+- `verifySignature(result, signature, signatureKey)` -- Verify SHA-256 callback signature (legacy).
+- `computeSignatureModern(result, signatureKey)` -- Modern (alphabetically-sorted) SHA-256 signature
+  for ecomm/rtp/mia callbacks.
+- `verifySignatureModern(result, signature, signatureKey)` -- Verify modern SHA-256 callback
+  signature.
 - `computeHmacSignature(rawBody, timestamp, signatureKey)` -- HMAC-SHA256 for checkout callbacks.
 - `verifyHmacSignature(rawBody, xSignature, xTimestamp, signatureKey)` -- Verify HMAC-SHA256
   callback signature.
@@ -108,11 +113,13 @@ with a prefixed alias to avoid collisions.
 
 **Enums:**
 
-| Enum             | Values                                                                                                               |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `CheckoutStatus` | `WaitingForInit`, `Initialized`, `PaymentMethodSelected`, `Completed`, `Expired`, `Abandoned`, `Cancelled`, `Failed` |
-| `PaymentStatus`  | `Executed`, `PartiallyRefunded`, `Refunded`, `Failed`                                                                |
-| `RefundStatus`   | `Created`, `Requested`, `Accepted`, `Rejected`, `Manual`                                                             |
+| Enum                | Values                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `CheckoutStatus`    | `WaitingForInit`, `Initialized`, `PaymentMethodSelected`, `Completed`, `Expired`, `Abandoned`, `Cancelled`, `Failed` |
+| `PaymentStatus`     | `Executed`, `PartiallyRefunded`, `Refunded`, `Failed`                                                                |
+| `RefundStatus`      | `Created`, `Requested`, `Accepted`, `Rejected`, `Manual`                                                             |
+| `RefundType`        | `Full`, `Partial`                                                                                                    |
+| `PaymentEntryPoint` | `Checkout`, `API`, `PayByLink`, `Pos`                                                                                |
 
 **Types:**
 
@@ -171,6 +178,7 @@ Note: `Currency` is re-exported from `@maib/ecommerce` (which itself re-exports 
 - `SavecardRecurringRequest`
 - `ExecuteOneclickRequest`
 - `ExecuteRecurringRequest`, `ExecuteRecurringResult`
+- `DeleteCardResult`
 - `CallbackPayload`, `CallbackResult`
 
 **Aliased types** (renamed to avoid collisions):

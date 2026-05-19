@@ -155,6 +155,14 @@ if (phase === "post") {
     return stripped;
   }
 
+  // Local ids stashed in the pre phase — used to scope typed `.ts` wrapper
+  // emission to schemas this package actually owns (parent ids merged in via
+  // an aggregator build already have wrappers in their owning package).
+  const metaPath = join(cacheDir, "meta.json");
+  const localIds = existsSync(metaPath)
+    ? new Set(JSON.parse(readFileSync(metaPath, "utf8")).localIds ?? [])
+    : new Set();
+
   for (const id of Object.keys(defs)) {
     const shortName = id.split(".").pop();
     if (!shortName) continue;
@@ -168,6 +176,54 @@ if (phase === "post") {
     writeFileSync(
       join(distSchemasDir, `${fileBase}.json`),
       `${JSON.stringify(perSchema, null, 2)}\n`,
+    );
+
+    if (!localIds.has(id)) continue;
+    // Skip wrappers for fileBases that aren't valid JS/TS identifiers.
+    // Happens under `--on-collision=namespace`, which produces dotted names
+    // like `checkout.RefundRequest` — those can't be imported as a default
+    // export under that subpath. Stick to JSON imports for those.
+    if (!/^[A-Za-z_$][\w$]*$/.test(fileBase)) continue;
+
+    // Emit a typed `.ts` wrapper trio so consumers can `import Def from
+    // "@maib/<pkg>/schemas/<ShortName>"` and have `buildSchema(Def)` infer
+    // `ParsingValidator<ShortName>` without a manual type argument.
+    const wrapperBase = join(distSchemasDir, fileBase);
+    writeFileSync(
+      `${wrapperBase}.d.ts`,
+      [
+        `import type { TypedSchemaDef } from "@maib/internal-schemas/schemas-builder";`,
+        `import type { ${fileBase} } from "../index.js";`,
+        ``,
+        `declare const def: TypedSchemaDef<${fileBase}>;`,
+        `export default def;`,
+        ``,
+      ].join("\n"),
+    );
+    writeFileSync(
+      `${wrapperBase}.d.cts`,
+      [
+        `import type { TypedSchemaDef } from "@maib/internal-schemas/schemas-builder";`,
+        `import type { ${fileBase} } from "../index.cjs";`,
+        ``,
+        `declare const def: TypedSchemaDef<${fileBase}>;`,
+        `export default def;`,
+        ``,
+      ].join("\n"),
+    );
+    writeFileSync(
+      `${wrapperBase}.js`,
+      [
+        `import def from "./${fileBase}.json" with { type: "json" };`,
+        `export default def;`,
+        ``,
+      ].join("\n"),
+    );
+    writeFileSync(
+      `${wrapperBase}.cjs`,
+      [`"use strict";`, `module.exports = { default: require("./${fileBase}.json") };`, ``].join(
+        "\n",
+      ),
     );
   }
   process.exit(0);
@@ -245,8 +301,14 @@ const bundle = {
   $defs: mergedDefs,
 };
 
+// Stash the package's own ids alongside the bundle so the post phase can
+// emit typed `.ts` wrappers only for local schemas (not for parent ids
+// re-rolled in via aggregator merging).
+const meta = { localIds: [...localIds] };
+
 mkdirSync(cacheDir, { recursive: true });
 writeFileSync(cachedJson, `${JSON.stringify(bundle, null, 2)}\n`);
+writeFileSync(join(cacheDir, "meta.json"), `${JSON.stringify(meta, null, 2)}\n`);
 
 // ---- generate types ----
 

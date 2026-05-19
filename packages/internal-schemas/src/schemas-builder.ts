@@ -8,17 +8,23 @@
  * @module
  */
 
-/** A JSON Schema definition (Draft 2020-12 shape). */
-export type JSONSchemaDef = Record<string, unknown>;
+import type { _JSONSchema, JSONSchema } from "./json-schema";
+
+export type { _JSONSchema, JSONSchema } from "./json-schema";
+
+/**
+ * Backwards-compatible alias for {@link JSONSchema}. Prefer importing
+ * `JSONSchema` directly in new code — both refer to the same Draft 2020-12
+ * structural type carried by `@maib/<pkg>/schemas/*.json` files.
+ */
+export type JSONSchemaDef = JSONSchema;
 
 /**
  * Layout of every `@maib/<package>/schemas/bundle.json` artifact:
- * `{ $schema?, $defs: { [id]: JSONSchemaDef } }`.
+ * `{ $schema?, $defs: { [id]: JSONSchema } }`.
  */
-export interface SchemaBundle {
-  $schema?: string;
-  $defs: Record<string, JSONSchemaDef>;
-  [extra: string]: unknown;
+export interface SchemaBundle extends JSONSchema {
+  $defs: Record<string, JSONSchema>;
 }
 
 /**
@@ -36,35 +42,70 @@ export interface ParsingValidator<TData> {
 }
 
 /**
+ * Phantom marker carried by the generated `.ts` schema wrappers
+ * (`@maib/<pkg>/schemas/<ShortName>`). Pulls the original SDK interface
+ * through the JSON file so {@link buildSchema} can infer `ParsingValidator<T>`
+ * without a manual type argument.
+ *
+ * Raw JSON imports — `import def from "./X.json" with { type: "json" }` — do
+ * not carry this marker; consumers of the JSON path keep the explicit-generic
+ * pattern instead.
+ */
+export type TypedSchemaDef<T> = JSONSchema & { readonly __maibType: T };
+
+/**
  * Convert a single schema definition into a validator using `convert`.
  *
- * Provide the SDK's TS interface as the type argument so `.parse(...)` is
- * typed against your data shape. Works because Zod's schemas structurally
- * satisfy `ParsingValidator<T>`.
+ * Two call styles are supported:
+ *
+ * 1. **Typed wrapper (no generic needed)** — preferred. Import the generated
+ *    wrapper from `@maib/<pkg>/schemas/<ShortName>` (no `.json` suffix) and
+ *    `TData` is inferred from the phantom `__maibType` field that the
+ *    wrapper carries.
+ *
+ *    ```ts
+ *    import { buildSchema } from "@maib/checkout/schemas";
+ *    import CancelSessionResultDef from "@maib/checkout/schemas/CancelSessionResult";
+ *    import { z } from "zod";
+ *
+ *    export const CancelSessionResultSchema =
+ *      buildSchema(z.fromJSONSchema, CancelSessionResultDef);
+ *    // → ParsingValidator<CancelSessionResult> (inferred)
+ *    ```
+ *
+ * 2. **Raw JSON (explicit generic)** — for the `with { type: "json" }` import
+ *    style, pass the SDK's TS interface as the type argument:
+ *
+ *    ```ts
+ *    import type { CancelSessionResult } from "@maib/checkout";
+ *    import { buildSchema } from "@maib/checkout/schemas";
+ *    import CancelSessionResultDef from "@maib/checkout/schemas/CancelSessionResult.json" with { type: "json" };
+ *    import { z } from "zod";
+ *
+ *    export const CancelSessionResultSchema =
+ *      buildSchema<CancelSessionResult>(z.fromJSONSchema, CancelSessionResultDef);
+ *    ```
  *
  * `refs` is optional — per-schema JSON files already embed `$defs` and are
  * self-resolving on their own. Pass `bundle.$defs` only when handing
  * `convert` a definition you pulled out of a bundle yourself.
- *
- * @example
- * ```ts
- * import { z } from "zod";
- * import type { CancelSessionResult } from "@maib/checkout";
- * import { buildSchema } from "@maib/checkout/schemas";
- * import CancelSessionResultDef from "@maib/checkout/schemas/CancelSessionResult.json" with { type: "json" };
- *
- * export const CancelSessionResultSchema =
- *   buildSchema<CancelSessionResult>(z.fromJSONSchema, CancelSessionResultDef);
- *
- * const result = CancelSessionResultSchema.parse(value); // typed as CancelSessionResult
- * ```
  */
+export function buildSchema<T>(
+  convert: (schema: _JSONSchema) => unknown,
+  def: TypedSchemaDef<T>,
+  refs?: Record<string, JSONSchema>,
+): ParsingValidator<T>;
 export function buildSchema<TData = unknown>(
-  convert: (schema: JSONSchemaDef) => unknown,
-  def: JSONSchemaDef,
-  refs?: Record<string, JSONSchemaDef>,
-): ParsingValidator<TData> {
-  return (refs ? convert({ ...def, $defs: refs }) : convert(def)) as ParsingValidator<TData>;
+  convert: (schema: _JSONSchema) => unknown,
+  def: JSONSchema,
+  refs?: Record<string, JSONSchema>,
+): ParsingValidator<TData>;
+export function buildSchema(
+  convert: (schema: _JSONSchema) => unknown,
+  def: JSONSchema,
+  refs?: Record<string, JSONSchema>,
+): ParsingValidator<unknown> {
+  return (refs ? convert({ ...def, $defs: refs }) : convert(def)) as ParsingValidator<unknown>;
 }
 
 /** Behaviour selector for {@link BuildSchemasBundleOptions.onCollision}. */
@@ -151,7 +192,7 @@ function collisionKey(id: string, strategy: Exclude<CollisionStrategy, "throw">)
  * ```
  */
 export function buildSchemasBundle<TSchema>(
-  convert: (schema: JSONSchemaDef) => TSchema,
+  convert: (schema: _JSONSchema) => TSchema,
   bundle: SchemaBundle,
   options: BuildSchemasBundleOptions = {},
 ): Record<string, TSchema> {

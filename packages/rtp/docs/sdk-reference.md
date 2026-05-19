@@ -464,6 +464,20 @@ import { Environment } from "@maib/rtp";
 | `Environment.PRODUCTION` | `"production"` |
 | `Environment.SANDBOX`    | `"sandbox"`    |
 
+### RefundStatus (re-exported from @maib/core)
+
+```typescript
+import { RefundStatus } from "@maib/rtp";
+```
+
+| Key                      | Value         |
+| ------------------------ | ------------- |
+| `RefundStatus.CREATED`   | `"Created"`   |
+| `RefundStatus.REQUESTED` | `"Requested"` |
+| `RefundStatus.ACCEPTED`  | `"Accepted"`  |
+| `RefundStatus.REJECTED`  | `"Rejected"`  |
+| `RefundStatus.MANUAL`    | `"Manual"`    |
+
 ## Error Handling
 
 The SDK throws two error types:
@@ -534,7 +548,7 @@ Everything you need is exported from the `@maib/rtp` package entry point:
 export { RtpClient } from "@maib/rtp";
 
 // Constants / enums
-export { RtpStatus, Currency, Environment } from "@maib/rtp";
+export { RtpStatus, Currency, Environment, RefundStatus } from "@maib/rtp";
 
 // Types (import type)
 export type {

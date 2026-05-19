@@ -129,18 +129,20 @@ This package ships documentation in `dist/docs/` for AI coding agents and toolin
 `@maib/rtp` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic
 helper. Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once
 converted, the parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of
-the Standard Schema ecosystem. Zod is the runnable example:
+the Standard Schema ecosystem. Zod is the runnable example.
+
+### Typed wrapper (preferred)
+
+Import from `@maib/rtp/schemas/<TypeName>` (no `.json` suffix) – the wrapper carries the SDK type,
+so `buildSchema` infers `ParsingValidator<T>` without an explicit generic.
 
 ```ts
 import { z } from "zod";
-import type { CreateRtpRequest } from "@maib/rtp";
 import { buildSchema } from "@maib/rtp/schemas";
-import CreateRtpRequestDef from "@maib/rtp/schemas/CreateRtpRequest.json" with { type: "json" };
+import CreateRtpRequestDef from "@maib/rtp/schemas/CreateRtpRequest";
 
-export const CreateRtpRequestSchema = buildSchema<CreateRtpRequest>(
-  z.fromJSONSchema,
-  CreateRtpRequestDef,
-);
+export const CreateRtpRequestSchema = buildSchema(z.fromJSONSchema, CreateRtpRequestDef);
+// → ParsingValidator<CreateRtpRequest> (inferred)
 
 CreateRtpRequestSchema.parse({
   alias: "37360000000",
@@ -151,7 +153,45 @@ CreateRtpRequestSchema.parse({
 });
 ```
 
+### Raw JSON (explicit generic)
+
+Backwards-compatible pattern for the `with { type: "json" }` import style:
+
+```ts
+import { z } from "zod";
+import type { RtpCallbackPayload } from "@maib/rtp";
+import { buildSchema } from "@maib/rtp/schemas";
+import RtpCallbackPayloadDef from "@maib/rtp/schemas/RtpCallbackPayload.json" with { type: "json" };
+
+export const RtpCallbackPayloadSchema = buildSchema<RtpCallbackPayload>(
+  z.fromJSONSchema,
+  RtpCallbackPayloadDef,
+);
+```
+
 See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
+
+## AI / agent coding
+
+- Canonical references: [`./docs/sdk-reference.md`](./docs/sdk-reference.md) (TypeScript surface)
+  and [`./docs/schemas.md`](./docs/schemas.md) (runtime validation). Read these before generating
+  code against this package.
+- Prefer the typed-wrapper pattern – `import Def from "@maib/rtp/schemas/<TypeName>"` plus
+  `buildSchema(z.fromJSONSchema, Def)`. No explicit generic, no separate `import type`.
+- The convert callback signature is `(schema: _JSONSchema) => unknown`, matching `z.fromJSONSchema`.
+- JSON Schema artifacts are shipped at `@maib/rtp/schemas/bundle.json` and
+  `@maib/rtp/schemas/<TypeName>.json` (`draft-2020-12`). `@maib/rtp/schemas` re-exports
+  `JSONSchema`, `_JSONSchema`, and the back-compat alias `JSONSchemaDef`.
+- Client methods live on `RtpClient` (see `src/index.ts`): `create`, `getStatus`, `list`, `cancel`,
+  `refund`, `testAccept`, `testReject`, `verifyCallback`, `computeCallbackSignature`. RTP stands for
+  "Request to Pay".
+- `@maib/rtp` depends on `@maib/core` for `Currency`, `Environment`, `MaibError`,
+  `MaibNetworkError`, and signature verification helpers. Callback signatures here use SHA-256 over
+  sorted leaf values joined with `:` plus `signatureKey` – not HMAC (that's `@maib/checkout`).
+- Prefer the documented public types (`CreateRtpRequest`, `RtpCallbackPayload`, `RtpStatusResult`,
+  etc.) over inferring shapes from runtime payloads.
+- For sandbox flows use `testAccept` / `testReject`; the returned `payId` (not `rtpId`) is what
+  `refund` consumes.
 
 ## License
 

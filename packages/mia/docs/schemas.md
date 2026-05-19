@@ -5,13 +5,14 @@ description: How to validate @maib/mia payloads at runtime.
 
 # Validating @maib/mia payloads at runtime
 
-`@maib/mia` ships three subpaths for runtime validation:
+`@maib/mia` ships four subpaths for runtime validation:
 
-| Subpath                             | Resolves to                                                                      |
-| ----------------------------------- | -------------------------------------------------------------------------------- |
-| `@maib/mia/schemas`                 | Validator-agnostic helper (`buildSchema`, `buildSchemasBundle`).                 |
-| `@maib/mia/schemas/bundle.json`     | Full JSON Schema bundle for the package (including merged `@maib/core` schemas). |
-| `@maib/mia/schemas/<TypeName>.json` | One self-contained file per type, with `$defs` embedded.                         |
+| Subpath                             | Resolves to                                                                                                                 |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `@maib/mia/schemas`                 | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`) plus `JSONSchema` / `_JSONSchema` types.                   |
+| `@maib/mia/schemas/<ShortName>`     | Typed `.ts` wrapper – default export is `TypedSchemaDef<T>`, so `buildSchema` infers the validator type. No `.json` suffix. |
+| `@maib/mia/schemas/<TypeName>.json` | One self-contained JSON Schema file per type, with `$defs` embedded.                                                        |
+| `@maib/mia/schemas/bundle.json`     | Full JSON Schema bundle for the package (including merged `@maib/core` schemas).                                            |
 
 The shipped artifact is plain JSON Schema (`draft-2020-12`). Convert it with Zod, Valibot, ArkType,
 or any Standard-Schema-compatible validator and the resulting parser plugs into TanStack Form, tRPC,
@@ -20,23 +21,22 @@ example below; swap the `convert` callback for any other.
 
 The SDK does not validate responses at runtime – that is your choice.
 
-## Quick start – Zod
+## Quick start – Zod (typed wrapper, preferred)
+
+Import the `.ts` wrapper (no `.json` suffix). `buildSchema` infers `ParsingValidator<T>` from the
+wrapper's phantom `TypedSchemaDef<T>` marker, so you do **not** pass an explicit type argument:
 
 ```ts
 import { z } from "zod";
-import type { CreateQrRequest, MiaCallbackResult } from "@maib/mia";
 import { buildSchema } from "@maib/mia/schemas";
-import CreateQrRequestDef from "@maib/mia/schemas/CreateQrRequest.json" with { type: "json" };
-import MiaCallbackResultDef from "@maib/mia/schemas/MiaCallbackResult.json" with { type: "json" };
+import CreateQrRequestDef from "@maib/mia/schemas/CreateQrRequest";
+import MiaCallbackPayloadDef from "@maib/mia/schemas/MiaCallbackPayload";
 
-export const CreateQrRequestSchema = buildSchema<CreateQrRequest>(
-  z.fromJSONSchema,
-  CreateQrRequestDef,
-);
-export const MiaCallbackResultSchema = buildSchema<MiaCallbackResult>(
-  z.fromJSONSchema,
-  MiaCallbackResultDef,
-);
+export const CreateQrRequestSchema = buildSchema(z.fromJSONSchema, CreateQrRequestDef);
+// → ParsingValidator<CreateQrRequest> (inferred)
+
+export const MiaCallbackPayloadSchema = buildSchema(z.fromJSONSchema, MiaCallbackPayloadDef);
+// → ParsingValidator<MiaCallbackPayload> (inferred)
 
 // Validate before sending
 const body = CreateQrRequestSchema.parse({
@@ -50,8 +50,25 @@ const body = CreateQrRequestSchema.parse({
 await client.createQr(body);
 
 // Validate an incoming callback
-const result = MiaCallbackResultSchema.safeParse(callbackResult);
+const result = MiaCallbackPayloadSchema.safeParse(req.body);
 if (!result.success) console.warn("MIA callback drifted:", result.error);
+```
+
+## Raw JSON – explicit generic
+
+Still supported. Use this when you want the raw JSON value (e.g. forwarding to a non-TS tool) or
+when your bundler does not support TS subpath imports:
+
+```ts
+import { z } from "zod";
+import type { CreateQrRequest } from "@maib/mia";
+import { buildSchema } from "@maib/mia/schemas";
+import CreateQrRequestDef from "@maib/mia/schemas/CreateQrRequest.json" with { type: "json" };
+
+export const CreateQrRequestSchema = buildSchema<CreateQrRequest>(
+  z.fromJSONSchema,
+  CreateQrRequestDef,
+);
 ```
 
 ## Bulk import – every schema at once

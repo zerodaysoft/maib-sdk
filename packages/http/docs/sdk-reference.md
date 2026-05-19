@@ -183,18 +183,20 @@ Internal state for a cached access/refresh token pair.
 ```typescript
 interface TokenState {
   accessToken: string;
+  tokenType?: string;
   refreshToken?: string;
   accessExpiresAt: number;
   refreshExpiresAt?: number;
 }
 ```
 
-| Property           | Type     | Required | Description                                                    |
-| ------------------ | -------- | -------- | -------------------------------------------------------------- |
-| `accessToken`      | `string` | Yes      | The access token string.                                       |
-| `refreshToken`     | `string` | No       | Refresh token for token renewal (used by e-commerce v1 flow).  |
-| `accessExpiresAt`  | `number` | Yes      | Unix timestamp in milliseconds when the access token expires.  |
-| `refreshExpiresAt` | `number` | No       | Unix timestamp in milliseconds when the refresh token expires. |
+| Property           | Type     | Required | Description                                                                      |
+| ------------------ | -------- | -------- | -------------------------------------------------------------------------------- |
+| `accessToken`      | `string` | Yes      | The access token string.                                                         |
+| `tokenType`        | `string` | No       | Authorization scheme (e.g. `"Bearer"`). Optional; callers fall back to `Bearer`. |
+| `refreshToken`     | `string` | No       | Refresh token for token renewal (used by e-commerce v1 flow).                    |
+| `accessExpiresAt`  | `number` | Yes      | Unix timestamp in milliseconds when the access token expires.                    |
+| `refreshExpiresAt` | `number` | No       | Unix timestamp in milliseconds when the refresh token expires.                   |
 
 ## Constants
 

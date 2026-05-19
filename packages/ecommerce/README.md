@@ -167,7 +167,25 @@ This package ships documentation in `dist/docs/` for AI coding agents and toolin
 `@maib/ecommerce` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic
 helper. Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once
 converted, the parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of
-the Standard Schema ecosystem. Zod is the runnable example:
+the Standard Schema ecosystem. Zod is the runnable example.
+
+**Typed wrapper (preferred)** – import from `@maib/ecommerce/schemas/<TypeName>` (no `.json`
+suffix). The wrapper carries the SDK type through a phantom marker, so `buildSchema` infers
+`ParsingValidator<T>` without an explicit generic:
+
+```ts
+import { z } from "zod";
+import { buildSchema } from "@maib/ecommerce/schemas";
+import RefundRequestDef from "@maib/ecommerce/schemas/RefundRequest";
+
+export const RefundRequestSchema = buildSchema(z.fromJSONSchema, RefundRequestDef);
+// → ParsingValidator<RefundRequest>, inferred
+
+RefundRequestSchema.parse({ payId: "tx-1", refundAmount: 5.5 });
+```
+
+**Raw JSON (still supported)** – the original `with { type: "json" }` import requires an explicit
+type argument:
 
 ```ts
 import { z } from "zod";
@@ -176,11 +194,36 @@ import { buildSchema } from "@maib/ecommerce/schemas";
 import RefundRequestDef from "@maib/ecommerce/schemas/RefundRequest.json" with { type: "json" };
 
 export const RefundRequestSchema = buildSchema<RefundRequest>(z.fromJSONSchema, RefundRequestDef);
-
-RefundRequestSchema.parse({ payId: "tx-1", refundAmount: 5.5 });
 ```
 
 See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
+
+## AI / agent coding
+
+Notes for LLM coding agents wiring `@maib/ecommerce` into an application:
+
+- Canonical references ship inside the package: [`./docs/sdk-reference.md`](./docs/sdk-reference.md)
+  (full TypeScript API surface) and [`./docs/schemas.md`](./docs/schemas.md) (runtime-validation
+  subpaths). Read those before guessing shapes.
+- Prefer the typed-wrapper runtime-validation pattern shown above
+  (`import Def from "@maib/ecommerce/schemas/<TypeName>"`, no generic on `buildSchema`). Fall back
+  to the raw `.json` import only when you need an asserted JSON import for tooling reasons.
+- JSON Schema artifacts are at `@maib/ecommerce/schemas/bundle.json` (full bundle, includes merged
+  `@maib/core` defs) and `@maib/ecommerce/schemas/<TypeName>.json` (one self-contained file per
+  type, `$defs` embedded). All schemas are `draft-2020-12`.
+- `EcommerceClient` methods – `pay`, `hold`, `complete`, `refund`, `getPayInfo`, `executeRecurring`,
+  `executeOneclick`, `savecardRecurring`, `savecardOneclick`, `deleteCard`, `verifyCallback`,
+  `computeCallbackSignature` – take and return the shapes documented in the schemas and exported TS
+  types. Prefer importing those types (`PayRequest`, `RefundRequest`, `CallbackPayload`, etc.) over
+  inferring shapes from examples.
+- Enums (`Currency`, `Language`, `TransactionStatus`, `ThreeDsStatus`) are `as const` objects, not
+  TypeScript `enum`s. Use the constant or the string literal interchangeably.
+- The SDK does not validate responses at runtime by default – wire up `buildSchema` on the result
+  types (`PayInfoResult`, `RefundResult`, etc.) yourself if you need that guard.
+- Callback verification uses SHA-256 sorted-values on the parsed `CallbackPayload` object, not the
+  raw body. This differs from `@maib/checkout`, which uses HMAC-SHA256 on the raw body string.
+- No sandbox environment exists for v1 e-Commerce. Override `baseUrl` for tests; do not pass
+  `environment`.
 
 ## License
 

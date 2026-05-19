@@ -9,18 +9,47 @@ description: How to validate any @maib payload at runtime from the umbrella pack
 `@maib/ecommerce`, `@maib/rtp`, `@maib/mia`) plus shared `@maib/core` infrastructure. The runtime
 schemas follow the same aggregation: one bundle, every package's schemas in it.
 
-| Subpath                                    | Resolves to                                                                 |
-| ------------------------------------------ | --------------------------------------------------------------------------- |
-| `@maib/merchants/schemas`                  | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`).           |
-| `@maib/merchants/schemas/bundle.json`      | Combined JSON Schema bundle across checkout + ecommerce + rtp + mia + core. |
-| `@maib/merchants/schemas/<ShortName>.json` | Self-contained file per schema when the trailing id segment is unique.      |
-| `@maib/merchants/schemas/<Pkg><Name>.json` | PascalCase-prefixed file for short names shared by multiple packages.       |
+| Subpath                                         | Resolves to                                                                |
+| ----------------------------------------------- | -------------------------------------------------------------------------- |
+| `@maib/merchants/schemas`                       | Validator-agnostic helpers (`buildSchema`, `buildSchemasBundle`, types)    |
+| `@maib/merchants/schemas/bundle.json`           | Combined JSON Schema bundle across checkout + ecommerce + rtp + mia + core |
+| `@maib/merchants/schemas/<ShortName>.json`      | Self-contained file per schema when the trailing id segment is unique      |
+| `@maib/merchants/schemas/<Pkg><ShortName>.json` | PascalCase-prefixed file for short names shared by multiple packages       |
+
+`@maib/merchants/schemas` re-exports the same helpers and types as every per-package
+`@maib/<pkg>/schemas` barrel: `buildSchema`, `buildSchemasBundle`, `JSONSchema`, `_JSONSchema`,
+`JSONSchemaDef` (backwards-compat alias for `JSONSchema`), `TypedSchemaDef`, `ParsingValidator`,
+`SchemaBundle`, `CollisionStrategy`, `BuildSchemasBundleOptions`.
 
 The shipped artifacts are plain JSON Schema (`draft-2020-12`). Convert them with Zod, Valibot,
 ArkType, or any Standard-Schema-compatible validator. The SDK itself does not validate API responses
-at runtime — that is your choice.
+at runtime – that is your choice.
 
-## Quick start – Zod, per-schema
+## No typed-wrapper subpath here
+
+The per-package SDKs ship a typed-wrapper subpath at `@maib/<pkg>/schemas/<ShortName>` (no `.json`)
+whose default export carries a phantom `__maibType: T` marker so `buildSchema(convert, def)` infers
+`ParsingValidator<T>` without an explicit generic. **`@maib/merchants` does not ship those**: only
+`*.json` files exist under `@maib/merchants/schemas/`.
+
+For the typed-wrapper pattern from this package, import the wrapper from the underlying SDK and keep
+using `@maib/merchants/schemas` for the helpers:
+
+```ts
+import { z } from "zod";
+import { buildSchema } from "@maib/merchants/schemas";
+import CheckoutRefundRequestDef from "@maib/checkout/schemas/RefundRequest";
+import EcommerceRefundRequestDef from "@maib/ecommerce/schemas/RefundRequest";
+
+// ParsingValidator<RefundRequest> inferred from the wrapper's __maibType marker.
+export const CheckoutRefundRequestSchema = buildSchema(z.fromJSONSchema, CheckoutRefundRequestDef);
+export const EcommerceRefundRequestSchema = buildSchema(
+  z.fromJSONSchema,
+  EcommerceRefundRequestDef,
+);
+```
+
+## Quick start – Zod, per-schema (raw JSON)
 
 For most code, importing a single schema by short name reads cleanest:
 
@@ -98,7 +127,7 @@ export const Schemas = buildSchemasBundle(z.fromJSONSchema, bundle, {
 Schemas.CreateSessionRequest.parse(createSessionBody);
 Schemas.MaibApiError.parse(errorBody);
 
-// Colliding short names move under `<Pkg><ShortName>` keys — the same casing as
+// Colliding short names move under `<Pkg><ShortName>` keys – the same casing as
 // the type aliases exported from `@maib/merchants`.
 Schemas.CheckoutRefundRequest.parse(checkoutRefund);
 Schemas.EcommerceRefundRequest.parse(ecommerceRefund);
@@ -118,7 +147,7 @@ Schemas["mia.ListPaymentsParams"].parse(miaListParams);
 
 Without an `onCollision` option, `buildSchemasBundle` throws on the first collision (the same
 guardrail per-package bundles rely on). Use the option only when you have an aggregated bundle in
-hand — for per-package bundles, the default is what you want.
+hand – for per-package bundles, the default is what you want.
 
 ## Reference
 

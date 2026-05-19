@@ -1,0 +1,10 @@
+# Build artifacts copied from dist/ at the package root so the legacy
+# `resolve` lib used by consumer dts builds can find subpath entries.
+schemas-builder.cjs
+schemas-builder.d.cts
+schemas-builder.d.ts
+schemas-builder.js
+test-helpers.cjs
+test-helpers.d.cts
+test-helpers.d.ts
+test-helpers.js

@@ -5,22 +5,58 @@ description: How to validate @maib/rtp payloads at runtime.
 
 # Validating @maib/rtp payloads at runtime
 
-`@maib/rtp` ships three subpaths for runtime validation:
+`@maib/rtp` ships four subpaths for runtime validation:
 
-| Subpath                             | Resolves to                                                                      |
-| ----------------------------------- | -------------------------------------------------------------------------------- |
-| `@maib/rtp/schemas`                 | Validator-agnostic helper (`buildSchema`, `buildSchemasBundle`).                 |
-| `@maib/rtp/schemas/bundle.json`     | Full JSON Schema bundle for the package (including merged `@maib/core` schemas). |
-| `@maib/rtp/schemas/<TypeName>.json` | One self-contained file per type, with `$defs` embedded.                         |
+| Subpath                             | Resolves to                                                                                                       |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `@maib/rtp/schemas`                 | Validator-agnostic helper (`buildSchema`, `buildSchemasBundle`); also re-exports `JSONSchema` and `_JSONSchema`.  |
+| `@maib/rtp/schemas/<TypeName>`      | Typed wrapper – default export is a `TypedSchemaDef<T>` so `buildSchema` infers `ParsingValidator<T>`. Preferred. |
+| `@maib/rtp/schemas/<TypeName>.json` | Raw JSON Schema file per type, with `$defs` embedded. Use with `import ... with { type: "json" }`.                |
+| `@maib/rtp/schemas/bundle.json`     | Full JSON Schema bundle for the package (including merged `@maib/core` schemas).                                  |
 
 The shipped artifact is plain JSON Schema (`draft-2020-12`). Convert it with Zod, Valibot, ArkType,
 or any Standard-Schema-compatible validator and the resulting parser plugs into TanStack Form, tRPC,
 hono validators, the AI SDK, and anything else that accepts a Standard Schema. Zod is the runnable
-example below; swap the `convert` callback for any other.
+example below; swap the `convert` callback for any other. The callback signature is
+`(schema: _JSONSchema) => unknown` – matching `z.fromJSONSchema`.
 
 The SDK does not validate responses at runtime – that is your choice.
 
-## Quick start – Zod
+## Quick start – Zod (typed wrapper, preferred)
+
+Import the typed wrapper from `@maib/rtp/schemas/<TypeName>` (no `.json` suffix). `buildSchema`
+infers `ParsingValidator<T>` from the wrapper – no explicit generic and no separate `import type`.
+
+```ts
+import { z } from "zod";
+import { buildSchema } from "@maib/rtp/schemas";
+import CreateRtpRequestDef from "@maib/rtp/schemas/CreateRtpRequest";
+import RtpCallbackResultDef from "@maib/rtp/schemas/RtpCallbackResult";
+
+export const CreateRtpRequestSchema = buildSchema(z.fromJSONSchema, CreateRtpRequestDef);
+// → ParsingValidator<CreateRtpRequest> (inferred)
+export const RtpCallbackResultSchema = buildSchema(z.fromJSONSchema, RtpCallbackResultDef);
+// → ParsingValidator<RtpCallbackResult> (inferred)
+
+// Validate before sending — the alias regex `^373\d{8}$` is enforced.
+const body = CreateRtpRequestSchema.parse({
+  alias: "37360000000",
+  amount: 25,
+  expiresAt: "2029-01-01T00:00:00Z",
+  currency: "MDL",
+  description: "Loan repayment",
+});
+await client.create(body);
+
+// Validate an incoming callback
+const result = RtpCallbackResultSchema.safeParse(callbackResult);
+if (!result.success) console.warn("RTP callback drifted:", result.error);
+```
+
+## Raw JSON (explicit generic)
+
+Backwards-compatible pattern using the `with { type: "json" }` import attribute. The SDK's TS
+interface is passed as the explicit generic.
 
 ```ts
 import { z } from "zod";
@@ -37,20 +73,6 @@ export const RtpCallbackResultSchema = buildSchema<RtpCallbackResult>(
   z.fromJSONSchema,
   RtpCallbackResultDef,
 );
-
-// Validate before sending — the alias regex `^373\d{8}$` is enforced.
-const body = CreateRtpRequestSchema.parse({
-  alias: "37360000000",
-  amount: 25,
-  expiresAt: "2029-01-01T00:00:00Z",
-  currency: "MDL",
-  description: "Loan repayment",
-});
-await client.create(body);
-
-// Validate an incoming callback
-const result = RtpCallbackResultSchema.safeParse(callbackResult);
-if (!result.success) console.warn("RTP callback drifted:", result.error);
 ```
 
 ## Bulk import – every schema at once

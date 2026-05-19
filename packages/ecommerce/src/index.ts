@@ -5,6 +5,7 @@ export type {
   CompleteRequest,
   CompleteResult,
   CustomerFacingParams,
+  DeleteCardResult,
   EcommerceClientConfig,
   ExecuteOneclickRequest,
   ExecuteRecurringRequest,

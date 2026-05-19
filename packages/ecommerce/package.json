@@ -50,7 +50,17 @@
       }
     },
     "./schemas/bundle.json": "./dist/schemas/bundle.json",
-    "./schemas/*.json": "./dist/schemas/*.json"
+    "./schemas/*.json": "./dist/schemas/*.json",
+    "./schemas/*": {
+      "import": {
+        "types": "./dist/schemas/*.d.ts",
+        "default": "./dist/schemas/*.js"
+      },
+      "require": {
+        "types": "./dist/schemas/*.d.cts",
+        "default": "./dist/schemas/*.cjs"
+      }
+    }
   },
   "files": [
     "dist"

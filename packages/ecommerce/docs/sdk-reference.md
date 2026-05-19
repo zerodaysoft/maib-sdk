@@ -474,13 +474,18 @@ const result = await client.executeOneclick({
 Delete a previously saved card (removes both recurring and one-click authorizations).
 
 ```typescript
-deleteCard(billerId: string): Promise<void>
+deleteCard(billerId: string): Promise<DeleteCardResult>
 ```
+
+**Returns**
+
+- `DeleteCardResult` – `{ billerId: string; status: "OK" }`
 
 **Example**
 
 ```typescript
-await client.deleteCard("biller_xyz");
+const result = await client.deleteCard("biller_xyz");
+// result.status === "OK"
 ```
 
 ---

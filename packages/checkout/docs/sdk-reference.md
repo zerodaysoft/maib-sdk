@@ -577,6 +577,30 @@ import { RefundStatus } from "@maib/checkout";
 | `RefundStatus.REJECTED`  | `"Rejected"`  |
 | `RefundStatus.MANUAL`    | `"Manual"`    |
 
+### RefundType
+
+```typescript
+import { RefundType } from "@maib/checkout";
+```
+
+| Constant             | Value       |
+| -------------------- | ----------- |
+| `RefundType.FULL`    | `"Full"`    |
+| `RefundType.PARTIAL` | `"Partial"` |
+
+### PaymentEntryPoint
+
+```typescript
+import { PaymentEntryPoint } from "@maib/checkout";
+```
+
+| Constant                        | Value         |
+| ------------------------------- | ------------- |
+| `PaymentEntryPoint.CHECKOUT`    | `"Checkout"`  |
+| `PaymentEntryPoint.API`         | `"API"`       |
+| `PaymentEntryPoint.PAY_BY_LINK` | `"PayByLink"` |
+| `PaymentEntryPoint.POS`         | `"Pos"`       |
+
 ---
 
 ## Shared Types from @maib/core
@@ -675,7 +699,13 @@ Everything importable from `@maib/checkout`:
 export { CheckoutClient } from "@maib/checkout";
 
 // Enum-like constants (also usable as types)
-export { CheckoutStatus, PaymentStatus, RefundStatus } from "@maib/checkout";
+export {
+  CheckoutStatus,
+  PaymentEntryPoint,
+  PaymentStatus,
+  RefundStatus,
+  RefundType,
+} from "@maib/checkout";
 export { Currency, Environment, Language } from "@maib/checkout";
 
 // Types (import type)

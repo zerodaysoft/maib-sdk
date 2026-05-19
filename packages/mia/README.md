@@ -191,7 +191,24 @@ This package ships documentation in `dist/docs/` for AI coding agents and toolin
 `@maib/mia` ships JSON Schema files for every wire-format type plus a tiny validator-agnostic
 helper. Use Zod, Valibot, ArkType, or any other Standard-Schema-compatible validator – once
 converted, the parser plugs into TanStack Form, tRPC, hono validators, the AI SDK, and the rest of
-the Standard Schema ecosystem. Zod is the runnable example:
+the Standard Schema ecosystem. Zod is the runnable example.
+
+**Preferred – typed wrapper (no generic needed)**. Import the `.ts` wrapper at
+`@maib/mia/schemas/<ShortName>` (no `.json` suffix); `buildSchema` infers
+`ParsingValidator<MiaCallbackPayload>` from the wrapper's phantom type:
+
+```ts
+import { z } from "zod";
+import { buildSchema } from "@maib/mia/schemas";
+import MiaCallbackPayloadDef from "@maib/mia/schemas/MiaCallbackPayload";
+
+export const MiaCallbackPayloadSchema = buildSchema(z.fromJSONSchema, MiaCallbackPayloadDef);
+// → ParsingValidator<MiaCallbackPayload> (inferred)
+
+MiaCallbackPayloadSchema.parse(req.body);
+```
+
+**Raw JSON – explicit generic**. Still supported for the `with { type: "json" }` import style:
 
 ```ts
 import { z } from "zod";
@@ -213,6 +230,31 @@ CreateQrRequestSchema.parse({
 ```
 
 See [`docs/schemas.md`](./docs/schemas.md) for the full guide and bulk import pattern.
+
+## AI / agent coding
+
+- Canonical references for codegen and agents: [`./docs/sdk-reference.md`](./docs/sdk-reference.md)
+  (TypeScript API surface) and [`./docs/schemas.md`](./docs/schemas.md) (runtime validation).
+- Upstream REST contract lives in [`./docs/api-reference.md`](./docs/api-reference.md) – mirrored
+  from [docs.maibmerchants.md](https://docs.maibmerchants.md/mia-qr-api/en).
+- MIA is Moldova's instant-payment QR system (conceptually similar to SEPA Instant + QR). MDL-only.
+- `@maib/mia` depends on `@maib/core` for `BaseClient`, `Environment`, `Currency`, `MaibError`, and
+  `MaibNetworkError`. The MIA client adds QR/payment ops on top.
+- Callback verification uses SHA-256 over sorted leaf values joined by `:` and appended with
+  `signatureKey`, Base64-encoded. **Not HMAC.** Use `client.verifyCallback(payload)`.
+- Prefer the typed-wrapper subpath – `import Def from "@maib/mia/schemas/<ShortName>"` plus
+  `buildSchema(z.fromJSONSchema, Def)` – over the raw `.json` import. No explicit generic needed.
+- JSON Schema artifacts: per-type at `@maib/mia/schemas/<TypeName>.json`, full bundle at
+  `@maib/mia/schemas/bundle.json`. The `@maib/mia/schemas` subpath exports `buildSchema`,
+  `buildSchemasBundle`, `JSONSchema`, and `_JSONSchema` (with `JSONSchemaDef` kept as a back-compat
+  alias).
+- Public client methods on `MiaClient`: `createQr`, `createHybridQr`, `createExtension`, `getQr`,
+  `listQrs`, `listExtensions`, `cancelQr`, `cancelExtension`, `getPayment`, `listPayments`,
+  `refund`, `testPay` (sandbox), `verifyCallback`, `computeCallbackSignature`.
+- Prefer the documented public types (`CreateQrRequest`, `MiaCallbackPayload`, `QrDetails`, etc.)
+  over inferring shapes from JSON examples – they are re-exported from the package root.
+- The `convert` callback in `buildSchema` is typed as `(schema: _JSONSchema) => unknown`, matching
+  `z.fromJSONSchema` directly.
 
 ## License
 

@@ -25,6 +25,7 @@ coverage
 # schema pipeline artifacts (regenerated on build)
 .schemas-cache/
 packages/*/src/generated/
+.tsup/
 
 # turbo
 .turbo
