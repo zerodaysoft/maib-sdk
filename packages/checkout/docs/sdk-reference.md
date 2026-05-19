@@ -1,6 +1,6 @@
 ---
 package: "@maib/checkout"
-version: 0.2.4
+version: 0.3.0
 description:
   TypeScript SDK for the maib hosted Checkout API — session management, payments, and refunds.
 api_version: v2
