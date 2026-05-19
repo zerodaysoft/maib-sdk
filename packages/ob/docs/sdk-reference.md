@@ -1,6 +1,6 @@
 ---
 package: "@maib/ob"
-version: 0.3.0
+version: 0.3.1
 description:
   TypeScript SDK for the maib Open Banking API (OBP) — accounts, transactions, payments, consents.
 platform: Open Bank Project (OBP) v5.1.0

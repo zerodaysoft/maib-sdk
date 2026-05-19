@@ -1,6 +1,6 @@
 ---
 package: "@maib/ecommerce"
-version: 0.3.0
+version: 0.3.1
 description:
   TypeScript SDK for the maib e-Commerce payment gateway — direct, two-step, recurring, one-click
   payments.
